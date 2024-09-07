@@ -13,7 +13,7 @@
     "lint": "biome lint --write .",
     "format": "biome check --write .",
     "build": "tsc -p ./tsconfig.json",
-    "dev": "dotenvx run -f .env.example -- tsx ./src/api.entrypoint.ts",
+    "dev": "dotenvx run -f .env -- tsx ./src/api.entrypoint.ts",
     "ci-build": "yarn build",
     "ci-lint": "biome ci ."
   },
@@ -46,6 +46,7 @@
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.0.0",
     "@nahkies/typescript-koa-runtime": "^0.12.1",
+    "firebase-admin": "^12.4.0",
     "getenv": "^1.0.0",
     "koa": "^2.15.3",
     "koa-body": "^6.0.1",

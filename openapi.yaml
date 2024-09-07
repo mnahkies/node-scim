@@ -581,7 +581,8 @@ components:
         resources:
           description: The list of users
           type: array
-          items: {}
+          items:
+            $ref: '#/components/schemas/User'
     UserPatchOp:
       description: Patch User
       type: object
@@ -613,17 +614,6 @@ components:
                 properties:
                   active:
                     type: boolean
-    OktapriseUser:
-      description: Oktaprise custom schema and attributes
-      type: object
-      required:
-        - badge
-        - machine
-      properties:
-        badge:
-          type: string
-        machine:
-          type: string
     Group:
       description: Group entry
       type: object
@@ -673,10 +663,6 @@ components:
           type: boolean
         name:
           $ref: '#/components/schemas/UserFullName'
-        'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User':
-          $ref: '#/components/schemas/EnterpriseUser'
-        'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User':
-          $ref: '#/components/schemas/OktapriseUser'
     GroupDefinition:
       description: Metadata for group creation
       type: object
@@ -689,52 +675,63 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GroupMembers'
+
+    #
+    # Introspection
+    #
     User:
-      description: User entry
       type: object
       required:
         - schemas
         - id
-        - active
         - userName
         - name
         - emails
-        - 'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'
-        - 'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User'
-        - meta
+        - active
         - groups
+        - meta
       properties:
         schemas:
-          description: The list of schemas
-          type: array
-          items:
-            type: string
+          $ref: '#/components/schemas/UserResourceSchemas'
         id:
-          description: GUID
           type: string
-        active:
-          default: true
-          type: boolean
         userName:
           description: 'Username, typically their email address'
           type: string
         name:
-          description: The user's full name
+          $ref: '#/components/schemas/UserFullName'
         emails:
           description: The list of emails
           type: array
-          items: {}
-        'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User':
-          description: Custom enterprise attributes from SCIM
-        'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User':
-          description: Custom attributes from Oktaprise
-        meta:
-          description: User metadata
+          items:
+            $ref: '#/components/schemas/UserEmail'
+        active:
+          type: boolean
         groups:
           description: List of user groups
           type: array
           items: {}
-    UserEmails:
+        meta:
+          $ref: '#/components/schemas/UserResourceMeta'
+
+    UserFullName:
+      description: The full name of the user
+      type: object
+      properties:
+        formatted:
+          type: string
+        familyName:
+          type: string
+        givenName:
+          type: string
+        middleName:
+          type: string
+        honorificPrefix:
+          type: string
+        honorificSuffix:
+          type: string
+
+    UserEmail:
       description: The user email
       type: object
       required:
@@ -744,34 +741,30 @@ components:
       properties:
         primary:
           type: boolean
-        value:
-          type: string
         type:
           type: string
-    EnterpriseUser:
-      description: Oktaprise custom schema and attributes
+        value:
+          type: string
+          format: email
+        display:
+          type: string
+
+    UserResourceSchemas:
+      type: array
+      items:
+        type: string
+        enum:
+          - "urn:ietf:params:scim:schemas:core:2.0:User"
+    UserResourceMeta:
       type: object
-      required:
-        - employeeNumber
-        - costCenter
       properties:
-        employeeNumber:
+        resourceType:
           type: string
-        costCenter:
-          type: string
-    UserFullName:
-      description: The full name of the user
-      type: object
-      required:
-        - familyName
-        - givenName
-      properties:
-        familyName:
-          type: string
-        givenName:
-          type: string
-        middleName:
-          type: string
+          enum:
+            - "User"
+    #
+    # Introspection
+    #
     ServiceProviderConfig:
       type: object
       required:

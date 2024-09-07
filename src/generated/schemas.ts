@@ -13,11 +13,6 @@ export const PermissiveBoolean = z.preprocess((value) => {
   return value
 }, z.boolean())
 
-export const s_EnterpriseUser = z.object({
-  employeeNumber: z.string(),
-  costCenter: z.string(),
-})
-
 export const s_Group = z.object({
   schemas: z.array(z.string()),
   id: z.string(),
@@ -52,36 +47,20 @@ export const s_GroupPatchOp = z.object({
   ),
 })
 
-export const s_OktapriseUser = z.object({
-  badge: z.string(),
-  machine: z.string(),
-})
-
-export const s_User = z.object({
-  schemas: z.array(z.string()),
-  id: z.string(),
-  active: PermissiveBoolean,
-  userName: z.string(),
-  name: z.object({}),
-  emails: z.array(z.any()),
-  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": z.object({}),
-  "urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User": z.object({}),
-  meta: z.object({}),
-  groups: z.array(z.any()),
-})
-
-export const s_UserCollection = z.object({
-  schemas: z.array(z.string()),
-  totalResults: z.coerce.number(),
-  startIndex: z.coerce.number(),
-  itemsPerPage: z.coerce.number(),
-  resources: z.array(z.any()),
+export const s_UserEmail = z.object({
+  primary: PermissiveBoolean,
+  type: z.string(),
+  value: z.string().email(),
+  display: z.string().optional(),
 })
 
 export const s_UserFullName = z.object({
-  familyName: z.string(),
-  givenName: z.string(),
+  formatted: z.string().optional(),
+  familyName: z.string().optional(),
+  givenName: z.string().optional(),
   middleName: z.string().optional(),
+  honorificPrefix: z.string().optional(),
+  honorificSuffix: z.string().optional(),
 })
 
 export const s_UserPatchOp = z.object({
@@ -94,17 +73,41 @@ export const s_UserPatchOp = z.object({
   ),
 })
 
+export const s_UserResourceMeta = z.object({
+  resourceType: z.enum(["User"]).optional(),
+})
+
+export const s_UserResourceSchemas = z.array(
+  z.enum(["urn:ietf:params:scim:schemas:core:2.0:User"]),
+)
+
 export const s_GroupDefinition = z.object({
   displayName: z.string(),
   members: z.array(s_GroupMembers).optional(),
 })
 
+export const s_User = z.object({
+  schemas: s_UserResourceSchemas,
+  id: z.string(),
+  userName: z.string(),
+  name: s_UserFullName,
+  emails: z.array(s_UserEmail),
+  active: PermissiveBoolean,
+  groups: z.array(z.any()),
+  meta: s_UserResourceMeta,
+})
+
 export const s_UserDefinition = z.object({
   active: PermissiveBoolean.optional(),
   name: s_UserFullName.optional(),
-  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User":
-    s_EnterpriseUser,
-  "urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User": s_OktapriseUser,
+})
+
+export const s_UserCollection = z.object({
+  schemas: z.array(z.string()),
+  totalResults: z.coerce.number(),
+  startIndex: z.coerce.number(),
+  itemsPerPage: z.coerce.number(),
+  resources: z.array(s_User),
 })
 
 export const s_getScimV2ServiceProviderConfigJson200Response = z.object({})

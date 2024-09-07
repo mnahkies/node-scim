@@ -4,11 +4,6 @@
 
 export type EmptyObject = {[key: string]: never}
 
-export type t_EnterpriseUser = {
-  costCenter: string
-  employeeNumber: string
-}
-
 export type t_Group = {
   displayName: string
   id: string
@@ -30,37 +25,47 @@ export type t_GroupMembers = {
   value: string
 }
 
-export type t_OktapriseUser = {
-  badge: string
-  machine: string
-}
-
 export type t_User = {
   active: boolean
-  emails: any[]
+  emails: t_UserEmail[]
   groups: any[]
   id: string
-  meta: EmptyObject
-  name: EmptyObject
-  schemas: string[]
-  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": EmptyObject
-  "urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User": EmptyObject
+  meta: t_UserResourceMeta
+  name: t_UserFullName
+  schemas: t_UserResourceSchemas
   userName: string
 }
 
 export type t_UserCollection = {
   itemsPerPage: number
-  resources: any[]
+  resources: t_User[]
   schemas: string[]
   startIndex: number
   totalResults: number
 }
 
+export type t_UserEmail = {
+  display?: string | undefined
+  primary: boolean
+  type: string
+  value: string
+}
+
 export type t_UserFullName = {
-  familyName: string
-  givenName: string
+  familyName?: string | undefined
+  formatted?: string | undefined
+  givenName?: string | undefined
+  honorificPrefix?: string | undefined
+  honorificSuffix?: string | undefined
   middleName?: string | undefined
 }
+
+export type t_UserResourceMeta = {
+  resourceType?: "User" | undefined
+}
+
+export type t_UserResourceSchemas =
+  "urn:ietf:params:scim:schemas:core:2.0:User"[]
 
 export type t_DeleteScimV2GroupsIdParamSchema = {
   id: string
@@ -133,8 +138,6 @@ export type t_PostScimV2GroupsBodySchema = {
 export type t_PostScimV2UsersBodySchema = {
   active?: boolean | undefined
   name?: t_UserFullName | undefined
-  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": t_EnterpriseUser
-  "urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User": t_OktapriseUser
 }
 
 export type t_PutScimV2GroupsIdBodySchema = {
@@ -151,14 +154,12 @@ export type t_PutScimV2GroupsIdParamSchema = {
 
 export type t_PutScimV2UsersIdBodySchema = {
   active: boolean
-  emails: any[]
+  emails: t_UserEmail[]
   groups: any[]
   id: string
-  meta: EmptyObject
-  name: EmptyObject
-  schemas: string[]
-  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": EmptyObject
-  "urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User": EmptyObject
+  meta: t_UserResourceMeta
+  name: t_UserFullName
+  schemas: t_UserResourceSchemas
   userName: string
 }
 
