@@ -35,7 +35,9 @@ export const s_GroupMembers = z.object({
 })
 
 export const s_GroupPatchOp = z.object({
-  schemas: z.array(z.string()),
+  schemas: z.array(
+    z.string().default("urn:ietf:params:scim:api:messages:2.0:PatchOp"),
+  ),
   operations: z.array(
     z.object({
       op: z.string(),
@@ -48,8 +50,8 @@ export const s_GroupPatchOp = z.object({
 })
 
 export const s_UserEmail = z.object({
-  primary: PermissiveBoolean,
-  type: z.string(),
+  primary: PermissiveBoolean.optional(),
+  type: z.string().optional(),
   value: z.string().email(),
   display: z.string().optional(),
 })
@@ -64,7 +66,9 @@ export const s_UserFullName = z.object({
 })
 
 export const s_UserPatchOp = z.object({
-  schemas: z.array(z.string()),
+  schemas: z.array(
+    z.string().default("urn:ietf:params:scim:api:messages:2.0:PatchOp"),
+  ),
   operations: z.array(
     z.object({
       op: z.string(),
@@ -89,8 +93,7 @@ export const s_CreateUser = z.object({
   name: s_UserFullName,
   emails: z.array(s_UserEmail),
   active: PermissiveBoolean,
-  groups: z.array(z.any()),
-  meta: s_UserResourceMeta,
+  groups: z.array(z.any()).default([]),
 })
 
 export const s_GroupDefinition = z.object({
@@ -98,7 +101,9 @@ export const s_GroupDefinition = z.object({
   members: z.array(s_GroupMembers).optional(),
 })
 
-export const s_User = s_CreateUser.merge(z.object({id: z.string()}))
+export const s_User = s_CreateUser.merge(
+  z.object({id: z.string(), meta: s_UserResourceMeta}),
+)
 
 export const s_UserCollection = z.object({
   schemas: z.array(z.string()),

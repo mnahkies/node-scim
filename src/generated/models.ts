@@ -10,7 +10,6 @@ export type t_CreateUser = {
   emails: t_UserEmail[]
   externalId?: string | undefined
   groups: any[]
-  meta: t_UserResourceMeta
   name: t_UserFullName
   schemas: t_UserResourceSchemas
   userName: string
@@ -39,6 +38,7 @@ export type t_GroupMembers = {
 
 export type t_User = t_CreateUser & {
   id: string
+  meta: t_UserResourceMeta
 }
 
 export type t_UserCollection = {
@@ -51,8 +51,8 @@ export type t_UserCollection = {
 
 export type t_UserEmail = {
   display?: string | undefined
-  primary: boolean
-  type: string
+  primary?: boolean | undefined
+  type?: string | undefined
   value: string
 }
 
@@ -146,7 +146,6 @@ export type t_PostScimV2UsersBodySchema = {
   emails: t_UserEmail[]
   externalId?: string | undefined
   groups: any[]
-  meta: t_UserResourceMeta
   name: t_UserFullName
   schemas: t_UserResourceSchemas
   userName: string
@@ -166,6 +165,7 @@ export type t_PutScimV2GroupsIdParamSchema = {
 
 export type t_PutScimV2UsersIdBodySchema = t_CreateUser & {
   id: string
+  meta: t_UserResourceMeta
 }
 
 export type t_PutScimV2UsersIdParamSchema = {

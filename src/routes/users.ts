@@ -13,6 +13,8 @@ import {firebase} from "../services/services"
 import {notImplemented} from "../utils"
 
 function mapFirebaseUserToScimUserResource(user: UserRecord): t_User {
+  console.info(JSON.stringify(user, undefined, 2))
+
   return {
     id: user.uid,
     active: !user.disabled,
@@ -56,7 +58,9 @@ export const getScimV2UsersId: GetScimV2UsersId = async (
 }
 
 export const postScimV2Users: PostScimV2Users = async ({body}, respond) => {
-  const primaryEmail = body.emails.find((it) => it.primary)?.value
+  const primaryEmail =
+    body.emails.find((it) => it.primary) ||
+    (body.emails.length === 1 && body.emails[0])
 
   if (!primaryEmail) {
     throw new Error("must provide a primary email")
@@ -65,7 +69,7 @@ export const postScimV2Users: PostScimV2Users = async ({body}, respond) => {
   const displayName = body.displayName || body.name.formatted || "Unknown"
 
   const user = await firebase.createUser({
-    email: primaryEmail,
+    email: primaryEmail.value,
     externalId: body.externalId,
     displayName,
     disabled: !body.active,

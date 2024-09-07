@@ -595,7 +595,6 @@ components:
         - emails
         - active
         - groups
-        - meta
       properties:
         schemas:
           $ref: '#/components/schemas/UserResourceSchemas'
@@ -619,17 +618,19 @@ components:
           description: List of user groups
           type: array
           items: {}
-        meta:
-          $ref: '#/components/schemas/UserResourceMeta'
+          default: []
     User:
       allOf:
         - $ref: '#/components/schemas/CreateUser'
         - type: object
           required:
             - id
+            - meta
           properties:
             id:
               type: string
+            meta:
+              $ref: '#/components/schemas/UserResourceMeta'
     UserFullName:
       description: The full name of the user
       type: object
@@ -651,12 +652,11 @@ components:
       description: The user email
       type: object
       required:
-        - primary
         - value
-        - type
       properties:
         primary:
           type: boolean
+          default: false
         type:
           type: string
         value:

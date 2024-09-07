@@ -31,14 +31,29 @@ export class FirebaseAuthService {
     displayName: string
     disabled: boolean
   }): Promise<UserRecord> {
-    return this.auth.createUser({
+    if (!user.externalId) {
+      console.error(JSON.stringify(user))
+      throw new Error("no externalId")
+    }
+
+    const firebaseUser = await this.auth.createUser({
+      email: user.email,
+      disabled: user.disabled,
+      displayName: user.displayName,
+    })
+
+    const updatedFirebaseUser = await this.auth.updateUser(firebaseUser.uid, {
       email: user.email,
       disabled: user.disabled,
       displayName: user.displayName,
       providerToLink: {
-        uid: user.externalId || user.email,
         providerId: this.config.providerId,
+        displayName: user.displayName,
+        email: user.email,
+        uid: user.externalId,
       },
     })
+
+    return updatedFirebaseUser
   }
 }

@@ -19,12 +19,16 @@ export async function main(): Promise<{
   const app = new Koa()
 
   app.use(errorMiddleware())
+  app.use(KoaBody())
   app.use(loggerMiddleware())
   app.use(authenticationMiddleware({secretKey: config.secretKey}))
 
-  app.use(KoaBody())
-
   const router = new KoaRouter()
+
+  router.get("/", (ctx) => {
+    ctx.status = 200
+    ctx.body = {status: "running"}
+  })
 
   const usersRouter = createUsersRouter()
   const groupsRouter = createGroupsRouter()
