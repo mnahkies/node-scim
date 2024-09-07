@@ -13,15 +13,17 @@
     "lint": "biome lint --write .",
     "format": "biome check --write .",
     "build": "tsc -p ./tsconfig.json",
-    "dev": "tsx ./src/api.entrypoint.ts",
+    "dev": "dotenvx run -f .env.example -- tsx ./src/api.entrypoint.ts",
     "ci-build": "yarn build",
     "ci-lint": "biome ci ."
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
+    "@dotenvx/dotenvx": "^1.14.0",
     "@nahkies/openapi-code-generator": "^0.12.1",
     "@tsconfig/node22": "^22.0.0",
     "@tsconfig/strictest": "^2.0.5",
+    "@types/getenv": "^1",
     "@types/koa": "^2.15.0",
     "@types/koa__cors": "^5",
     "@types/koa__router": "^12.0.4",
@@ -44,6 +46,7 @@
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.0.0",
     "@nahkies/typescript-koa-runtime": "^0.12.1",
+    "getenv": "^1.0.0",
     "koa": "^2.15.3",
     "koa-body": "^6.0.1",
     "zod": "^3.23.8"
