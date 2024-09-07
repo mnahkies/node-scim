@@ -1,4 +1,51 @@
 {
   "name": "node-scim",
-  "packageManager": "yarn@4.3.1"
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": {
+    "name": "Michael Nahkies",
+    "email": "support@nahkies.co.nz"
+  },
+  "scripts": {
+    "postinstall": "husky install",
+    "generate": "./scripts/generate.sh",
+    "lint": "biome lint --write .",
+    "format": "biome check --write .",
+    "build": "tsc -p ./tsconfig.json",
+    "dev": "tsx ./src/api.entrypoint.ts",
+    "ci-build": "yarn build",
+    "ci-lint": "biome ci ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
+    "@nahkies/openapi-code-generator": "^0.12.1",
+    "@tsconfig/node22": "^22.0.0",
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/koa": "^2.15.0",
+    "@types/koa__cors": "^5",
+    "@types/koa__router": "^12.0.4",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.10",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  },
+  "lint-staged": {
+    "*.{ts,js,tsx,jsx}": [
+      "yarn biome lint --write --no-errors-on-unmatched",
+      "yarn biome check --write --no-errors-on-unmatched"
+    ]
+  },
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "packageManager": "yarn@4.3.1",
+  "dependencies": {
+    "@koa/cors": "^5.0.0",
+    "@koa/router": "^13.0.0",
+    "@nahkies/typescript-koa-runtime": "^0.12.1",
+    "koa": "^2.15.3",
+    "koa-body": "^6.0.1",
+    "zod": "^3.23.8"
+  }
 }

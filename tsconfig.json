@@ -1,0 +1,16 @@
+{
+  "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/node22/tsconfig"],
+  "compilerOptions": {
+    "declaration": true,
+    "sourceMap": true,
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    // prefer eslint rule
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "moduleResolution": "Node16",
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"]
+}

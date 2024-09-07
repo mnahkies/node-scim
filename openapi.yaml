@@ -1,0 +1,858 @@
+openapi: 3.0.0
+info:
+  title: SCIM 2.0
+  description: SCIM 2.0 RAML SAMPLE doc. Tested with Okta
+  version: '1.0'
+paths:
+  /scim/v2/Users:
+    get:
+      parameters:
+        - name: filter
+          description: >-
+            Filter search for userName, and status. i.e.:
+            `/Users?filter=userName eq j@doe.com`
+          in: query
+          schema:
+            description: >-
+              Filter search for userName, and status. i.e.:
+              `/Users?filter=userName eq j@doe.com`
+            type: string
+        - name: count
+          description: Number of results per search
+          in: query
+          schema:
+            description: Number of results per search
+            type: integer
+        - name: startIndex
+          description: Index of the result
+          in: query
+          schema:
+            description: Index of the result
+            type: integer
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCollection'
+    post:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDefinition'
+      responses:
+        '201':
+          description: The user has been created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /scim/v2/Users/{id}:
+    parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+    get:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Resource not found
+    put:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User replaced.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Resource not found
+    patch:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatchOp'
+      responses:
+        '200':
+          description: User replaced.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Resource not found
+    delete:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content (successful deletion)
+        '404':
+          description: Resource not found
+  /scim/v2/Groups:
+    get:
+      parameters:
+        - name: filter
+          description: >-
+            Filter search for displayName, and status. i.e.:
+            `/Groups?filter=displayName eq "Admins"`
+          in: query
+          schema:
+            description: >-
+              Filter search for displayName, and status. i.e.:
+              `/Groups?filter=displayName eq "Admins"`
+            type: string
+        - name: count
+          description: Number of results per search
+          in: query
+          schema:
+            description: Number of results per search
+            type: integer
+        - name: startIndex
+          description: Index of the result
+          in: query
+          schema:
+            description: Index of the result
+            type: integer
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupCollection'
+    post:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupDefinition'
+      responses:
+        '201':
+          description: The group has been created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+  /scim/v2/Groups/{id}:
+    parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+    get:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '404':
+          description: Resource not found
+    put:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '200':
+          description: Group replaced.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '404':
+          description: Resource not found
+    patch:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupPatchOp'
+      responses:
+        '200':
+          description: Group replaced.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '404':
+          description: Resource not found
+    delete:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content (successful deletion)
+        '404':
+          description: Resource not found
+  /scim/v2/ServiceProviderConfig:
+    get:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                example:
+                  schemas:
+                    - >-
+                      urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig
+                  id: ServiceProviderConfig
+                  documentationUri: 'http://docs.oktaprise.com/oktaprise/rest/rest-endpoints.html'
+                  patch:
+                    supported: true
+                  bulk:
+                    supported: false
+                    maxOperations: 0
+                    maxPayloadSize: 0
+                  filter:
+                    supported: true
+                    maxResults: 1000
+                  changePassword:
+                    supported: false
+                  sort:
+                    supported: false
+                  etag:
+                    supported: false
+                  authenticationSchemes:
+                    - name: HTTP Basic
+                      description: Authentication scheme using the HTTP Basic Standard
+                      specUri: 'http://www.rfc-editor.org/info/rfc2617'
+                      documentationUri: 'http://example.com/help/httpBasic.html'
+                      type: httpbasic
+                  meta:
+                    location: scim/v2/ServiceProviderConfig
+                    resourceType: ServiceProviderConfig
+  /scim/v2/ResourceTypes:
+    get:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                example:
+                  schemas:
+                    - 'urn:ietf:params:scim:api:messages:2.0:ListResponse'
+                  startIndex: 1
+                  itemsPerPage: 2
+                  totalResults: 2
+                  Resources:
+                    - schemas:
+                        - 'urn:ietf:params:scim:schemas:core:2.0:ResourceType'
+                      id: Group
+                      description: Group
+                      name: Group
+                      schema: 'urn:ietf:params:scim:schemas:core:2.0:Group'
+                      endpoint: /Groups
+                      meta:
+                        resourceType: ResourceType
+                        location: scim/v2/ResourceTypes/Groups
+                    - schemas:
+                        - 'urn:ietf:params:scim:schemas:core:2.0:ResourceType'
+                      id: User
+                      description: User Account
+                      name: User
+                      schema: 'urn:ietf:params:scim:schemas:core:2.0:User'
+                      endpoint: /Users
+                      schemaExtensions:
+                        - schema: >-
+                            urn:ietf:params:scim:schemas:extension:enterprise:2.0:User
+                          required: false
+                        - schema: >-
+                            urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User
+                          required: false
+                      meta:
+                        resourceType: ResourceType
+                        location: scim/v2/ResourceTypes/User
+  /scim/v2/Schemas:
+    get:
+      parameters:
+        - name: Authorization
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                example:
+                  schemas:
+                    - 'urn:ietf:params:scim:api:messages:2.0:ListResponse'
+                  totalResults: 1
+                  startIndex: 1
+                  itemsPerPage: 100
+                  Resources:
+                    - schemas:
+                        - 'urn:ietf:params:scim:schemas:core:2.0:Schema'
+                      id: 'urn:ietf:params:scim:schemas:oktaprise:2.0:Users'
+                      description: Oktaprise parameters.
+                      name: OktapriseUsers
+                      attributes:
+                        - name: badge
+                          type: string
+                          multiValued: false
+                          description: Employee Badge
+                          required: true
+                          caseExact: false
+                          mutability: readWrite
+                          returned: always
+                          uniqueness: none
+                        - name: machine
+                          type: string
+                          multiValued: false
+                          description: Employee Machine
+                          required: true
+                          caseExact: false
+                          mutability: readWrite
+                          returned: always
+                          uniqueness: none
+                      meta:
+                        resourceType: Schema
+                        location: >-
+                          /scim/v2/Schemas/urn:ietf:params:scim:schemas:oktaprise:2.0:Users
+security:
+  - basic: []
+components:
+  schemas:
+    GroupCollection:
+      description: Class describing a collection of gorups
+      type: object
+      required:
+        - schemas
+        - totalResults
+        - startIndex
+        - itemsPerPage
+        - resources
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            type: string
+        totalResults:
+          type: integer
+        startIndex:
+          type: integer
+        itemsPerPage:
+          type: integer
+        resources:
+          description: The list of groups
+          type: array
+          items: {}
+    UserGroups:
+      description: The user groups
+      type: object
+      required:
+        - display
+        - value
+      properties:
+        display:
+          type: string
+        value:
+          type: string
+    UserMetadata:
+      description: User metadata
+      type: object
+      required:
+        - resourceType
+        - location
+      properties:
+        resourceType:
+          default: User
+          type: string
+        location:
+          description: The URL where the user can be accessed
+          type: string
+    ScimException:
+      description: SCIM Exception
+      type: object
+      required:
+        - schemas
+        - detail
+        - status
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            default: 'urn:ietf:params:scim:api:messages:2.0:Error'
+            type: string
+        detail:
+          type: string
+        status:
+          type: string
+    GroupPatchOp:
+      description: Patch Group
+      type: object
+      required:
+        - schemas
+        - operations
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            default: 'urn:ietf:params:scim:api:messages:2.0:PatchOp'
+            type: string
+        operations:
+          description: Patch operation details
+          type: array
+          items:
+            type: object
+            required:
+              - op
+              - value
+            properties:
+              op:
+                type: string
+              value:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  displayName:
+                    type: string
+    GroupMembers:
+      description: Group Members
+      type: object
+      required:
+        - value
+      properties:
+        display:
+          type: string
+        value:
+          type: string
+    UserCollection:
+      description: Class describing a collection of users
+      type: object
+      required:
+        - schemas
+        - totalResults
+        - startIndex
+        - itemsPerPage
+        - resources
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            type: string
+        totalResults:
+          type: integer
+        startIndex:
+          type: integer
+        itemsPerPage:
+          type: integer
+        resources:
+          description: The list of users
+          type: array
+          items: {}
+    UserPatchOp:
+      description: Patch User
+      type: object
+      required:
+        - schemas
+        - operations
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            default: 'urn:ietf:params:scim:api:messages:2.0:PatchOp'
+            type: string
+        operations:
+          description: Patch operation details
+          type: array
+          items:
+            type: object
+            required:
+              - op
+              - value
+            properties:
+              op:
+                type: string
+              value:
+                type: object
+                required:
+                  - active
+                properties:
+                  active:
+                    type: boolean
+    OktapriseUser:
+      description: Oktaprise custom schema and attributes
+      type: object
+      required:
+        - badge
+        - machine
+      properties:
+        badge:
+          type: string
+        machine:
+          type: string
+    Group:
+      description: Group entry
+      type: object
+      required:
+        - schemas
+        - id
+        - displayName
+        - meta
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            type: string
+        id:
+          description: GUID
+          type: string
+        displayName:
+          type: string
+        members:
+          description: The list of groups
+          type: array
+          items: {}
+        meta:
+          description: Group metadata
+    GroupMetadata:
+      description: Group metadata
+      type: object
+      required:
+        - resourceType
+        - location
+      properties:
+        resourceType:
+          default: Group
+          type: string
+        location:
+          description: The URL where the group can be accessed
+          type: string
+    UserDefinition:
+      description: Metadata for user creation
+      type: object
+      required:
+        - 'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'
+        - 'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User'
+      properties:
+        active:
+          type: boolean
+        name:
+          $ref: '#/components/schemas/UserFullName'
+        'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User':
+          $ref: '#/components/schemas/EnterpriseUser'
+        'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User':
+          $ref: '#/components/schemas/OktapriseUser'
+    GroupDefinition:
+      description: Metadata for group creation
+      type: object
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMembers'
+    User:
+      description: User entry
+      type: object
+      required:
+        - schemas
+        - id
+        - active
+        - userName
+        - name
+        - emails
+        - 'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'
+        - 'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User'
+        - meta
+        - groups
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            type: string
+        id:
+          description: GUID
+          type: string
+        active:
+          default: true
+          type: boolean
+        userName:
+          description: 'Username, typically their email address'
+          type: string
+        name:
+          description: The user's full name
+        emails:
+          description: The list of emails
+          type: array
+          items: {}
+        'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User':
+          description: Custom enterprise attributes from SCIM
+        'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User':
+          description: Custom attributes from Oktaprise
+        meta:
+          description: User metadata
+        groups:
+          description: List of user groups
+          type: array
+          items: {}
+    UserEmails:
+      description: The user email
+      type: object
+      required:
+        - primary
+        - value
+        - type
+      properties:
+        primary:
+          type: boolean
+        value:
+          type: string
+        type:
+          type: string
+    EnterpriseUser:
+      description: Oktaprise custom schema and attributes
+      type: object
+      required:
+        - employeeNumber
+        - costCenter
+      properties:
+        employeeNumber:
+          type: string
+        costCenter:
+          type: string
+    UserFullName:
+      description: The full name of the user
+      type: object
+      required:
+        - familyName
+        - givenName
+      properties:
+        familyName:
+          type: string
+        givenName:
+          type: string
+        middleName:
+          type: string
+    ServiceProviderConfig:
+      type: object
+      required:
+        - patch
+        - bulk
+        - filter
+        - changePassword
+        - sort
+        - etag
+        - authenticationSchemes
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+        documentationUri:
+          type: string
+          format: uri
+        patch:
+          type: object
+          required:
+            - supported
+          properties:
+            supported:
+              type: boolean
+        bulk:
+          type: object
+          required:
+            - supported
+            - maxOperations
+            - maxPayloadSize
+          properties:
+            supported:
+              type: boolean
+            maxOperations:
+              type: integer
+            maxPayloadSize:
+              type: integer
+        filter:
+          type: object
+          required:
+            - supported
+            - maxResults
+          properties:
+            supported:
+              type: boolean
+            maxResults:
+              type: integer
+        changePassword:
+          type: object
+          required:
+            - supported
+          properties:
+            supported:
+              type: boolean
+        sort:
+          type: object
+          required:
+            - supported
+          properties:
+            supported:
+              type: boolean
+        etag:
+          type: object
+          required:
+            - supported
+          properties:
+            supported:
+              type: boolean
+        authenticationSchemes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceProviderConfigAuthenticationScheme'
+        meta:
+          type: object
+          properties:
+            location:
+              type: string
+              format: uri
+            resourceType:
+              type: string
+            created:
+              type: string
+              format: date-time
+            lastModified:
+              type: string
+              format: date-time
+            version:
+              type: string
+    ServiceProviderConfigAuthenticationScheme:
+      type: object
+      required:
+        - type
+        - name
+        - description
+      properties:
+        type:
+          type: string
+          enum:
+            - oauth
+            - oauth2
+            - oauthbearertoken
+            - httpbasic
+            - httpdigest
+        name:
+          type: string
+        description:
+          type: string
+        specUri:
+          type: string
+          format: uri
+        documentationUri:
+          type: string
+          format: uri
+        # TODO: unsure if this is an official part of the spec
+        primary:
+          type: boolean
+          nullable: true
