@@ -24,4 +24,21 @@ export class FirebaseAuthService {
   async getUser(id: string): Promise<UserRecord> {
     return this.auth.getUserByProviderUid(this.config.providerId, id)
   }
+
+  async createUser(user: {
+    externalId: string | undefined
+    email: string
+    displayName: string
+    disabled: boolean
+  }): Promise<UserRecord> {
+    return this.auth.createUser({
+      email: user.email,
+      disabled: user.disabled,
+      displayName: user.displayName,
+      providerToLink: {
+        uid: user.externalId || user.email,
+        providerId: this.config.providerId,
+      },
+    })
+  }
 }

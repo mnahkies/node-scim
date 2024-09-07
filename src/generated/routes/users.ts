@@ -31,12 +31,7 @@ import {
   t_User,
   t_UserCollection,
 } from "../models"
-import {
-  s_User,
-  s_UserCollection,
-  s_UserDefinition,
-  s_UserPatchOp,
-} from "../schemas"
+import {s_CreateUser, s_User, s_UserCollection, s_UserPatchOp} from "../schemas"
 
 export type GetScimV2UsersResponder = {
   with200(): KoaRuntimeResponse<t_UserCollection>
@@ -175,7 +170,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
     return next()
   })
 
-  const postScimV2UsersBodySchema = s_UserDefinition
+  const postScimV2UsersBodySchema = s_CreateUser
 
   const postScimV2UsersResponseValidator = responseValidationFactory(
     [["201", s_User]],

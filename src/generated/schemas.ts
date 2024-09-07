@@ -81,15 +81,11 @@ export const s_UserResourceSchemas = z.array(
   z.enum(["urn:ietf:params:scim:schemas:core:2.0:User"]),
 )
 
-export const s_GroupDefinition = z.object({
-  displayName: z.string(),
-  members: z.array(s_GroupMembers).optional(),
-})
-
-export const s_User = z.object({
+export const s_CreateUser = z.object({
   schemas: s_UserResourceSchemas,
-  id: z.string(),
+  externalId: z.string().optional(),
   userName: z.string(),
+  displayName: z.string().optional(),
   name: s_UserFullName,
   emails: z.array(s_UserEmail),
   active: PermissiveBoolean,
@@ -97,10 +93,12 @@ export const s_User = z.object({
   meta: s_UserResourceMeta,
 })
 
-export const s_UserDefinition = z.object({
-  active: PermissiveBoolean.optional(),
-  name: s_UserFullName.optional(),
+export const s_GroupDefinition = z.object({
+  displayName: z.string(),
+  members: z.array(s_GroupMembers).optional(),
 })
+
+export const s_User = s_CreateUser.merge(z.object({id: z.string()}))
 
 export const s_UserCollection = z.object({
   schemas: z.array(z.string()),

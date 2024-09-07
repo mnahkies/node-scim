@@ -35,11 +35,6 @@ paths:
           schema:
             description: Index of the result
             type: integer
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: The request has succeeded.
@@ -50,17 +45,12 @@ paths:
     post:
       tags:
         - users
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDefinition'
+              $ref: '#/components/schemas/CreateUser'
       responses:
         '201':
           description: The user has been created.
@@ -78,12 +68,6 @@ paths:
     get:
       tags:
         - users
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: The request has succeeded.
@@ -96,13 +80,8 @@ paths:
     put:
       tags:
         - users
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -119,13 +98,8 @@ paths:
     patch:
       tags:
         - users
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -142,12 +116,6 @@ paths:
     delete:
       tags:
         - users
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '204':
           description: No Content (successful deletion)
@@ -180,11 +148,6 @@ paths:
           schema:
             description: Index of the result
             type: integer
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: The request has succeeded.
@@ -195,13 +158,8 @@ paths:
     post:
       tags:
         - groups
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -223,12 +181,6 @@ paths:
     get:
       tags:
         - groups
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: The request has succeeded.
@@ -241,13 +193,8 @@ paths:
     put:
       tags:
         - groups
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -264,13 +211,8 @@ paths:
     patch:
       tags:
         - groups
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -287,12 +229,6 @@ paths:
     delete:
       tags:
         - groups
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '204':
           description: No Content (successful deletion)
@@ -302,12 +238,6 @@ paths:
     get:
       tags:
         - introspection
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: The request has succeeded.
@@ -348,12 +278,6 @@ paths:
     get:
       tags:
         - introspection
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: ''
@@ -398,12 +322,6 @@ paths:
     get:
       tags:
         - introspection
-      parameters:
-        - name: Authorization
-          required: true
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: ''
@@ -557,6 +475,59 @@ components:
           type: string
         value:
           type: string
+    Group:
+      description: Group entry
+      type: object
+      required:
+        - schemas
+        - id
+        - displayName
+        - meta
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            type: string
+        id:
+          description: GUID
+          type: string
+        displayName:
+          type: string
+        members:
+          description: The list of groups
+          type: array
+          items: {}
+        meta:
+          description: Group metadata
+    GroupMetadata:
+      description: Group metadata
+      type: object
+      required:
+        - resourceType
+        - location
+      properties:
+        resourceType:
+          default: Group
+          type: string
+        location:
+          description: The URL where the group can be accessed
+          type: string
+    GroupDefinition:
+      description: Metadata for group creation
+      type: object
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMembers'
+    #
+    # Users
+    #
     UserCollection:
       description: Class describing a collection of users
       type: object
@@ -614,72 +585,7 @@ components:
                 properties:
                   active:
                     type: boolean
-    Group:
-      description: Group entry
-      type: object
-      required:
-        - schemas
-        - id
-        - displayName
-        - meta
-      properties:
-        schemas:
-          description: The list of schemas
-          type: array
-          items:
-            type: string
-        id:
-          description: GUID
-          type: string
-        displayName:
-          type: string
-        members:
-          description: The list of groups
-          type: array
-          items: {}
-        meta:
-          description: Group metadata
-    GroupMetadata:
-      description: Group metadata
-      type: object
-      required:
-        - resourceType
-        - location
-      properties:
-        resourceType:
-          default: Group
-          type: string
-        location:
-          description: The URL where the group can be accessed
-          type: string
-    UserDefinition:
-      description: Metadata for user creation
-      type: object
-      required:
-        - 'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User'
-        - 'urn:ietf:params:scim:schemas:extension:oktaprise:2.0:User'
-      properties:
-        active:
-          type: boolean
-        name:
-          $ref: '#/components/schemas/UserFullName'
-    GroupDefinition:
-      description: Metadata for group creation
-      type: object
-      required:
-        - displayName
-      properties:
-        displayName:
-          type: string
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupMembers'
-
-    #
-    # Introspection
-    #
-    User:
+    CreateUser:
       type: object
       required:
         - schemas
@@ -693,10 +599,12 @@ components:
       properties:
         schemas:
           $ref: '#/components/schemas/UserResourceSchemas'
-        id:
+        externalId:
           type: string
         userName:
           description: 'Username, typically their email address'
+          type: string
+        displayName:
           type: string
         name:
           $ref: '#/components/schemas/UserFullName'
@@ -713,7 +621,15 @@ components:
           items: {}
         meta:
           $ref: '#/components/schemas/UserResourceMeta'
-
+    User:
+      allOf:
+        - $ref: '#/components/schemas/CreateUser'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
     UserFullName:
       description: The full name of the user
       type: object
