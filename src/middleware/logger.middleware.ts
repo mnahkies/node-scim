@@ -5,6 +5,7 @@ export function loggerMiddleware(): Middleware {
     console.info(
       `request started \n${JSON.stringify(
         {
+          method: ctx.method,
           url: ctx.request.url,
           query: ctx.request.query,
           body: ctx.request.body,
@@ -19,6 +20,7 @@ export function loggerMiddleware(): Middleware {
     console.info(
       `request complete\n${JSON.stringify(
         {
+          method: ctx.method,
           url: ctx.request.url,
           status: ctx.status,
           body: ctx.body,

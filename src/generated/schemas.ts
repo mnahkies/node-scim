@@ -13,25 +13,12 @@ export const PermissiveBoolean = z.preprocess((value) => {
   return value
 }, z.boolean())
 
-export const s_Group = z.object({
-  schemas: z.array(z.string()),
-  id: z.string(),
-  displayName: z.string(),
-  members: z.array(z.any()).optional(),
-  meta: z.object({}),
-})
-
 export const s_GroupCollection = z.object({
   schemas: z.array(z.string()),
   totalResults: z.coerce.number(),
   startIndex: z.coerce.number(),
   itemsPerPage: z.coerce.number(),
   resources: z.array(z.any()),
-})
-
-export const s_GroupMembers = z.object({
-  display: z.string().optional(),
-  value: z.string(),
 })
 
 export const s_GroupPatchOp = z.object({
@@ -48,6 +35,14 @@ export const s_GroupPatchOp = z.object({
     }),
   ),
 })
+
+export const s_GroupResourceMeta = z.object({
+  resourceType: z.enum(["Group"]).optional(),
+})
+
+export const s_GroupResourceSchemas = z.array(
+  z.enum(["urn:ietf:params:scim:schemas:core:2.0:Group"]),
+)
 
 export const s_UserEmail = z.object({
   primary: PermissiveBoolean.optional(),
@@ -85,6 +80,12 @@ export const s_UserResourceSchemas = z.array(
   z.enum(["urn:ietf:params:scim:schemas:core:2.0:User"]),
 )
 
+export const s_CreateGroup = z.object({
+  schemas: s_GroupResourceSchemas,
+  externalId: z.string(),
+  displayName: z.string(),
+})
+
 export const s_CreateUser = z.object({
   schemas: s_UserResourceSchemas,
   externalId: z.string().optional(),
@@ -96,10 +97,13 @@ export const s_CreateUser = z.object({
   groups: z.array(z.any()).default([]),
 })
 
-export const s_GroupDefinition = z.object({
-  displayName: z.string(),
-  members: z.array(s_GroupMembers).optional(),
-})
+export const s_Group = s_CreateGroup.merge(
+  z.object({
+    id: z.string(),
+    members: z.array(z.any()).optional().default([]),
+    meta: s_GroupResourceMeta.optional(),
+  }),
+)
 
 export const s_User = s_CreateUser.merge(
   z.object({id: z.string(), meta: s_UserResourceMeta}),

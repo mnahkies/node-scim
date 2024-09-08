@@ -32,9 +32,9 @@ import {
   t_PutScimV2GroupsIdParamSchema,
 } from "../models"
 import {
+  s_CreateGroup,
   s_Group,
   s_GroupCollection,
-  s_GroupDefinition,
   s_GroupPatchOp,
 } from "../schemas"
 
@@ -175,7 +175,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
     return next()
   })
 
-  const postScimV2GroupsBodySchema = s_GroupDefinition
+  const postScimV2GroupsBodySchema = s_CreateGroup
 
   const postScimV2GroupsResponseValidator = responseValidationFactory(
     [["201", s_Group]],

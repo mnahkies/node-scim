@@ -163,7 +163,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GroupDefinition'
+              $ref: '#/components/schemas/CreateGroup'
       responses:
         '201':
           description: The group has been created.
@@ -475,56 +475,49 @@ components:
           type: string
         value:
           type: string
-    Group:
-      description: Group entry
+
+    GroupResourceSchemas:
+      type: array
+      items:
+        type: string
+        enum:
+          - "urn:ietf:params:scim:schemas:core:2.0:Group"
+    GroupResourceMeta:
       type: object
-      required:
-        - schemas
-        - id
-        - displayName
-        - meta
-      properties:
-        schemas:
-          description: The list of schemas
-          type: array
-          items:
-            type: string
-        id:
-          description: GUID
-          type: string
-        displayName:
-          type: string
-        members:
-          description: The list of groups
-          type: array
-          items: {}
-        meta:
-          description: Group metadata
-    GroupMetadata:
-      description: Group metadata
-      type: object
-      required:
-        - resourceType
-        - location
       properties:
         resourceType:
-          default: Group
           type: string
-        location:
-          description: The URL where the group can be accessed
-          type: string
-    GroupDefinition:
-      description: Metadata for group creation
-      type: object
+          enum:
+            - "Group"
+    CreateGroup:
       required:
+        - schemas
+        - externalId
         - displayName
       properties:
+        schemas:
+          $ref: '#/components/schemas/GroupResourceSchemas'
+        externalId:
+          type: string
         displayName:
           type: string
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupMembers'
+    Group:
+      allOf:
+        - $ref: '#/components/schemas/CreateGroup'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              description: GUID
+              type: string
+            members:
+              description: The list of groups
+              type: array
+              items: {}
+              default: []
+            meta:
+              $ref: '#/components/schemas/GroupResourceMeta'
     #
     # Users
     #

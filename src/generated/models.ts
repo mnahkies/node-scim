@@ -4,6 +4,12 @@
 
 export type EmptyObject = {[key: string]: never}
 
+export type t_CreateGroup = {
+  displayName: string
+  externalId: string
+  schemas: t_GroupResourceSchemas
+}
+
 export type t_CreateUser = {
   active: boolean
   displayName?: string | undefined
@@ -15,12 +21,10 @@ export type t_CreateUser = {
   userName: string
 }
 
-export type t_Group = {
-  displayName: string
+export type t_Group = t_CreateGroup & {
   id: string
   members?: any[] | undefined
-  meta: EmptyObject
-  schemas: string[]
+  meta?: t_GroupResourceMeta | undefined
 }
 
 export type t_GroupCollection = {
@@ -31,10 +35,12 @@ export type t_GroupCollection = {
   totalResults: number
 }
 
-export type t_GroupMembers = {
-  display?: string | undefined
-  value: string
+export type t_GroupResourceMeta = {
+  resourceType?: "Group" | undefined
 }
+
+export type t_GroupResourceSchemas =
+  "urn:ietf:params:scim:schemas:core:2.0:Group"[]
 
 export type t_User = t_CreateUser & {
   id: string
@@ -137,7 +143,8 @@ export type t_PatchScimV2UsersIdParamSchema = {
 
 export type t_PostScimV2GroupsBodySchema = {
   displayName: string
-  members?: t_GroupMembers[] | undefined
+  externalId: string
+  schemas: t_GroupResourceSchemas
 }
 
 export type t_PostScimV2UsersBodySchema = {
@@ -151,12 +158,10 @@ export type t_PostScimV2UsersBodySchema = {
   userName: string
 }
 
-export type t_PutScimV2GroupsIdBodySchema = {
-  displayName: string
+export type t_PutScimV2GroupsIdBodySchema = t_CreateGroup & {
   id: string
   members?: any[] | undefined
-  meta: EmptyObject
-  schemas: string[]
+  meta?: t_GroupResourceMeta | undefined
 }
 
 export type t_PutScimV2GroupsIdParamSchema = {
