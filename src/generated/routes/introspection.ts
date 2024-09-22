@@ -30,7 +30,7 @@ export type GetScimV2ServiceProviderConfigResponder = {
 } & KoaRuntimeResponder
 
 export type GetScimV2ServiceProviderConfig = (
-  params: Params<void, void, void>,
+  params: Params<void, void, void, void>,
   respond: GetScimV2ServiceProviderConfigResponder,
   ctx: RouterContext,
 ) => Promise<
@@ -43,7 +43,7 @@ export type GetScimV2ResourceTypesResponder = {
 } & KoaRuntimeResponder
 
 export type GetScimV2ResourceTypes = (
-  params: Params<void, void, void>,
+  params: Params<void, void, void, void>,
   respond: GetScimV2ResourceTypesResponder,
   ctx: RouterContext,
 ) => Promise<
@@ -56,7 +56,7 @@ export type GetScimV2SchemasResponder = {
 } & KoaRuntimeResponder
 
 export type GetScimV2Schemas = (
-  params: Params<void, void, void>,
+  params: Params<void, void, void, void>,
   respond: GetScimV2SchemasResponder,
   ctx: RouterContext,
 ) => Promise<
@@ -86,6 +86,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         params: undefined,
         query: undefined,
         body: undefined,
+        headers: undefined,
       }
 
       const responder = {
@@ -127,6 +128,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         params: undefined,
         query: undefined,
         body: undefined,
+        headers: undefined,
       }
 
       const responder = {
@@ -165,6 +167,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
       params: undefined,
       query: undefined,
       body: undefined,
+      headers: undefined,
     }
 
     const responder = {

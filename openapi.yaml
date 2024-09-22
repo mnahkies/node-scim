@@ -482,6 +482,8 @@ components:
         type: string
         enum:
           - "urn:ietf:params:scim:schemas:core:2.0:Group"
+      default: ["urn:ietf:params:scim:schemas:core:2.0:Group"]
+
     GroupResourceMeta:
       type: object
       properties:
@@ -532,10 +534,7 @@ components:
         - resources
       properties:
         schemas:
-          description: The list of schemas
-          type: array
-          items:
-            type: string
+          $ref: '#/components/schemas/UserResourceSchemas'
         totalResults:
           type: integer
         startIndex:
@@ -558,8 +557,10 @@ components:
           description: The list of schemas
           type: array
           items:
-            default: 'urn:ietf:params:scim:api:messages:2.0:PatchOp'
             type: string
+            enum:
+              - 'urn:ietf:params:scim:api:messages:2.0:PatchOp'
+          default: ['urn:ietf:params:scim:api:messages:2.0:PatchOp']
         operations:
           description: Patch operation details
           type: array
@@ -582,9 +583,7 @@ components:
       type: object
       required:
         - schemas
-        - id
         - userName
-        - name
         - emails
         - active
         - groups
@@ -605,8 +604,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserEmail'
+          default: []
         active:
           type: boolean
+          default: true
         groups:
           description: List of user groups
           type: array
@@ -617,7 +618,8 @@ components:
         - $ref: '#/components/schemas/CreateUser'
         - type: object
           required:
-            - id
+# TODO: is this actually required?
+#            - id
             - meta
           properties:
             id:
@@ -664,6 +666,8 @@ components:
         type: string
         enum:
           - "urn:ietf:params:scim:schemas:core:2.0:User"
+      default: ["urn:ietf:params:scim:schemas:core:2.0:User"]
+
     UserResourceMeta:
       type: object
       properties:
@@ -671,12 +675,14 @@ components:
           type: string
           enum:
             - "User"
+      default: {resourceType: "User"}
     #
     # Introspection
     #
     ServiceProviderConfig:
       type: object
       required:
+        - schemas
         - patch
         - bulk
         - filter
@@ -689,6 +695,9 @@ components:
           type: array
           items:
             type: string
+            enum:
+              - "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"
+          default: ["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"]
         documentationUri:
           type: string
           format: uri

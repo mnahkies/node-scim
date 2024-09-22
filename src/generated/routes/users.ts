@@ -38,7 +38,7 @@ export type GetScimV2UsersResponder = {
 } & KoaRuntimeResponder
 
 export type GetScimV2Users = (
-  params: Params<void, t_GetScimV2UsersQuerySchema, void>,
+  params: Params<void, t_GetScimV2UsersQuerySchema, void, void>,
   respond: GetScimV2UsersResponder,
   ctx: RouterContext,
 ) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_UserCollection>>
@@ -48,7 +48,7 @@ export type PostScimV2UsersResponder = {
 } & KoaRuntimeResponder
 
 export type PostScimV2Users = (
-  params: Params<void, void, t_PostScimV2UsersBodySchema>,
+  params: Params<void, void, t_PostScimV2UsersBodySchema, void>,
   respond: PostScimV2UsersResponder,
   ctx: RouterContext,
 ) => Promise<KoaRuntimeResponse<unknown> | Response<201, t_User>>
@@ -59,7 +59,7 @@ export type GetScimV2UsersIdResponder = {
 } & KoaRuntimeResponder
 
 export type GetScimV2UsersId = (
-  params: Params<t_GetScimV2UsersIdParamSchema, void, void>,
+  params: Params<t_GetScimV2UsersIdParamSchema, void, void, void>,
   respond: GetScimV2UsersIdResponder,
   ctx: RouterContext,
 ) => Promise<
@@ -75,7 +75,8 @@ export type PutScimV2UsersId = (
   params: Params<
     t_PutScimV2UsersIdParamSchema,
     void,
-    t_PutScimV2UsersIdBodySchema
+    t_PutScimV2UsersIdBodySchema,
+    void
   >,
   respond: PutScimV2UsersIdResponder,
   ctx: RouterContext,
@@ -92,7 +93,8 @@ export type PatchScimV2UsersId = (
   params: Params<
     t_PatchScimV2UsersIdParamSchema,
     void,
-    t_PatchScimV2UsersIdBodySchema
+    t_PatchScimV2UsersIdBodySchema,
+    void
   >,
   respond: PatchScimV2UsersIdResponder,
   ctx: RouterContext,
@@ -106,7 +108,7 @@ export type DeleteScimV2UsersIdResponder = {
 } & KoaRuntimeResponder
 
 export type DeleteScimV2UsersId = (
-  params: Params<t_DeleteScimV2UsersIdParamSchema, void, void>,
+  params: Params<t_DeleteScimV2UsersIdParamSchema, void, void, void>,
   respond: DeleteScimV2UsersIdResponder,
   ctx: RouterContext,
 ) => Promise<
@@ -145,6 +147,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         RequestInputType.QueryString,
       ),
       body: undefined,
+      headers: undefined,
     }
 
     const responder = {
@@ -186,6 +189,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         Reflect.get(ctx.request, "body"),
         RequestInputType.RequestBody,
       ),
+      headers: undefined,
     }
 
     const responder = {
@@ -230,6 +234,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
       ),
       query: undefined,
       body: undefined,
+      headers: undefined,
     }
 
     const responder = {
@@ -283,6 +288,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         Reflect.get(ctx.request, "body"),
         RequestInputType.RequestBody,
       ),
+      headers: undefined,
     }
 
     const responder = {
@@ -339,6 +345,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
           Reflect.get(ctx.request, "body"),
           RequestInputType.RequestBody,
         ),
+        headers: undefined,
       }
 
       const responder = {
@@ -390,6 +397,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         ),
         query: undefined,
         body: undefined,
+        headers: undefined,
       }
 
       const responder = {

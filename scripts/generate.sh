@@ -5,7 +5,7 @@ set -e
 rm -rf ./src/generated
 
 # Relies on https://github.com/mnahkies/openapi-code-generator/pull/241 being released
-/home/michael/projects/nahkies/npm-packages/openapi-code-generator/packages/openapi-code-generator/dist/cli.js \
+ yarn openapi-code-generator \
   --input ./openapi.yaml \
   --input-type openapi3 \
   --output ./src/generated \

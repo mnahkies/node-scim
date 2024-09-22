@@ -16,7 +16,7 @@ export type t_CreateUser = {
   emails: t_UserEmail[]
   externalId?: string | undefined
   groups: any[]
-  name: t_UserFullName
+  name?: t_UserFullName | undefined
   schemas: t_UserResourceSchemas
   userName: string
 }
@@ -43,14 +43,14 @@ export type t_GroupResourceSchemas =
   "urn:ietf:params:scim:schemas:core:2.0:Group"[]
 
 export type t_User = t_CreateUser & {
-  id: string
+  id?: string | undefined
   meta: t_UserResourceMeta
 }
 
 export type t_UserCollection = {
   itemsPerPage: number
   resources: t_User[]
-  schemas: string[]
+  schemas: t_UserResourceSchemas
   startIndex: number
   totalResults: number
 }
@@ -134,7 +134,7 @@ export type t_PatchScimV2UsersIdBodySchema = {
       active: boolean
     }
   }[]
-  schemas: string[]
+  schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
 }
 
 export type t_PatchScimV2UsersIdParamSchema = {
@@ -153,7 +153,7 @@ export type t_PostScimV2UsersBodySchema = {
   emails: t_UserEmail[]
   externalId?: string | undefined
   groups: any[]
-  name: t_UserFullName
+  name?: t_UserFullName | undefined
   schemas: t_UserResourceSchemas
   userName: string
 }
@@ -169,7 +169,7 @@ export type t_PutScimV2GroupsIdParamSchema = {
 }
 
 export type t_PutScimV2UsersIdBodySchema = t_CreateUser & {
-  id: string
+  id?: string | undefined
   meta: t_UserResourceMeta
 }
 
