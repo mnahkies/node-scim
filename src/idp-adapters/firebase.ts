@@ -49,10 +49,11 @@ export class FirebaseAuthService implements IdpAdapter {
   }
 
   async getUser(id: string): Promise<t_User> {
-    const user = await this.auth.getUserByProviderUid(
-      this.config.providerId,
-      id,
-    )
+    const user = await this.auth.getUser(id)
+    // const user = await this.auth.getUserByProviderUid(
+    //   this.config.providerId,
+    //   id,
+    // )
     return mapFirebaseUserToScimUserResource(user)
   }
 
@@ -69,6 +70,35 @@ export class FirebaseAuthService implements IdpAdapter {
     })
 
     const updatedFirebaseUser = await this.auth.updateUser(firebaseUser.uid, {
+      email: user.email,
+      disabled: user.disabled,
+      displayName: user.displayName,
+      providerToLink: {
+        providerId: this.config.providerId,
+        displayName: user.displayName,
+        email: user.email,
+        uid: user.externalId,
+      },
+    })
+
+    return mapFirebaseUserToScimUserResource(updatedFirebaseUser)
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.auth.deleteUser(id)
+  }
+
+  async updateUser(id: string, user: CreateUser): Promise<t_User> {
+    if (!user.externalId) {
+      console.error(JSON.stringify(user))
+      throw new Error("no externalId")
+    }
+
+    await this.auth.updateUser(id, {
+      providersToUnlink: [this.config.providerId],
+    })
+
+    const updatedFirebaseUser = await this.auth.updateUser(id, {
       email: user.email,
       disabled: user.disabled,
       displayName: user.displayName,

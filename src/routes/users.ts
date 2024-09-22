@@ -40,11 +40,13 @@ export const postScimV2Users: PostScimV2Users = async ({body}, respond) => {
     throw new Error("must provide a primary email")
   }
 
-  const displayName = body.displayName || body.name.formatted || "Unknown"
+  const externalId = body.externalId || body.userName
+
+  const displayName = body.displayName || body.name?.formatted || "Unknown"
 
   const user = await firebase.createUser({
     email: primaryEmail.value,
-    externalId: body.externalId,
+    externalId,
     displayName,
     disabled: !body.active,
   })
@@ -52,8 +54,31 @@ export const postScimV2Users: PostScimV2Users = async ({body}, respond) => {
   return respond.with201().body(user)
 }
 
-export const putScimV2UsersId: PutScimV2UsersId = async ({query}, respond) => {
-  return notImplemented({}, respond)
+export const putScimV2UsersId: PutScimV2UsersId = async (
+  {params, body},
+  respond,
+) => {
+  // TODO: deduplicate
+  const primaryEmail =
+    body.emails.find((it) => it.primary) ||
+    (body.emails.length === 1 && body.emails[0])
+
+  if (!primaryEmail) {
+    throw new Error("must provide a primary email")
+  }
+
+  const externalId = body.externalId || body.userName
+
+  const displayName = body.displayName || body.name?.formatted || "Unknown"
+
+  const user = await firebase.updateUser(params.id, {
+    email: primaryEmail.value,
+    externalId,
+    displayName,
+    disabled: !body.active,
+  })
+
+  return respond.with200().body(user)
 }
 
 export const patchScimV2UsersId: PatchScimV2UsersId = async (
@@ -64,10 +89,12 @@ export const patchScimV2UsersId: PatchScimV2UsersId = async (
 }
 
 export const deleteScimV2UsersId: DeleteScimV2UsersId = async (
-  {query},
+  {params},
   respond,
 ) => {
-  return notImplemented({}, respond)
+  await firebase.deleteUser(params.id)
+
+  return respond.with204().body()
 }
 
 export function createUsersRouter() {
