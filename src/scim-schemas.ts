@@ -112,6 +112,7 @@ export const ScimSchemaCoreUser = {
       returned: "default",
       uniqueness: "none" as const,
     },
+    /*
     {
       name: "nickName",
       type: "string",
@@ -196,6 +197,7 @@ export const ScimSchemaCoreUser = {
       returned: "default",
       uniqueness: "none" as const,
     },
+     */
     {
       name: "active",
       type: "boolean",
@@ -206,7 +208,7 @@ export const ScimSchemaCoreUser = {
       mutability: "readWrite",
       returned: "default",
     },
-    {
+    /*{
       name: "password",
       type: "string",
       multiValued: false,
@@ -217,7 +219,7 @@ export const ScimSchemaCoreUser = {
       mutability: "writeOnly",
       returned: "never",
       uniqueness: "none" as const,
-    },
+    },*/
     {
       name: "emails",
       type: "complex",
@@ -278,7 +280,7 @@ export const ScimSchemaCoreUser = {
       returned: "default",
       uniqueness: "none" as const,
     },
-    {
+    /*{
       name: "phoneNumbers",
       type: "complex",
       multiValued: true,
@@ -553,7 +555,7 @@ export const ScimSchemaCoreUser = {
       mutability: "readWrite",
       returned: "default",
       uniqueness: "none" as const,
-    },
+    },*/
     {
       name: "groups",
       type: "complex",
@@ -615,7 +617,7 @@ export const ScimSchemaCoreUser = {
       mutability: "readOnly",
       returned: "default",
     },
-    {
+    /*{
       name: "entitlements",
       type: "complex",
       multiValued: true,
@@ -784,7 +786,7 @@ export const ScimSchemaCoreUser = {
       ],
       mutability: "readWrite",
       returned: "default",
-    },
+    },*/
   ],
   meta: {
     resourceType: "Schema",

@@ -1,3 +1,4 @@
+import {config} from "../config"
 import type {t_ResourceType} from "../generated/models"
 import {
   type GetScimV2ResourceTypes,
@@ -11,27 +12,29 @@ const getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
   _,
   respond,
 ) => {
+  const now = new Date().toISOString()
+
   return respond.with200().body({
     patch: {
-      supported: true,
+      supported: false,
     },
     bulk: {
-      supported: true,
+      supported: false,
       maxPayloadSize: 1048576,
       maxOperations: 10,
     },
     filter: {
-      supported: true,
+      supported: false,
       maxResults: 100,
     },
     changePassword: {
-      supported: true,
+      supported: false,
     },
     sort: {
-      supported: true,
+      supported: false,
     },
     etag: {
-      supported: true,
+      supported: false,
     },
     authenticationSchemes: [
       {
@@ -45,7 +48,7 @@ const getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
       },
     ],
     pagination: {
-      cursor: true,
+      cursor: false,
       index: true,
       defaultPaginationMethod: "index",
       defaultPageSize: 10,
@@ -53,11 +56,10 @@ const getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
       cursorTimeout: 3600,
     },
     meta: {
-      location: "http://localhost:2000/scim/v2/ServiceProviderConfig",
+      location: `http://${config.hostname}:${config.port}/scim/v2/ServiceProviderConfig`,
       resourceType: "ServiceProviderConfig",
-      created: "2024-09-16T20:48:30+00:00",
-      lastModified: "2024-09-16T20:30:33+00:00",
-      version: 'W/"5548efdf610603d2bc4194cc8cbe3e4b9255cae9"',
+      created: now,
+      lastModified: now,
     },
   })
 }
