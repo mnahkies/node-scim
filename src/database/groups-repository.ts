@@ -4,16 +4,37 @@ import type {t_Group} from "../generated/models"
 import type {CreateGroup} from "../idp-adapters/types"
 
 export class GroupsRepository {
-  private readonly data: Record<string, t_Group> = {}
+  private readonly data = new Map<string, t_Group>()
 
   async create(it: CreateGroup): Promise<t_Group> {
     if (
-      Object.values(this.data).find((e) => e.displayName === it.displayName)
+      Array.from(this.data.values()).find(
+        (e) => e.displayName === it.displayName,
+      )
     ) {
       throw new ConflictError(it.displayName)
     }
 
     const id = crypto.randomUUID()
+
+    const group = {
+      schemas: ["urn:ietf:params:scim:schemas:core:2.0:Group" as const],
+      id,
+      externalId: it.externalId,
+      displayName: it.displayName,
+      members: [],
+      meta: {},
+    }
+
+    this.data.set(id, group)
+
+    return group
+  }
+
+  async replace(id: string, it: CreateGroup): Promise<t_Group> {
+    if (!this.data.has(id)) {
+      throw new NotFoundError(id)
+    }
 
     const group = {
       schemas: ["urn:ietf:params:scim:schemas:core:2.0:Group" as const],
@@ -24,13 +45,21 @@ export class GroupsRepository {
       meta: {},
     }
 
-    this.data[id] = group
+    this.data.set(id, group)
 
     return group
   }
 
+  async delete(id: string): Promise<void> {
+    if (!this.data.has(id)) {
+      throw new NotFoundError(id)
+    }
+
+    this.data.delete(id)
+  }
+
   async getById(id: string): Promise<t_Group> {
-    const result = this.data[id]
+    const result = this.data.get(id)
 
     if (!result) {
       throw new NotFoundError(id)
@@ -40,6 +69,6 @@ export class GroupsRepository {
   }
 
   async listGroups() {
-    return Object.values(this.data)
+    return Array.from(this.data.values())
   }
 }

@@ -21,15 +21,19 @@ import {
 import {z} from "zod"
 import {
   t_DeleteScimV2GroupsIdParamSchema,
+  t_DeleteScimV2GroupsIdQuerySchema,
   t_GetScimV2GroupsIdParamSchema,
+  t_GetScimV2GroupsIdQuerySchema,
   t_GetScimV2GroupsQuerySchema,
   t_Group,
   t_GroupCollection,
   t_PatchScimV2GroupsIdBodySchema,
   t_PatchScimV2GroupsIdParamSchema,
+  t_PatchScimV2GroupsIdQuerySchema,
   t_PostScimV2GroupsBodySchema,
   t_PutScimV2GroupsIdBodySchema,
   t_PutScimV2GroupsIdParamSchema,
+  t_PutScimV2GroupsIdQuerySchema,
   t_ScimException,
 } from "../models"
 import {
@@ -66,7 +70,12 @@ export type GetScimV2GroupsIdResponder = {
 } & KoaRuntimeResponder
 
 export type GetScimV2GroupsId = (
-  params: Params<t_GetScimV2GroupsIdParamSchema, void, void, void>,
+  params: Params<
+    t_GetScimV2GroupsIdParamSchema,
+    t_GetScimV2GroupsIdQuerySchema,
+    void,
+    void
+  >,
   respond: GetScimV2GroupsIdResponder,
   ctx: RouterContext,
 ) => Promise<
@@ -83,7 +92,7 @@ export type PutScimV2GroupsIdResponder = {
 export type PutScimV2GroupsId = (
   params: Params<
     t_PutScimV2GroupsIdParamSchema,
-    void,
+    t_PutScimV2GroupsIdQuerySchema,
     t_PutScimV2GroupsIdBodySchema,
     void
   >,
@@ -103,7 +112,7 @@ export type PatchScimV2GroupsIdResponder = {
 export type PatchScimV2GroupsId = (
   params: Params<
     t_PatchScimV2GroupsIdParamSchema,
-    void,
+    t_PatchScimV2GroupsIdQuerySchema,
     t_PatchScimV2GroupsIdBodySchema,
     void
   >,
@@ -121,7 +130,12 @@ export type DeleteScimV2GroupsIdResponder = {
 } & KoaRuntimeResponder
 
 export type DeleteScimV2GroupsId = (
-  params: Params<t_DeleteScimV2GroupsIdParamSchema, void, void, void>,
+  params: Params<
+    t_DeleteScimV2GroupsIdParamSchema,
+    t_DeleteScimV2GroupsIdQuerySchema,
+    void,
+    void
+  >,
   respond: DeleteScimV2GroupsIdResponder,
   ctx: RouterContext,
 ) => Promise<
@@ -144,6 +158,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   const getScimV2GroupsQuerySchema = z.object({
     filter: z.string().optional(),
+    excludedAttributes: z.string().optional(),
     count: z.coerce.number().optional(),
     startIndex: z.coerce.number().optional(),
   })
@@ -232,6 +247,10 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   const getScimV2GroupsIdParamSchema = z.object({id: z.string()})
 
+  const getScimV2GroupsIdQuerySchema = z.object({
+    excludedAttributes: z.string().optional(),
+  })
+
   const getScimV2GroupsIdResponseValidator = responseValidationFactory(
     [
       ["200", s_Group],
@@ -247,7 +266,11 @@ export function createRouter(implementation: Implementation): KoaRouter {
         ctx.params,
         RequestInputType.RouteParam,
       ),
-      query: undefined,
+      query: parseRequestInput(
+        getScimV2GroupsIdQuerySchema,
+        ctx.query,
+        RequestInputType.QueryString,
+      ),
       body: undefined,
       headers: undefined,
     }
@@ -280,6 +303,10 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   const putScimV2GroupsIdParamSchema = z.object({id: z.string()})
 
+  const putScimV2GroupsIdQuerySchema = z.object({
+    excludedAttributes: z.string().optional(),
+  })
+
   const putScimV2GroupsIdBodySchema = s_Group
 
   const putScimV2GroupsIdResponseValidator = responseValidationFactory(
@@ -297,7 +324,11 @@ export function createRouter(implementation: Implementation): KoaRouter {
         ctx.params,
         RequestInputType.RouteParam,
       ),
-      query: undefined,
+      query: parseRequestInput(
+        putScimV2GroupsIdQuerySchema,
+        ctx.query,
+        RequestInputType.QueryString,
+      ),
       body: parseRequestInput(
         putScimV2GroupsIdBodySchema,
         Reflect.get(ctx.request, "body"),
@@ -334,6 +365,10 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   const patchScimV2GroupsIdParamSchema = z.object({id: z.string()})
 
+  const patchScimV2GroupsIdQuerySchema = z.object({
+    excludedAttributes: z.string().optional(),
+  })
+
   const patchScimV2GroupsIdBodySchema = s_GroupPatchOp
 
   const patchScimV2GroupsIdResponseValidator = responseValidationFactory(
@@ -354,7 +389,11 @@ export function createRouter(implementation: Implementation): KoaRouter {
           ctx.params,
           RequestInputType.RouteParam,
         ),
-        query: undefined,
+        query: parseRequestInput(
+          patchScimV2GroupsIdQuerySchema,
+          ctx.query,
+          RequestInputType.QueryString,
+        ),
         body: parseRequestInput(
           patchScimV2GroupsIdBodySchema,
           Reflect.get(ctx.request, "body"),
@@ -392,6 +431,10 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   const deleteScimV2GroupsIdParamSchema = z.object({id: z.string()})
 
+  const deleteScimV2GroupsIdQuerySchema = z.object({
+    excludedAttributes: z.string().optional(),
+  })
+
   const deleteScimV2GroupsIdResponseValidator = responseValidationFactory(
     [
       ["204", z.undefined()],
@@ -410,7 +453,11 @@ export function createRouter(implementation: Implementation): KoaRouter {
           ctx.params,
           RequestInputType.RouteParam,
         ),
-        query: undefined,
+        query: parseRequestInput(
+          deleteScimV2GroupsIdQuerySchema,
+          ctx.query,
+          RequestInputType.QueryString,
+        ),
         body: undefined,
         headers: undefined,
       }

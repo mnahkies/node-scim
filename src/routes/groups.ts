@@ -1,4 +1,5 @@
 import {
+  type DeleteScimV2GroupsId,
   type GetScimV2Groups,
   type GetScimV2GroupsId,
   type PostScimV2Groups,
@@ -13,10 +14,20 @@ const postScimV2Groups: PostScimV2Groups = async ({body}, respond) => {
   return respond.with201().body(group)
 }
 
-const putScimV2GroupsId: PutScimV2GroupsId = async ({body}, respond) => {
-  // TODO: actually update
-  const group = await firebase.createGroup(body)
+const putScimV2GroupsId: PutScimV2GroupsId = async (
+  {params, body},
+  respond,
+) => {
+  const group = await firebase.replaceGroup(params.id, body)
   return respond.with200().body(group)
+}
+
+const deleteScimV2GroupsId: DeleteScimV2GroupsId = async (
+  {params},
+  respond,
+) => {
+  await firebase.deleteGroup(params.id)
+  return respond.with204().body()
 }
 
 const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
@@ -29,11 +40,21 @@ const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
       switch (filter.operator) {
         case "eq":
           // @ts-ignore
-          return it[filter.left] === filter.right
+          return it[filter.left].toLowerCase() === filter.right.toLowerCase()
         default:
           throw new Error("not supported")
       }
     })
+  }
+
+  if (query.excludedAttributes) {
+    const excludedAttributes = query.excludedAttributes.split(",")
+    for (const excludedAttribute of excludedAttributes) {
+      for (const group of groups) {
+        // @ts-ignore
+        group[excludedAttribute] = undefined
+      }
+    }
   }
 
   return respond.with200().body({
@@ -45,8 +66,20 @@ const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
   })
 }
 
-const getScimV2GroupsId: GetScimV2GroupsId = async ({params}, respond) => {
+const getScimV2GroupsId: GetScimV2GroupsId = async (
+  {params, query},
+  respond,
+) => {
   const group = await firebase.getGroup(params.id)
+
+  if (query.excludedAttributes) {
+    const excludedAttributes = query.excludedAttributes.split(",")
+    for (const excludedAttribute of excludedAttributes) {
+      // @ts-ignore
+      group[excludedAttribute] = undefined
+    }
+  }
+
   return respond.with200().body(group)
 }
 
@@ -57,6 +90,6 @@ export function createGroupsRouter() {
     getScimV2GroupsId,
     putScimV2GroupsId,
     patchScimV2GroupsId: notImplemented,
-    deleteScimV2GroupsId: notImplemented,
+    deleteScimV2GroupsId,
   })
 }

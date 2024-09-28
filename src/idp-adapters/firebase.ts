@@ -157,6 +157,15 @@ export class FirebaseAuthService implements IdpAdapter {
   async createGroup(group: CreateGroup): Promise<t_Group> {
     return groupsRepository.create(group)
   }
+
+  async replaceGroup(id: string, group: CreateGroup): Promise<t_Group> {
+    return groupsRepository.replace(id, group)
+  }
+
+  async deleteGroup(id: string): Promise<void> {
+    return groupsRepository.delete(id)
+  }
+
   async getGroup(id: string): Promise<t_Group> {
     return groupsRepository.getById(id)
   }

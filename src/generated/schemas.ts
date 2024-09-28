@@ -234,7 +234,7 @@ export const s_ServiceProviderConfig = z.object({
 export const s_Group = s_CreateGroup.merge(
   z.object({
     id: z.string(),
-    members: z.array(z.record(z.any())).optional().default([]),
+    members: z.array(z.record(z.any())).optional(),
     meta: s_BaseMeta
       .merge(
         z.object({

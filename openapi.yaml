@@ -136,6 +136,7 @@ paths:
               Filter search for displayName, and status. i.e.:
               `/Groups?filter=displayName eq "Admins"`
             type: string
+        - $ref: '#/components/parameters/excludedAttributes'
         - name: count
           description: Number of results per search
           in: query
@@ -178,6 +179,7 @@ paths:
         in: path
         schema:
           type: string
+      - $ref: '#/components/parameters/excludedAttributes'
     get:
       tags:
         - groups
@@ -271,6 +273,20 @@ paths:
 security:
   - basic: [ ]
 components:
+  parameters:
+    excludedAttributes:
+      name: excludedAttributes
+      description: |
+        A multi-valued list of strings indicating the
+        names of resource attributes to be removed from the default set of
+        attributes to return.  This parameter SHALL have no effect on
+        attributes whose schema "returned" setting is "always" (see
+        Sections 2.2 and 7 of [RFC7643]).  Attribute names MUST be in
+        standard attribute notation (Section 3.10) form.  See Section 3.9
+        for additional retrieval query parameters.
+      in: query
+      schema:
+        type: string
   responses:
     NotFound:
       description: Resource Not Found
@@ -411,7 +427,6 @@ components:
               items:
                 type: object
                 additionalProperties: true
-              default: [ ]
             meta:
               allOf:
                 - $ref: '#/components/schemas/BaseMeta'

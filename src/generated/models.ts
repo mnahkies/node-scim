@@ -211,18 +211,27 @@ export type t_DeleteScimV2GroupsIdParamSchema = {
   id: string
 }
 
+export type t_DeleteScimV2GroupsIdQuerySchema = {
+  excludedAttributes?: string | undefined
+}
+
 export type t_DeleteScimV2UsersIdParamSchema = {
   id: string
 }
 
 export type t_GetScimV2GroupsQuerySchema = {
   count?: number | undefined
+  excludedAttributes?: string | undefined
   filter?: string | undefined
   startIndex?: number | undefined
 }
 
 export type t_GetScimV2GroupsIdParamSchema = {
   id: string
+}
+
+export type t_GetScimV2GroupsIdQuerySchema = {
+  excludedAttributes?: string | undefined
 }
 
 export type t_GetScimV2UsersQuerySchema = {
@@ -248,6 +257,10 @@ export type t_PatchScimV2GroupsIdBodySchema = {
 
 export type t_PatchScimV2GroupsIdParamSchema = {
   id: string
+}
+
+export type t_PatchScimV2GroupsIdQuerySchema = {
+  excludedAttributes?: string | undefined
 }
 
 export type t_PatchScimV2UsersIdBodySchema = {
@@ -297,6 +310,10 @@ export type t_PutScimV2GroupsIdBodySchema = t_CreateGroup & {
 
 export type t_PutScimV2GroupsIdParamSchema = {
   id: string
+}
+
+export type t_PutScimV2GroupsIdQuerySchema = {
+  excludedAttributes?: string | undefined
 }
 
 export type t_PutScimV2UsersIdBodySchema = t_CreateUser & {
