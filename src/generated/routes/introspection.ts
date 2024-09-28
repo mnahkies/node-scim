@@ -14,19 +14,11 @@ import {
   Params,
   responseValidationFactory,
 } from "@nahkies/typescript-koa-runtime/zod"
-import {
-  t_getScimV2ResourceTypesJson200Response,
-  t_getScimV2SchemasJson200Response,
-  t_getScimV2ServiceProviderConfigJson200Response,
-} from "../models"
-import {
-  s_getScimV2ResourceTypesJson200Response,
-  s_getScimV2SchemasJson200Response,
-  s_getScimV2ServiceProviderConfigJson200Response,
-} from "../schemas"
+import {t_ResourceTypes, t_Schemas, t_ServiceProviderConfig} from "../models"
+import {s_ResourceTypes, s_Schemas, s_ServiceProviderConfig} from "../schemas"
 
 export type GetScimV2ServiceProviderConfigResponder = {
-  with200(): KoaRuntimeResponse<t_getScimV2ServiceProviderConfigJson200Response>
+  with200(): KoaRuntimeResponse<t_ServiceProviderConfig>
 } & KoaRuntimeResponder
 
 export type GetScimV2ServiceProviderConfig = (
@@ -34,34 +26,28 @@ export type GetScimV2ServiceProviderConfig = (
   respond: GetScimV2ServiceProviderConfigResponder,
   ctx: RouterContext,
 ) => Promise<
-  | KoaRuntimeResponse<unknown>
-  | Response<200, t_getScimV2ServiceProviderConfigJson200Response>
+  KoaRuntimeResponse<unknown> | Response<200, t_ServiceProviderConfig>
 >
 
 export type GetScimV2ResourceTypesResponder = {
-  with200(): KoaRuntimeResponse<t_getScimV2ResourceTypesJson200Response>
+  with200(): KoaRuntimeResponse<t_ResourceTypes>
 } & KoaRuntimeResponder
 
 export type GetScimV2ResourceTypes = (
   params: Params<void, void, void, void>,
   respond: GetScimV2ResourceTypesResponder,
   ctx: RouterContext,
-) => Promise<
-  | KoaRuntimeResponse<unknown>
-  | Response<200, t_getScimV2ResourceTypesJson200Response>
->
+) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_ResourceTypes>>
 
 export type GetScimV2SchemasResponder = {
-  with200(): KoaRuntimeResponse<t_getScimV2SchemasJson200Response>
+  with200(): KoaRuntimeResponse<t_Schemas>
 } & KoaRuntimeResponder
 
 export type GetScimV2Schemas = (
   params: Params<void, void, void, void>,
   respond: GetScimV2SchemasResponder,
   ctx: RouterContext,
-) => Promise<
-  KoaRuntimeResponse<unknown> | Response<200, t_getScimV2SchemasJson200Response>
->
+) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_Schemas>>
 
 export type Implementation = {
   getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig
@@ -73,10 +59,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   const router = new KoaRouter()
 
   const getScimV2ServiceProviderConfigResponseValidator =
-    responseValidationFactory(
-      [["200", s_getScimV2ServiceProviderConfigJson200Response]],
-      undefined,
-    )
+    responseValidationFactory([["200", s_ServiceProviderConfig]], undefined)
 
   router.get(
     "getScimV2ServiceProviderConfig",
@@ -91,9 +74,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
       const responder = {
         with200() {
-          return new KoaRuntimeResponse<t_getScimV2ServiceProviderConfigJson200Response>(
-            200,
-          )
+          return new KoaRuntimeResponse<t_ServiceProviderConfig>(200)
         },
         withStatus(status: StatusCode) {
           return new KoaRuntimeResponse(status)
@@ -116,7 +97,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   )
 
   const getScimV2ResourceTypesResponseValidator = responseValidationFactory(
-    [["200", s_getScimV2ResourceTypesJson200Response]],
+    [["200", s_ResourceTypes]],
     undefined,
   )
 
@@ -133,9 +114,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
       const responder = {
         with200() {
-          return new KoaRuntimeResponse<t_getScimV2ResourceTypesJson200Response>(
-            200,
-          )
+          return new KoaRuntimeResponse<t_ResourceTypes>(200)
         },
         withStatus(status: StatusCode) {
           return new KoaRuntimeResponse(status)
@@ -158,7 +137,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   )
 
   const getScimV2SchemasResponseValidator = responseValidationFactory(
-    [["200", s_getScimV2SchemasJson200Response]],
+    [["200", s_Schemas]],
     undefined,
   )
 
@@ -172,7 +151,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
     const responder = {
       with200() {
-        return new KoaRuntimeResponse<t_getScimV2SchemasJson200Response>(200)
+        return new KoaRuntimeResponse<t_Schemas>(200)
       },
       withStatus(status: StatusCode) {
         return new KoaRuntimeResponse(status)

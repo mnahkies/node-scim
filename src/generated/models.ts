@@ -2,8 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type EmptyObject = {[key: string]: never}
-
 export type t_CreateGroup = {
   displayName: string
   externalId: string
@@ -41,6 +39,113 @@ export type t_GroupResourceMeta = {
 
 export type t_GroupResourceSchemas =
   "urn:ietf:params:scim:schemas:core:2.0:Group"[]
+
+export type t_ListResponse = {
+  itemsPerPage?: number | undefined
+  schemas?: "urn:ietf:params:scim:api:messages:2.0:ListResponse"[] | undefined
+  startIndex?: number | undefined
+  totalResults: number
+}
+
+export type t_ResourceType = {
+  description: string
+  id: string
+  name: string
+  plurar: string
+  schema: string
+  schemaExtensions: string[]
+}
+
+export type t_ResourceTypes = t_ListResponse & {
+  Resources: t_ResourceType[]
+}
+
+export type t_Schema = {
+  attributes?: t_ScimAttribute[] | undefined
+  description?: string | undefined
+  id?: string | undefined
+  meta?:
+    | {
+        location?: string | undefined
+        resourceType?: string | undefined
+      }
+    | undefined
+  name?: string | undefined
+  schemas?: "urn:ietf:params:scim:schemas:core:2.0:Schema"[] | undefined
+}
+
+export type t_Schemas = t_ListResponse & {
+  Resources: t_Schema[]
+}
+
+export type t_ScimAttribute = {
+  caseExact?: boolean | undefined
+  description: string
+  multiValued: boolean
+  mutability: string
+  name: string
+  required: boolean
+  returned: string
+  type: string
+  uniqueness?: ("none" | "server" | "global") | undefined
+}
+
+export type t_ServiceProviderConfig = {
+  authenticationSchemes: t_ServiceProviderConfigAuthenticationScheme[]
+  bulk: {
+    maxOperations?: number | undefined
+    maxPayloadSize?: number | undefined
+    supported?: boolean | undefined
+  }
+  changePassword: {
+    supported?: boolean | undefined
+  }
+  documentationUri?: string | undefined
+  etag: {
+    supported?: boolean | undefined
+  }
+  filter: {
+    maxResults?: number | undefined
+    supported?: boolean | undefined
+  }
+  meta?:
+    | {
+        created?: string | undefined
+        lastModified?: string | undefined
+        location?: string | undefined
+        resourceType?: "ServiceProviderConfig" | undefined
+        version?: string | undefined
+      }
+    | undefined
+  pagination?:
+    | {
+        cursor?: boolean | undefined
+        cursorTimeout?: number | undefined
+        defaultPageSize?: number | undefined
+        defaultPaginationMethod?: ("index" | "cursor") | undefined
+        index?: boolean | undefined
+        maxPageSize?: number | undefined
+      }
+    | undefined
+  patch: {
+    supported?: boolean | undefined
+  }
+  schemas?:
+    | "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"[]
+    | undefined
+  sort: {
+    supported?: boolean | undefined
+  }
+}
+
+export type t_ServiceProviderConfigAuthenticationScheme = {
+  description: string
+  documentationUri?: string | undefined
+  name: string
+  primary?: boolean | undefined
+  specUri?: string | undefined
+  type: "oauth" | "oauth2" | "oauthbearertoken" | "httpbasic" | "httpdigest"
+}
 
 export type t_User = t_CreateUser & {
   id?: string | undefined
@@ -95,12 +200,6 @@ export type t_GetScimV2GroupsQuerySchema = {
 export type t_GetScimV2GroupsIdParamSchema = {
   id: string
 }
-
-export type t_getScimV2ResourceTypesJson200Response = EmptyObject
-
-export type t_getScimV2SchemasJson200Response = EmptyObject
-
-export type t_getScimV2ServiceProviderConfigJson200Response = EmptyObject
 
 export type t_GetScimV2UsersQuerySchema = {
   count?: number | undefined

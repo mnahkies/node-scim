@@ -44,6 +44,52 @@ export const s_GroupResourceSchemas = z
   .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:Group"]))
   .default(["urn:ietf:params:scim:schemas:core:2.0:Group"])
 
+export const s_ListResponse = z.object({
+  schemas: z
+    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:ListResponse"]))
+    .optional()
+    .default(["urn:ietf:params:scim:api:messages:2.0:ListResponse"]),
+  totalResults: z.coerce.number(),
+  itemsPerPage: z.coerce.number().optional().default(100),
+  startIndex: z.coerce.number().optional().default(1),
+})
+
+export const s_ResourceType = z.object({
+  id: z.string(),
+  name: z.string(),
+  plurar: z.string(),
+  description: z.string(),
+  schema: z.string(),
+  schemaExtensions: z.array(z.string()),
+})
+
+export const s_ScimAttribute = z.object({
+  name: z.string(),
+  type: z.string(),
+  multiValued: PermissiveBoolean,
+  description: z.string(),
+  required: PermissiveBoolean,
+  caseExact: PermissiveBoolean.optional().default(false),
+  mutability: z.string(),
+  returned: z.string(),
+  uniqueness: z.enum(["none", "server", "global"]).optional().default("none"),
+})
+
+export const s_ServiceProviderConfigAuthenticationScheme = z.object({
+  type: z.enum([
+    "oauth",
+    "oauth2",
+    "oauthbearertoken",
+    "httpbasic",
+    "httpdigest",
+  ]),
+  name: z.string(),
+  description: z.string(),
+  specUri: z.string().optional(),
+  documentationUri: z.string().optional(),
+  primary: PermissiveBoolean.optional().default(false),
+})
+
 export const s_UserEmail = z.object({
   primary: PermissiveBoolean.optional().default(false),
   type: z.string().optional(),
@@ -97,12 +143,85 @@ export const s_CreateUser = z.object({
   groups: z.array(z.any()).default([]),
 })
 
+export const s_ResourceTypes = s_ListResponse.merge(
+  z.object({Resources: z.array(s_ResourceType)}),
+)
+
+export const s_Schema = z.object({
+  schemas: z
+    .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:Schema"]))
+    .optional()
+    .default(["urn:ietf:params:scim:schemas:core:2.0:Schema"]),
+  id: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  attributes: z.array(s_ScimAttribute).optional(),
+  meta: z
+    .object({
+      resourceType: z.string().optional(),
+      location: z.string().optional(),
+    })
+    .optional(),
+})
+
+export const s_ServiceProviderConfig = z.object({
+  schemas: z
+    .array(
+      z.enum(["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"]),
+    )
+    .optional()
+    .default(["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"]),
+  documentationUri: z.string().optional(),
+  patch: z.object({supported: PermissiveBoolean.optional().default(false)}),
+  bulk: z.object({
+    supported: PermissiveBoolean.optional().default(false),
+    maxOperations: z.coerce.number().optional(),
+    maxPayloadSize: z.coerce.number().optional(),
+  }),
+  filter: z.object({
+    supported: PermissiveBoolean.optional().default(false),
+    maxResults: z.coerce.number().optional(),
+  }),
+  changePassword: z.object({
+    supported: PermissiveBoolean.optional().default(false),
+  }),
+  sort: z.object({supported: PermissiveBoolean.optional().default(false)}),
+  etag: z.object({supported: PermissiveBoolean.optional().default(false)}),
+  pagination: z
+    .object({
+      cursor: PermissiveBoolean.optional().default(false),
+      index: PermissiveBoolean.optional().default(false),
+      defaultPaginationMethod: z.enum(["index", "cursor"]).optional(),
+      defaultPageSize: z.coerce.number().optional().default(10),
+      maxPageSize: z.coerce.number().optional().default(100),
+      cursorTimeout: z.coerce.number().optional().default(3600),
+    })
+    .optional(),
+  authenticationSchemes: z.array(s_ServiceProviderConfigAuthenticationScheme),
+  meta: z
+    .object({
+      location: z.string().optional(),
+      resourceType: z
+        .enum(["ServiceProviderConfig"])
+        .optional()
+        .default("ServiceProviderConfig"),
+      created: z.string().datetime({offset: true}).optional(),
+      lastModified: z.string().datetime({offset: true}).optional(),
+      version: z.string().optional(),
+    })
+    .optional(),
+})
+
 export const s_Group = s_CreateGroup.merge(
   z.object({
     id: z.string(),
     members: z.array(z.any()).optional().default([]),
     meta: s_GroupResourceMeta.optional(),
   }),
+)
+
+export const s_Schemas = s_ListResponse.merge(
+  z.object({Resources: z.array(s_Schema)}),
 )
 
 export const s_User = s_CreateUser.merge(
@@ -116,9 +235,3 @@ export const s_UserCollection = z.object({
   itemsPerPage: z.coerce.number(),
   resources: z.array(s_User),
 })
-
-export const s_getScimV2ServiceProviderConfigJson200Response = z.object({})
-
-export const s_getScimV2ResourceTypesJson200Response = z.object({})
-
-export const s_getScimV2SchemasJson200Response = z.object({})
