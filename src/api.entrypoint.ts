@@ -18,9 +18,9 @@ export async function main(): Promise<{
 }> {
   const app = new Koa()
 
+  app.use(loggerMiddleware())
   app.use(errorMiddleware())
   app.use(KoaBody())
-  app.use(loggerMiddleware())
   app.use(authenticationMiddleware({secretKey: config.secretKey}))
 
   const router = new KoaRouter()

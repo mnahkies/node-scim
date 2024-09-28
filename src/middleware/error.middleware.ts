@@ -1,7 +1,11 @@
 import {KoaRuntimeError} from "@nahkies/typescript-koa-runtime/errors"
 import type {Context, Middleware, Next} from "koa"
-import {ZodError} from "zod"
-import {DomainError, NotFoundError} from "../errors"
+import {
+  DomainError,
+  InternalServerError,
+  NotFoundError,
+  ValidationError,
+} from "../errors"
 export function errorMiddleware(): Middleware {
   return async function errorMiddleware(ctx: Context, next: Next) {
     try {
@@ -19,45 +23,22 @@ export function errorMiddleware(): Middleware {
         KoaRuntimeError.isKoaError(err) &&
         err.phase === "request_validation"
       ) {
-        console.warn("invalid request", err)
-        ctx.status = 400
-        ctx.set("Content-Type", "application/json")
-        ctx.body = JSON.stringify(
-          {
-            error: "validation failed",
-            err: err.cause instanceof ZodError ? err.cause.errors : err,
-          },
-          undefined,
-          2,
-        )
-        return
+        return doErrorResponse(ctx, new ValidationError(cause))
       }
 
       if (cause instanceof DomainError) {
-        ctx.status = cause.statusCode
-        ctx.set("Content-Type", "application/json")
-        ctx.body = JSON.stringify(cause, undefined, 2)
-        return
+        return doErrorResponse(ctx, cause)
       }
 
-      console.log("error handling request", err)
-      ctx.status = 500
-      ctx.set("Content-Type", "application/json")
-      ctx.body = JSON.stringify(
-        {
-          error: "internal server error",
-          err: {
-            message: err.message,
-            stack: err.stack,
-            cause: err.cause && {
-              message: err.cause.message,
-              stack: err.cause.stack,
-            },
-          },
-        },
-        undefined,
-        2,
-      )
+      return doErrorResponse(ctx, new InternalServerError(cause))
     }
   }
+}
+
+function doErrorResponse(ctx: Context, err: DomainError<string, unknown>) {
+  console.log("error handling request", err)
+
+  ctx.status = err.statusCode
+  ctx.set("Content-Type", "application/json")
+  ctx.body = JSON.stringify(err, undefined, 2)
 }

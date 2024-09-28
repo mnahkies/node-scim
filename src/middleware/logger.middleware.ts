@@ -24,6 +24,7 @@ export function loggerMiddleware(): Middleware {
           url: ctx.request.url,
           status: ctx.status,
           body: ctx.body,
+          headers: ctx.response.headers,
         },
         undefined,
         4,

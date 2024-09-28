@@ -69,7 +69,6 @@ const getScimV2ResourceTypes: GetScimV2ResourceTypes = async (_, respond) => {
     {
       id: "User",
       name: "Users",
-      plurar: "Users",
       description: "User Account",
       schema: "urn:ietf:params:scim:schemas:core:2.0:User",
       schemaExtensions: [
@@ -79,7 +78,6 @@ const getScimV2ResourceTypes: GetScimV2ResourceTypes = async (_, respond) => {
     {
       id: "Group",
       name: "Groups",
-      plurar: "Groups",
       description: "Group",
       schema: "urn:ietf:params:scim:schemas:core:2.0:Group",
       schemaExtensions: [],

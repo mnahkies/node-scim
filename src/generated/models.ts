@@ -49,11 +49,14 @@ export type t_ListResponse = {
 
 export type t_ResourceType = {
   description: string
-  id: string
+  endpoint?: string | undefined
+  id?: string | undefined
   name: string
-  plurar: string
   schema: string
-  schemaExtensions: string[]
+  schemaExtensions: {
+    required?: boolean | undefined
+    schema?: string | undefined
+  }[]
 }
 
 export type t_ResourceTypes = t_ListResponse & {
@@ -92,6 +95,11 @@ export type t_ScimAttribute = {
 
 export type t_ScimException = {
   detail: string
+  metadata?:
+    | {
+        [key: string]: any | undefined
+      }
+    | undefined
   schemas?: "urn:ietf:params:scim:api:messages:2.0:Error"[] | undefined
   status: number
 }

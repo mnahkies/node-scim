@@ -584,14 +584,16 @@ components:
           type: array
           items:
             enum:
-            - 'urn:ietf:params:scim:api:messages:2.0:Error'
+              - 'urn:ietf:params:scim:api:messages:2.0:Error'
             type: string
-          default: ["urn:ietf:params:scim:api:messages:2.0:Error"]
+          default: [ "urn:ietf:params:scim:api:messages:2.0:Error" ]
         detail:
           type: string
         status:
           type: number
-
+        metadata:
+          type: object
+          additionalProperties: true
     #
     # Introspection
     #
@@ -784,25 +786,33 @@ components:
         name:
           type: string
           description: "The name of the SCIM schema."
-        plurar:
-          type: string
-          description: "The plural form of the schema name."
         description:
           type: string
           description: "A description of the SCIM schema."
+        endpoint:
+          type: string
+          description: |
+            The resource type's HTTP-addressable endpoint relative to the Base URL of the service provider, e.g., "Users".  REQUIRED.
+          example: Users
         schema:
           type: string
           description: "The URI of the SCIM schema."
+          example: "urn:ietf:params:scim:schemas:core:2.0:User"
         schemaExtensions:
           type: array
           description: "An array of URIs representing schema extensions."
           items:
-            type: string
-            description: "A URI for a schema extension."
+            type: object
+            properties:
+              schema:
+                type: string
+                description: "A URI for a schema extension."
+                example: "urn:edu:2.0:Staff"
+              required:
+                type: boolean
+                default: false
       required:
-        - id
         - name
-        - plurar
         - description
         - schema
         - schemaExtensions

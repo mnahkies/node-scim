@@ -55,12 +55,17 @@ export const s_ListResponse = z.object({
 })
 
 export const s_ResourceType = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   name: z.string(),
-  plurar: z.string(),
   description: z.string(),
+  endpoint: z.string().optional(),
   schema: z.string(),
-  schemaExtensions: z.array(z.string()),
+  schemaExtensions: z.array(
+    z.object({
+      schema: z.string().optional(),
+      required: PermissiveBoolean.optional().default(false),
+    }),
+  ),
 })
 
 export const s_ScimAttribute = z.object({
@@ -82,6 +87,7 @@ export const s_ScimException = z.object({
     .default(["urn:ietf:params:scim:api:messages:2.0:Error"]),
   detail: z.string(),
   status: z.coerce.number(),
+  metadata: z.record(z.any()).optional(),
 })
 
 export const s_ServiceProviderConfigAuthenticationScheme = z.object({
