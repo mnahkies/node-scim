@@ -10,7 +10,8 @@
     "noUnusedParameters": false,
     "moduleResolution": "Node16",
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "allowJs": true
   },
   "include": ["src/**/*"]
 }

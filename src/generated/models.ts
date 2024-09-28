@@ -2,9 +2,16 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export type t_BaseMeta = {
+  created?: string | undefined
+  lastModified?: string | undefined
+  location?: string | undefined
+  version?: string | undefined
+}
+
 export type t_CreateGroup = {
   displayName: string
-  externalId: string
+  externalId?: string | undefined
   schemas: t_GroupResourceSchemas
 }
 
@@ -21,20 +28,24 @@ export type t_CreateUser = {
 
 export type t_Group = t_CreateGroup & {
   id: string
-  members?: any[] | undefined
-  meta?: t_GroupResourceMeta | undefined
+  members?:
+    | {
+        [key: string]: any | undefined
+      }[]
+    | undefined
+  meta?:
+    | (t_BaseMeta & {
+        resourceType?: "ServiceProviderConfig" | undefined
+      })
+    | undefined
 }
 
 export type t_GroupCollection = {
+  Resources: any[]
   itemsPerPage: number
-  resources: any[]
-  schemas: string[]
+  schemas: t_ListResponseSchemas
   startIndex: number
   totalResults: number
-}
-
-export type t_GroupResourceMeta = {
-  resourceType?: "Group" | undefined
 }
 
 export type t_GroupResourceSchemas =
@@ -46,6 +57,9 @@ export type t_ListResponse = {
   startIndex?: number | undefined
   totalResults: number
 }
+
+export type t_ListResponseSchemas =
+  "urn:ietf:params:scim:api:messages:2.0:ListResponse"[]
 
 export type t_ResourceType = {
   description: string
@@ -100,7 +114,7 @@ export type t_ScimException = {
         [key: string]: any | undefined
       }
     | undefined
-  schemas?: "urn:ietf:params:scim:api:messages:2.0:Error"[] | undefined
+  schemas: "urn:ietf:params:scim:api:messages:2.0:Error"[]
   status: number
 }
 
@@ -123,13 +137,9 @@ export type t_ServiceProviderConfig = {
     supported?: boolean | undefined
   }
   meta?:
-    | {
-        created?: string | undefined
-        lastModified?: string | undefined
-        location?: string | undefined
+    | (t_BaseMeta & {
         resourceType?: "ServiceProviderConfig" | undefined
-        version?: string | undefined
-      }
+      })
     | undefined
   pagination?:
     | {
@@ -167,9 +177,9 @@ export type t_User = t_CreateUser & {
 }
 
 export type t_UserCollection = {
+  Resources: t_User[]
   itemsPerPage: number
-  resources: t_User[]
-  schemas: t_UserResourceSchemas
+  schemas: t_ListResponseSchemas
   startIndex: number
   totalResults: number
 }
@@ -256,7 +266,7 @@ export type t_PatchScimV2UsersIdParamSchema = {
 
 export type t_PostScimV2GroupsBodySchema = {
   displayName: string
-  externalId: string
+  externalId?: string | undefined
   schemas: t_GroupResourceSchemas
 }
 
@@ -273,8 +283,16 @@ export type t_PostScimV2UsersBodySchema = {
 
 export type t_PutScimV2GroupsIdBodySchema = t_CreateGroup & {
   id: string
-  members?: any[] | undefined
-  meta?: t_GroupResourceMeta | undefined
+  members?:
+    | {
+        [key: string]: any | undefined
+      }[]
+    | undefined
+  meta?:
+    | (t_BaseMeta & {
+        resourceType?: "ServiceProviderConfig" | undefined
+      })
+    | undefined
 }
 
 export type t_PutScimV2GroupsIdParamSchema = {

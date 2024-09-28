@@ -1,5 +1,6 @@
 import {ZodError} from "zod"
 import type {t_ScimException} from "./generated/models"
+import {s_ScimException} from "./generated/schemas"
 
 export abstract class DomainError<Type extends string, Meta> extends Error {
   abstract readonly type: Type
@@ -14,11 +15,11 @@ export abstract class DomainError<Type extends string, Meta> extends Error {
   }
 
   toJSON(): t_ScimException {
-    return {
+    return s_ScimException.passthrough().parse({
       status: this.statusCode,
       detail: this.message,
       metadata: this.metadata,
-    }
+    })
   }
 }
 
@@ -28,6 +29,18 @@ export class NotFoundError extends DomainError<"not-found", {id: string}> {
 
   constructor(id: string) {
     super(`Resource "${id}" not found`, {id})
+  }
+}
+
+export class ConflictError extends DomainError<"conflict", unknown> {
+  type = "conflict" as const
+  statusCode = 409
+
+  constructor(value: string) {
+    super(
+      `Conflicts with existing resource for unique field with value '${value}'`,
+      {value},
+    )
   }
 }
 

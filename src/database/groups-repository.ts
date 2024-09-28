@@ -1,4 +1,5 @@
 import crypto from "node:crypto"
+import {ConflictError, NotFoundError} from "../errors"
 import type {t_Group} from "../generated/models"
 import type {CreateGroup} from "../idp-adapters/types"
 
@@ -6,8 +7,10 @@ export class GroupsRepository {
   private readonly data: Record<string, t_Group> = {}
 
   async create(it: CreateGroup): Promise<t_Group> {
-    if (!it.externalId) {
-      throw new Error("no externalId")
+    if (
+      Object.values(this.data).find((e) => e.displayName === it.displayName)
+    ) {
+      throw new ConflictError(it.displayName)
     }
 
     const id = crypto.randomUUID()
@@ -24,5 +27,19 @@ export class GroupsRepository {
     this.data[id] = group
 
     return group
+  }
+
+  async getById(id: string): Promise<t_Group> {
+    const result = this.data[id]
+
+    if (!result) {
+      throw new NotFoundError(id)
+    }
+
+    return result
+  }
+
+  async listGroups() {
+    return Object.values(this.data)
   }
 }

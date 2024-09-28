@@ -2,15 +2,14 @@ import type {Server} from "node:http"
 import type {AddressInfo} from "node:net"
 import KoaRouter from "@koa/router"
 import Koa from "koa"
-import KoaBody from "koa-body"
 import {config} from "./config"
 import {authenticationMiddleware} from "./middleware/authentication.middleware"
+import {bodyMiddleware} from "./middleware/body.middleware"
 import {errorMiddleware} from "./middleware/error.middleware"
 import {loggerMiddleware} from "./middleware/logger.middleware"
 import {createGroupsRouter} from "./routes/groups"
 import {createIntrospectionRouter} from "./routes/introspection"
 import {createUsersRouter} from "./routes/users"
-
 export async function main(): Promise<{
   app: Koa
   server: Server
@@ -20,7 +19,7 @@ export async function main(): Promise<{
 
   app.use(loggerMiddleware())
   app.use(errorMiddleware())
-  app.use(KoaBody())
+  app.use(bodyMiddleware())
   app.use(authenticationMiddleware({secretKey: config.secretKey}))
 
   const router = new KoaRouter()

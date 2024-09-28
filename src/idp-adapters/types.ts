@@ -8,7 +8,7 @@ export type CreateUser = {
 }
 
 export type CreateGroup = {
-  externalId: string | undefined
+  externalId?: string | undefined
   displayName: string
 }
 

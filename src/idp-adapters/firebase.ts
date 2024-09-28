@@ -6,7 +6,7 @@ import {
   getAuth,
 } from "firebase-admin/auth"
 import {groupsRepository} from "../database/repositories"
-import {NotFoundError} from "../errors"
+import {ConflictError, NotFoundError, ValidationError} from "../errors"
 import type {t_Group, t_User} from "../generated/models"
 import type {CreateGroup, CreateUser, IdpAdapter} from "./types"
 
@@ -15,6 +15,7 @@ function mapFirebaseUserToScimUserResource(user: UserRecord): t_User {
 
   return {
     id: user.uid,
+    displayName: user.displayName,
     active: !user.disabled,
     emails: [],
     groups: [],
@@ -72,6 +73,21 @@ export class FirebaseAuthService implements IdpAdapter {
     if (!user.externalId) {
       console.error(JSON.stringify(user))
       throw new Error("no externalId")
+    }
+
+    const existing = await this.auth.getUserByEmail(user.email).catch((err) => {
+      // todo; handle other error codes
+      if (
+        err instanceof FirebaseAuthError &&
+        err.code === "auth/user-not-found"
+      ) {
+        return undefined
+      }
+      throw err
+    })
+
+    if (existing) {
+      throw new ConflictError(user.email)
     }
 
     const firebaseUser = await this.auth.createUser({
@@ -134,8 +150,15 @@ export class FirebaseAuthService implements IdpAdapter {
     }
   }
 
+  async listGroups() {
+    return groupsRepository.listGroups()
+  }
+
   async createGroup(group: CreateGroup): Promise<t_Group> {
     return groupsRepository.create(group)
+  }
+  async getGroup(id: string): Promise<t_Group> {
+    return groupsRepository.getById(id)
   }
 
   private mapNotFoundError(err: unknown, id: string) {

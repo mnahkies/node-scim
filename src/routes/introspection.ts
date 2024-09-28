@@ -15,6 +15,7 @@ const getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
   const now = new Date().toISOString()
 
   return respond.with200().body({
+    documentationUri: "http://example.com/docs",
     patch: {
       supported: false,
     },

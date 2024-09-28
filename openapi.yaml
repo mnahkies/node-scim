@@ -279,6 +279,15 @@ components:
           schema:
             $ref: '#/components/schemas/ScimException'
   schemas:
+    ListResponseSchemas:
+      description: The list of schemas
+      type: array
+      items:
+        type: string
+        enum:
+          - 'urn:ietf:params:scim:api:messages:2.0:ListResponse'
+      default: [ 'urn:ietf:params:scim:api:messages:2.0:ListResponse' ]
+
     GroupCollection:
       description: Class describing a collection of gorups
       type: object
@@ -287,20 +296,17 @@ components:
         - totalResults
         - startIndex
         - itemsPerPage
-        - resources
+        - Resources
       properties:
         schemas:
-          description: The list of schemas
-          type: array
-          items:
-            type: string
+          $ref: '#/components/schemas/ListResponseSchemas'
         totalResults:
           type: integer
         startIndex:
           type: integer
         itemsPerPage:
           type: integer
-        resources:
+        Resources:
           description: The list of groups
           type: array
           items: { }
@@ -378,17 +384,9 @@ components:
           - "urn:ietf:params:scim:schemas:core:2.0:Group"
       default: [ "urn:ietf:params:scim:schemas:core:2.0:Group" ]
 
-    GroupResourceMeta:
-      type: object
-      properties:
-        resourceType:
-          type: string
-          enum:
-            - "Group"
     CreateGroup:
       required:
         - schemas
-        - externalId
         - displayName
       properties:
         schemas:
@@ -410,11 +408,20 @@ components:
             members:
               description: The list of groups
               type: array
-              items: { }
+              items:
+                type: object
+                additionalProperties: true
               default: [ ]
             meta:
-              $ref: '#/components/schemas/GroupResourceMeta'
-    #
+              allOf:
+                - $ref: '#/components/schemas/BaseMeta'
+                - type: object
+                  properties:
+                    resourceType:
+                      type: string
+                      enum:
+                        - ServiceProviderConfig
+                      default: ServiceProviderConfig
     # Users
     #
     UserCollection:
@@ -425,17 +432,17 @@ components:
         - totalResults
         - startIndex
         - itemsPerPage
-        - resources
+        - Resources
       properties:
         schemas:
-          $ref: '#/components/schemas/UserResourceSchemas'
+          $ref: '#/components/schemas/ListResponseSchemas'
         totalResults:
           type: integer
         startIndex:
           type: integer
         itemsPerPage:
           type: integer
-        resources:
+        Resources:
           description: The list of users
           type: array
           items:
@@ -576,6 +583,7 @@ components:
       description: SCIM Exception
       type: object
       required:
+        - schemas
         - detail
         - status
       properties:
@@ -597,6 +605,22 @@ components:
     #
     # Introspection
     #
+    BaseMeta:
+      type: object
+      properties:
+        location:
+          type: string
+          format: uri
+          example: https://example.com/scim/v2/ServiceProviderConfig
+        created:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+        version:
+          type: string
+
     ServiceProviderConfig:
       type: object
       required:
@@ -688,25 +712,15 @@ components:
           items:
             $ref: '#/components/schemas/ServiceProviderConfigAuthenticationScheme'
         meta:
-          type: object
-          properties:
-            location:
-              type: string
-              format: uri
-              example: https://example.com/scim/v2/ServiceProviderConfig
-            resourceType:
-              type: string
-              enum:
-                - ServiceProviderConfig
-              default: ServiceProviderConfig
-            created:
-              type: string
-              format: date-time
-            lastModified:
-              type: string
-              format: date-time
-            version:
-              type: string
+          allOf:
+            - $ref: '#/components/schemas/BaseMeta'
+            - type: object
+              properties:
+                resourceType:
+                  type: string
+                  enum:
+                    - ServiceProviderConfig
+                  default: ServiceProviderConfig
 
     ServiceProviderConfigAuthenticationScheme:
       type: object

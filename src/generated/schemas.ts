@@ -13,12 +13,11 @@ export const PermissiveBoolean = z.preprocess((value) => {
   return value
 }, z.boolean())
 
-export const s_GroupCollection = z.object({
-  schemas: z.array(z.string()),
-  totalResults: z.coerce.number(),
-  startIndex: z.coerce.number(),
-  itemsPerPage: z.coerce.number(),
-  resources: z.array(z.any()),
+export const s_BaseMeta = z.object({
+  location: z.string().optional(),
+  created: z.string().datetime({offset: true}).optional(),
+  lastModified: z.string().datetime({offset: true}).optional(),
+  version: z.string().optional(),
 })
 
 export const s_GroupPatchOp = z.object({
@@ -36,10 +35,6 @@ export const s_GroupPatchOp = z.object({
   ),
 })
 
-export const s_GroupResourceMeta = z.object({
-  resourceType: z.enum(["Group"]).optional(),
-})
-
 export const s_GroupResourceSchemas = z
   .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:Group"]))
   .default(["urn:ietf:params:scim:schemas:core:2.0:Group"])
@@ -53,6 +48,10 @@ export const s_ListResponse = z.object({
   itemsPerPage: z.coerce.number().optional().default(100),
   startIndex: z.coerce.number().optional().default(1),
 })
+
+export const s_ListResponseSchemas = z
+  .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:ListResponse"]))
+  .default(["urn:ietf:params:scim:api:messages:2.0:ListResponse"])
 
 export const s_ResourceType = z.object({
   id: z.string().optional(),
@@ -83,7 +82,6 @@ export const s_ScimAttribute = z.object({
 export const s_ScimException = z.object({
   schemas: z
     .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:Error"]))
-    .optional()
     .default(["urn:ietf:params:scim:api:messages:2.0:Error"]),
   detail: z.string(),
   status: z.coerce.number(),
@@ -143,7 +141,7 @@ export const s_UserResourceSchemas = z
 
 export const s_CreateGroup = z.object({
   schemas: s_GroupResourceSchemas,
-  externalId: z.string(),
+  externalId: z.string().optional(),
   displayName: z.string(),
 })
 
@@ -156,6 +154,14 @@ export const s_CreateUser = z.object({
   emails: z.array(s_UserEmail).default([]),
   active: PermissiveBoolean.default(true),
   groups: z.array(z.any()).default([]),
+})
+
+export const s_GroupCollection = z.object({
+  schemas: s_ListResponseSchemas,
+  totalResults: z.coerce.number(),
+  startIndex: z.coerce.number(),
+  itemsPerPage: z.coerce.number(),
+  Resources: z.array(z.any()),
 })
 
 export const s_ResourceTypes = s_ListResponse.merge(
@@ -213,25 +219,32 @@ export const s_ServiceProviderConfig = z.object({
     })
     .optional(),
   authenticationSchemes: z.array(s_ServiceProviderConfigAuthenticationScheme),
-  meta: z
-    .object({
-      location: z.string().optional(),
-      resourceType: z
-        .enum(["ServiceProviderConfig"])
-        .optional()
-        .default("ServiceProviderConfig"),
-      created: z.string().datetime({offset: true}).optional(),
-      lastModified: z.string().datetime({offset: true}).optional(),
-      version: z.string().optional(),
-    })
+  meta: s_BaseMeta
+    .merge(
+      z.object({
+        resourceType: z
+          .enum(["ServiceProviderConfig"])
+          .optional()
+          .default("ServiceProviderConfig"),
+      }),
+    )
     .optional(),
 })
 
 export const s_Group = s_CreateGroup.merge(
   z.object({
     id: z.string(),
-    members: z.array(z.any()).optional().default([]),
-    meta: s_GroupResourceMeta.optional(),
+    members: z.array(z.record(z.any())).optional().default([]),
+    meta: s_BaseMeta
+      .merge(
+        z.object({
+          resourceType: z
+            .enum(["ServiceProviderConfig"])
+            .optional()
+            .default("ServiceProviderConfig"),
+        }),
+      )
+      .optional(),
   }),
 )
 
@@ -244,9 +257,9 @@ export const s_User = s_CreateUser.merge(
 )
 
 export const s_UserCollection = z.object({
-  schemas: s_UserResourceSchemas,
+  schemas: s_ListResponseSchemas,
   totalResults: z.coerce.number(),
   startIndex: z.coerce.number(),
   itemsPerPage: z.coerce.number(),
-  resources: z.array(s_User),
+  Resources: z.array(s_User),
 })

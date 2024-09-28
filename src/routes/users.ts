@@ -1,3 +1,5 @@
+import {z} from "zod"
+
 import {ValidationError} from "../errors"
 import type {
   t_CreateUser,
@@ -14,15 +16,22 @@ import {
 } from "../generated/routes/users"
 import {firebase} from "../idp-adapters/idp-adapters"
 import type {CreateUser} from "../idp-adapters/types"
-import {notImplemented} from "../utils"
+import {notImplemented, parseFilter} from "../utils"
 
 const requestBodyToCreateUser = (
   body: t_CreateUser | t_PutScimV2UsersIdBodySchema,
 ): CreateUser => {
-  const primaryEmail = body.emails.find((it) => it.primary) || body.emails[0]
+  const primaryEmail = body.emails.find((it) => it.primary) ||
+    body.emails[0] || {value: body.userName}
 
   if (!primaryEmail) {
     throw new ValidationError(new Error("must provide at least one email"))
+  }
+
+  if (!z.string().email().safeParse(primaryEmail.value).data) {
+    throw new ValidationError(
+      new Error(`invalid primary email '${primaryEmail.value}'`),
+    )
   }
 
   const externalId = body.externalId || body.userName
@@ -38,12 +47,26 @@ const requestBodyToCreateUser = (
 }
 
 export const getScimV2Users: GetScimV2Users = async ({query}, respond) => {
-  const users = await firebase.listUsers()
+  let users = await firebase.listUsers()
+
+  // todo; support filter properly
+  if (query.filter) {
+    const filter = parseFilter(query.filter)
+    users = users.filter((it) => {
+      switch (filter.operator) {
+        case "eq":
+          // @ts-ignore
+          return it[filter.left].toLowerCase() === filter.right.toLowerCase()
+        default:
+          throw new Error("not supported")
+      }
+    })
+  }
 
   return respond.with200().body({
     itemsPerPage: users.length,
-    resources: users,
-    schemas: [],
+    schemas: ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
+    Resources: users,
     startIndex: 0,
     totalResults: users.length,
   })

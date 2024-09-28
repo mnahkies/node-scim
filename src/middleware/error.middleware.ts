@@ -39,6 +39,12 @@ function doErrorResponse(ctx: Context, err: DomainError<string, unknown>) {
   console.log("error handling request", err)
 
   ctx.status = err.statusCode
-  ctx.set("Content-Type", "application/json")
+
+  if (ctx.get("Accept") === "application/scim+json") {
+    ctx.set("Content-Type", "application/scim+json")
+  } else {
+    ctx.set("Content-Type", "application/json")
+  }
+
   ctx.body = JSON.stringify(err, undefined, 2)
 }

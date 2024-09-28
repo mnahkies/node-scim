@@ -2,6 +2,7 @@ import type {Context, Middleware, Next} from "koa"
 
 export function loggerMiddleware(): Middleware {
   return async function loggerMiddleware(ctx: Context, next: Next) {
+    // todo; reduce logging / don't log bodies
     console.info(
       `request started \n${JSON.stringify(
         {
@@ -9,6 +10,7 @@ export function loggerMiddleware(): Middleware {
           url: ctx.request.url,
           query: ctx.request.query,
           body: ctx.request.body,
+          headers: ctx.request.headers,
         },
         undefined,
         4,
