@@ -1,3 +1,8 @@
+import {ValidationError} from "../errors"
+import type {
+  t_CreateUser,
+  t_PutScimV2UsersIdBodySchema,
+} from "../generated/models"
 import {
   type DeleteScimV2UsersId,
   type GetScimV2Users,
@@ -8,7 +13,29 @@ import {
   createRouter,
 } from "../generated/routes/users"
 import {firebase} from "../idp-adapters/idp-adapters"
+import type {CreateUser} from "../idp-adapters/types"
 import {notImplemented} from "../utils"
+
+const requestBodyToCreateUser = (
+  body: t_CreateUser | t_PutScimV2UsersIdBodySchema,
+): CreateUser => {
+  const primaryEmail = body.emails.find((it) => it.primary) || body.emails[0]
+
+  if (!primaryEmail) {
+    throw new ValidationError(new Error("must provide at least one email"))
+  }
+
+  const externalId = body.externalId || body.userName
+
+  const displayName = body.displayName || body.name?.formatted || "Unknown"
+
+  return {
+    email: primaryEmail.value,
+    externalId,
+    displayName,
+    disabled: !body.active,
+  }
+}
 
 export const getScimV2Users: GetScimV2Users = async ({query}, respond) => {
   const users = await firebase.listUsers()
@@ -32,25 +59,7 @@ export const getScimV2UsersId: GetScimV2UsersId = async (
 }
 
 export const postScimV2Users: PostScimV2Users = async ({body}, respond) => {
-  const primaryEmail =
-    body.emails.find((it) => it.primary) ||
-    (body.emails.length === 1 && body.emails[0])
-
-  if (!primaryEmail) {
-    throw new Error("must provide a primary email")
-  }
-
-  const externalId = body.externalId || body.userName
-
-  const displayName = body.displayName || body.name?.formatted || "Unknown"
-
-  const user = await firebase.createUser({
-    email: primaryEmail.value,
-    externalId,
-    displayName,
-    disabled: !body.active,
-  })
-
+  const user = await firebase.createUser(requestBodyToCreateUser(body))
   return respond.with201().body(user)
 }
 
@@ -58,26 +67,10 @@ export const putScimV2UsersId: PutScimV2UsersId = async (
   {params, body},
   respond,
 ) => {
-  // TODO: deduplicate
-  const primaryEmail =
-    body.emails.find((it) => it.primary) ||
-    (body.emails.length === 1 && body.emails[0])
-
-  if (!primaryEmail) {
-    throw new Error("must provide a primary email")
-  }
-
-  const externalId = body.externalId || body.userName
-
-  const displayName = body.displayName || body.name?.formatted || "Unknown"
-
-  const user = await firebase.updateUser(params.id, {
-    email: primaryEmail.value,
-    externalId,
-    displayName,
-    disabled: !body.active,
-  })
-
+  const user = await firebase.updateUser(
+    params.id,
+    requestBodyToCreateUser(body),
+  )
   return respond.with200().body(user)
 }
 

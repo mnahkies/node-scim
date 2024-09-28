@@ -16,5 +16,6 @@ export interface IdpAdapter {
   listUsers(): Promise<t_User[]>
   getUser(id: string): Promise<t_User>
   createUser(user: CreateUser): Promise<t_User>
+  updateUser(id: string, user: CreateUser): Promise<t_User>
   createGroup(group: CreateGroup): Promise<t_Group>
 }
