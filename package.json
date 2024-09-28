@@ -15,6 +15,7 @@
     "build": "tsc -p ./tsconfig.json",
     "dev": "dotenvx run -f .env -- tsx ./src/api.entrypoint.ts",
     "watch:openapi": "nodemon --watch ./openapi.yaml --exec './scripts/generate.sh'",
+    "clean:users": "dotenvx run -f .env -- tsx ./scripts/clean-users.ts",
     "ci-build": "yarn build",
     "ci-lint": "biome ci ."
   },
