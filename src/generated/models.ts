@@ -90,6 +90,12 @@ export type t_ScimAttribute = {
   uniqueness?: ("none" | "server" | "global") | undefined
 }
 
+export type t_ScimException = {
+  detail: string
+  schemas?: "urn:ietf:params:scim:api:messages:2.0:Error"[] | undefined
+  status: number
+}
+
 export type t_ServiceProviderConfig = {
   authenticationSchemes: t_ServiceProviderConfigAuthenticationScheme[]
   bulk: {

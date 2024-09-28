@@ -30,12 +30,14 @@ import {
   t_PostScimV2GroupsBodySchema,
   t_PutScimV2GroupsIdBodySchema,
   t_PutScimV2GroupsIdParamSchema,
+  t_ScimException,
 } from "../models"
 import {
   s_CreateGroup,
   s_Group,
   s_GroupCollection,
   s_GroupPatchOp,
+  s_ScimException,
 } from "../schemas"
 
 export type GetScimV2GroupsResponder = {
@@ -60,7 +62,7 @@ export type PostScimV2Groups = (
 
 export type GetScimV2GroupsIdResponder = {
   with200(): KoaRuntimeResponse<t_Group>
-  with404(): KoaRuntimeResponse<void>
+  with404(): KoaRuntimeResponse<t_ScimException>
 } & KoaRuntimeResponder
 
 export type GetScimV2GroupsId = (
@@ -68,12 +70,14 @@ export type GetScimV2GroupsId = (
   respond: GetScimV2GroupsIdResponder,
   ctx: RouterContext,
 ) => Promise<
-  KoaRuntimeResponse<unknown> | Response<200, t_Group> | Response<404, void>
+  | KoaRuntimeResponse<unknown>
+  | Response<200, t_Group>
+  | Response<404, t_ScimException>
 >
 
 export type PutScimV2GroupsIdResponder = {
   with200(): KoaRuntimeResponse<t_Group>
-  with404(): KoaRuntimeResponse<void>
+  with404(): KoaRuntimeResponse<t_ScimException>
 } & KoaRuntimeResponder
 
 export type PutScimV2GroupsId = (
@@ -86,12 +90,14 @@ export type PutScimV2GroupsId = (
   respond: PutScimV2GroupsIdResponder,
   ctx: RouterContext,
 ) => Promise<
-  KoaRuntimeResponse<unknown> | Response<200, t_Group> | Response<404, void>
+  | KoaRuntimeResponse<unknown>
+  | Response<200, t_Group>
+  | Response<404, t_ScimException>
 >
 
 export type PatchScimV2GroupsIdResponder = {
   with200(): KoaRuntimeResponse<t_Group>
-  with404(): KoaRuntimeResponse<void>
+  with404(): KoaRuntimeResponse<t_ScimException>
 } & KoaRuntimeResponder
 
 export type PatchScimV2GroupsId = (
@@ -104,12 +110,14 @@ export type PatchScimV2GroupsId = (
   respond: PatchScimV2GroupsIdResponder,
   ctx: RouterContext,
 ) => Promise<
-  KoaRuntimeResponse<unknown> | Response<200, t_Group> | Response<404, void>
+  | KoaRuntimeResponse<unknown>
+  | Response<200, t_Group>
+  | Response<404, t_ScimException>
 >
 
 export type DeleteScimV2GroupsIdResponder = {
   with204(): KoaRuntimeResponse<void>
-  with404(): KoaRuntimeResponse<void>
+  with404(): KoaRuntimeResponse<t_ScimException>
 } & KoaRuntimeResponder
 
 export type DeleteScimV2GroupsId = (
@@ -117,7 +125,9 @@ export type DeleteScimV2GroupsId = (
   respond: DeleteScimV2GroupsIdResponder,
   ctx: RouterContext,
 ) => Promise<
-  KoaRuntimeResponse<unknown> | Response<204, void> | Response<404, void>
+  | KoaRuntimeResponse<unknown>
+  | Response<204, void>
+  | Response<404, t_ScimException>
 >
 
 export type Implementation = {
@@ -225,7 +235,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   const getScimV2GroupsIdResponseValidator = responseValidationFactory(
     [
       ["200", s_Group],
-      ["404", z.undefined()],
+      ["404", s_ScimException],
     ],
     undefined,
   )
@@ -247,7 +257,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         return new KoaRuntimeResponse<t_Group>(200)
       },
       with404() {
-        return new KoaRuntimeResponse<void>(404)
+        return new KoaRuntimeResponse<t_ScimException>(404)
       },
       withStatus(status: StatusCode) {
         return new KoaRuntimeResponse(status)
@@ -275,7 +285,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   const putScimV2GroupsIdResponseValidator = responseValidationFactory(
     [
       ["200", s_Group],
-      ["404", z.undefined()],
+      ["404", s_ScimException],
     ],
     undefined,
   )
@@ -301,7 +311,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
         return new KoaRuntimeResponse<t_Group>(200)
       },
       with404() {
-        return new KoaRuntimeResponse<void>(404)
+        return new KoaRuntimeResponse<t_ScimException>(404)
       },
       withStatus(status: StatusCode) {
         return new KoaRuntimeResponse(status)
@@ -329,7 +339,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   const patchScimV2GroupsIdResponseValidator = responseValidationFactory(
     [
       ["200", s_Group],
-      ["404", z.undefined()],
+      ["404", s_ScimException],
     ],
     undefined,
   )
@@ -358,7 +368,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
           return new KoaRuntimeResponse<t_Group>(200)
         },
         with404() {
-          return new KoaRuntimeResponse<void>(404)
+          return new KoaRuntimeResponse<t_ScimException>(404)
         },
         withStatus(status: StatusCode) {
           return new KoaRuntimeResponse(status)
@@ -385,7 +395,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   const deleteScimV2GroupsIdResponseValidator = responseValidationFactory(
     [
       ["204", z.undefined()],
-      ["404", z.undefined()],
+      ["404", s_ScimException],
     ],
     undefined,
   )
@@ -410,7 +420,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
           return new KoaRuntimeResponse<void>(204)
         },
         with404() {
-          return new KoaRuntimeResponse<void>(404)
+          return new KoaRuntimeResponse<t_ScimException>(404)
         },
         withStatus(status: StatusCode) {
           return new KoaRuntimeResponse(status)

@@ -75,6 +75,15 @@ export const s_ScimAttribute = z.object({
   uniqueness: z.enum(["none", "server", "global"]).optional().default("none"),
 })
 
+export const s_ScimException = z.object({
+  schemas: z
+    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:Error"]))
+    .optional()
+    .default(["urn:ietf:params:scim:api:messages:2.0:Error"]),
+  detail: z.string(),
+  status: z.coerce.number(),
+})
+
 export const s_ServiceProviderConfigAuthenticationScheme = z.object({
   type: z.enum([
     "oauth",

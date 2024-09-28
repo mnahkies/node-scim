@@ -36,7 +36,7 @@ paths:
             description: Index of the result
             type: integer
       responses:
-        '200':
+        200:
           description: The request has succeeded.
           content:
             application/json:
@@ -52,7 +52,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateUser'
       responses:
-        '201':
+        201:
           description: The user has been created.
           content:
             application/json:
@@ -69,14 +69,14 @@ paths:
       tags:
         - users
       responses:
-        '200':
+        200:
           description: The request has succeeded.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
     put:
       tags:
         - users
@@ -87,14 +87,14 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
-        '200':
+        200:
           description: User replaced.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
     patch:
       tags:
         - users
@@ -105,22 +105,22 @@ paths:
             schema:
               $ref: '#/components/schemas/UserPatchOp'
       responses:
-        '200':
+        200:
           description: User replaced.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
     delete:
       tags:
         - users
       responses:
         '204':
           description: No Content (successful deletion)
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
   /scim/v2/Groups:
     get:
       tags:
@@ -149,7 +149,7 @@ paths:
             description: Index of the result
             type: integer
       responses:
-        '200':
+        200:
           description: The request has succeeded.
           content:
             application/json:
@@ -165,7 +165,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateGroup'
       responses:
-        '201':
+        201:
           description: The group has been created.
           content:
             application/json:
@@ -182,14 +182,14 @@ paths:
       tags:
         - groups
       responses:
-        '200':
+        200:
           description: The request has succeeded.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Group'
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
     put:
       tags:
         - groups
@@ -200,14 +200,14 @@ paths:
             schema:
               $ref: '#/components/schemas/Group'
       responses:
-        '200':
+        200:
           description: Group replaced.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Group'
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
     patch:
       tags:
         - groups
@@ -218,28 +218,28 @@ paths:
             schema:
               $ref: '#/components/schemas/GroupPatchOp'
       responses:
-        '200':
+        200:
           description: Group replaced.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Group'
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
     delete:
       tags:
         - groups
       responses:
         '204':
           description: No Content (successful deletion)
-        '404':
-          description: Resource not found
+        404:
+          $ref: '#/components/responses/NotFound'
   /scim/v2/ServiceProviderConfig:
     get:
       tags:
         - introspection
       responses:
-        '200':
+        200:
           description: The request has succeeded.
           content:
             application/json:
@@ -250,7 +250,7 @@ paths:
       tags:
         - introspection
       responses:
-        '200':
+        200:
           description: ''
           content:
             application/json:
@@ -261,7 +261,7 @@ paths:
       tags:
         - introspection
       responses:
-        '200':
+        200:
           description: ''
           content:
             application/json:
@@ -271,6 +271,13 @@ paths:
 security:
   - basic: [ ]
 components:
+  responses:
+    NotFound:
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScimException'
   schemas:
     GroupCollection:
       description: Class describing a collection of gorups
@@ -320,24 +327,6 @@ components:
           type: string
         location:
           description: The URL where the user can be accessed
-          type: string
-    ScimException:
-      description: SCIM Exception
-      type: object
-      required:
-        - schemas
-        - detail
-        - status
-      properties:
-        schemas:
-          description: The list of schemas
-          type: array
-          items:
-            default: 'urn:ietf:params:scim:api:messages:2.0:Error'
-            type: string
-        detail:
-          type: string
-        status:
           type: string
     GroupPatchOp:
       description: Patch Group
@@ -581,6 +570,27 @@ components:
           enum:
             - "User"
       default: { resourceType: "User" }
+
+
+    ScimException:
+      description: SCIM Exception
+      type: object
+      required:
+        - detail
+        - status
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            enum:
+            - 'urn:ietf:params:scim:api:messages:2.0:Error'
+            type: string
+          default: ["urn:ietf:params:scim:api:messages:2.0:Error"]
+        detail:
+          type: string
+        status:
+          type: number
 
     #
     # Introspection
