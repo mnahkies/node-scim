@@ -19,7 +19,12 @@ Its definitely still inaccurate, and help solidifying it would be appreciated.
 
 ## What works
 
-Not much. Creating a user works E2E, successfully creating a user linked to the identity provider in firebase. Nothing else works yet.
+Not much, but starting to improve. You can create / delete users E2E, and update them.
+
+An in-memory groups implementation partially works.
+
+![Passing Tests](./docs/scim-validator-passing.png)
+![Failing Tests](docs/scim-validator-failing.png)
 
 ## Running
 
