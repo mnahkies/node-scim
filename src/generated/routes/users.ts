@@ -30,25 +30,25 @@ import {
   t_PutScimV2UsersIdParamSchema,
   t_ScimException,
   t_User,
-  t_UserCollection,
+  t_UsersListing,
 } from "../models"
 import {
   s_CreateUser,
+  s_Patch,
   s_ScimException,
   s_User,
-  s_UserCollection,
-  s_UserPatchOp,
+  s_UsersListing,
 } from "../schemas"
 
 export type GetScimV2UsersResponder = {
-  with200(): KoaRuntimeResponse<t_UserCollection>
+  with200(): KoaRuntimeResponse<t_UsersListing>
 } & KoaRuntimeResponder
 
 export type GetScimV2Users = (
   params: Params<void, t_GetScimV2UsersQuerySchema, void, void>,
   respond: GetScimV2UsersResponder,
   ctx: RouterContext,
-) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_UserCollection>>
+) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_UsersListing>>
 
 export type PostScimV2UsersResponder = {
   with201(): KoaRuntimeResponse<t_User>
@@ -149,7 +149,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   })
 
   const getScimV2UsersResponseValidator = responseValidationFactory(
-    [["200", s_UserCollection]],
+    [["200", s_UsersListing]],
     undefined,
   )
 
@@ -167,7 +167,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
     const responder = {
       with200() {
-        return new KoaRuntimeResponse<t_UserCollection>(200)
+        return new KoaRuntimeResponse<t_UsersListing>(200)
       },
       withStatus(status: StatusCode) {
         return new KoaRuntimeResponse(status)
@@ -334,7 +334,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   const patchScimV2UsersIdParamSchema = z.object({id: z.string()})
 
-  const patchScimV2UsersIdBodySchema = s_UserPatchOp
+  const patchScimV2UsersIdBodySchema = s_Patch
 
   const patchScimV2UsersIdResponseValidator = responseValidationFactory(
     [

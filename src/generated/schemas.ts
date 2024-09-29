@@ -20,21 +20,6 @@ export const s_BaseMeta = z.object({
   version: z.string().optional(),
 })
 
-export const s_GroupPatchOp = z.object({
-  schemas: z.array(
-    z.string().default("urn:ietf:params:scim:api:messages:2.0:PatchOp"),
-  ),
-  operations: z.array(
-    z.object({
-      op: z.string(),
-      value: z.object({
-        id: z.string().optional(),
-        displayName: z.string().optional(),
-      }),
-    }),
-  ),
-})
-
 export const s_GroupResourceSchemas = z
   .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:Group"]))
   .default(["urn:ietf:params:scim:schemas:core:2.0:Group"])
@@ -49,9 +34,18 @@ export const s_ListResponse = z.object({
   startIndex: z.coerce.number().optional().default(1),
 })
 
-export const s_ListResponseSchemas = z
-  .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:ListResponse"]))
-  .default(["urn:ietf:params:scim:api:messages:2.0:ListResponse"])
+export const s_Patch = z.object({
+  schemas: z
+    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]))
+    .default(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]),
+  operations: z.array(
+    z.object({
+      op: z.enum(["add", "remove", "replace"]),
+      path: z.string().optional(),
+      value: z.record(z.any()),
+    }),
+  ),
+})
 
 export const s_ResourceType = z.object({
   id: z.string().optional(),
@@ -119,18 +113,6 @@ export const s_UserFullName = z.object({
   honorificSuffix: z.string().optional(),
 })
 
-export const s_UserPatchOp = z.object({
-  schemas: z
-    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]))
-    .default(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]),
-  operations: z.array(
-    z.object({
-      op: z.string(),
-      value: z.object({active: PermissiveBoolean}),
-    }),
-  ),
-})
-
 export const s_UserResourceMeta = z
   .object({resourceType: z.enum(["User"]).optional()})
   .default({resourceType: "User"})
@@ -154,14 +136,6 @@ export const s_CreateUser = z.object({
   emails: z.array(s_UserEmail).default([]),
   active: PermissiveBoolean.default(true),
   groups: z.array(z.any()).default([]),
-})
-
-export const s_GroupCollection = z.object({
-  schemas: s_ListResponseSchemas,
-  totalResults: z.coerce.number(),
-  startIndex: z.coerce.number(),
-  itemsPerPage: z.coerce.number(),
-  Resources: z.array(z.any()),
 })
 
 export const s_ResourceTypes = s_ListResponse.merge(
@@ -256,10 +230,10 @@ export const s_User = s_CreateUser.merge(
   z.object({id: z.string().optional(), meta: s_UserResourceMeta}),
 )
 
-export const s_UserCollection = z.object({
-  schemas: s_ListResponseSchemas,
-  totalResults: z.coerce.number(),
-  startIndex: z.coerce.number(),
-  itemsPerPage: z.coerce.number(),
-  Resources: z.array(s_User),
-})
+export const s_GroupsListing = s_ListResponse.merge(
+  z.object({Resources: z.array(s_Group)}),
+)
+
+export const s_UsersListing = s_ListResponse.merge(
+  z.object({Resources: z.array(s_User)}),
+)

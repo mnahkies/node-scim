@@ -5,6 +5,6 @@
 import {ServerConfig, startServer} from "@nahkies/typescript-koa-runtime/server"
 
 export async function bootstrap(config: ServerConfig) {
-  // SCIM 2.0
+  // node-scim
   return startServer(config)
 }

@@ -26,7 +26,7 @@ import {
   t_GetScimV2GroupsIdQuerySchema,
   t_GetScimV2GroupsQuerySchema,
   t_Group,
-  t_GroupCollection,
+  t_GroupsListing,
   t_PatchScimV2GroupsIdBodySchema,
   t_PatchScimV2GroupsIdParamSchema,
   t_PatchScimV2GroupsIdQuerySchema,
@@ -39,20 +39,20 @@ import {
 import {
   s_CreateGroup,
   s_Group,
-  s_GroupCollection,
-  s_GroupPatchOp,
+  s_GroupsListing,
+  s_Patch,
   s_ScimException,
 } from "../schemas"
 
 export type GetScimV2GroupsResponder = {
-  with200(): KoaRuntimeResponse<t_GroupCollection>
+  with200(): KoaRuntimeResponse<t_GroupsListing>
 } & KoaRuntimeResponder
 
 export type GetScimV2Groups = (
   params: Params<void, t_GetScimV2GroupsQuerySchema, void, void>,
   respond: GetScimV2GroupsResponder,
   ctx: RouterContext,
-) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_GroupCollection>>
+) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_GroupsListing>>
 
 export type PostScimV2GroupsResponder = {
   with201(): KoaRuntimeResponse<t_Group>
@@ -164,7 +164,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
   })
 
   const getScimV2GroupsResponseValidator = responseValidationFactory(
-    [["200", s_GroupCollection]],
+    [["200", s_GroupsListing]],
     undefined,
   )
 
@@ -182,7 +182,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
     const responder = {
       with200() {
-        return new KoaRuntimeResponse<t_GroupCollection>(200)
+        return new KoaRuntimeResponse<t_GroupsListing>(200)
       },
       withStatus(status: StatusCode) {
         return new KoaRuntimeResponse(status)
@@ -369,7 +369,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
     excludedAttributes: z.string().optional(),
   })
 
-  const patchScimV2GroupsIdBodySchema = s_GroupPatchOp
+  const patchScimV2GroupsIdBodySchema = s_Patch
 
   const patchScimV2GroupsIdResponseValidator = responseValidationFactory(
     [

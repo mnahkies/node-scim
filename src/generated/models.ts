@@ -40,16 +40,12 @@ export type t_Group = t_CreateGroup & {
     | undefined
 }
 
-export type t_GroupCollection = {
-  Resources: any[]
-  itemsPerPage: number
-  schemas: t_ListResponseSchemas
-  startIndex: number
-  totalResults: number
-}
-
 export type t_GroupResourceSchemas =
   "urn:ietf:params:scim:schemas:core:2.0:Group"[]
+
+export type t_GroupsListing = t_ListResponse & {
+  Resources: t_Group[]
+}
 
 export type t_ListResponse = {
   itemsPerPage?: number | undefined
@@ -57,9 +53,6 @@ export type t_ListResponse = {
   startIndex?: number | undefined
   totalResults: number
 }
-
-export type t_ListResponseSchemas =
-  "urn:ietf:params:scim:api:messages:2.0:ListResponse"[]
 
 export type t_ResourceType = {
   description: string
@@ -176,14 +169,6 @@ export type t_User = t_CreateUser & {
   meta: t_UserResourceMeta
 }
 
-export type t_UserCollection = {
-  Resources: t_User[]
-  itemsPerPage: number
-  schemas: t_ListResponseSchemas
-  startIndex: number
-  totalResults: number
-}
-
 export type t_UserEmail = {
   display?: string | undefined
   primary?: boolean | undefined
@@ -206,6 +191,10 @@ export type t_UserResourceMeta = {
 
 export type t_UserResourceSchemas =
   "urn:ietf:params:scim:schemas:core:2.0:User"[]
+
+export type t_UsersListing = t_ListResponse & {
+  Resources: t_User[]
+}
 
 export type t_DeleteScimV2GroupsIdParamSchema = {
   id: string
@@ -246,13 +235,13 @@ export type t_GetScimV2UsersIdParamSchema = {
 
 export type t_PatchScimV2GroupsIdBodySchema = {
   operations: {
-    op: string
+    op: "add" | "remove" | "replace"
+    path?: string | undefined
     value: {
-      displayName?: string | undefined
-      id?: string | undefined
+      [key: string]: any | undefined
     }
   }[]
-  schemas: string[]
+  schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
 }
 
 export type t_PatchScimV2GroupsIdParamSchema = {
@@ -265,9 +254,10 @@ export type t_PatchScimV2GroupsIdQuerySchema = {
 
 export type t_PatchScimV2UsersIdBodySchema = {
   operations: {
-    op: string
+    op: "add" | "remove" | "replace"
+    path?: string | undefined
     value: {
-      active: boolean
+      [key: string]: any | undefined
     }
   }[]
   schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]

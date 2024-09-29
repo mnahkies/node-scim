@@ -1,8 +1,11 @@
 openapi: 3.0.0
 info:
-  title: SCIM 2.0
-  description: SCIM 2.0 RAML SAMPLE doc. Tested with Okta
-  version: '1.0'
+  title: node-scim
+  description: |
+    scim client compatible with scim v2, as defined by:
+    - https://datatracker.ietf.org/doc/html/rfc7643
+    - https://datatracker.ietf.org/doc/html/rfc7644
+  version: "0.0.1"
 tags:
   - name: users
   - name: groups
@@ -13,16 +16,16 @@ paths:
       tags:
         - users
       parameters:
-        - $ref: '#/components/parameters/filter'
-        - $ref: '#/components/parameters/count'
-        - $ref: '#/components/parameters/startIndex'
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/count"
+        - $ref: "#/components/parameters/startIndex"
       responses:
         200:
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserCollection'
+                $ref: "#/components/schemas/UsersListing"
     post:
       tags:
         - users
@@ -31,14 +34,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUser'
+              $ref: "#/components/schemas/CreateUser"
       responses:
         201:
           description: The user has been created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
   /scim/v2/Users/{id}:
     parameters:
       - name: id
@@ -55,9 +58,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
     put:
       tags:
         - users
@@ -66,16 +69,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
       responses:
         200:
           description: User replaced.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
     patch:
       tags:
         - users
@@ -84,40 +87,40 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserPatchOp'
+              $ref: "#/components/schemas/Patch"
       responses:
         200:
           description: User replaced.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
     delete:
       tags:
         - users
       responses:
-        '204':
+        204:
           description: No Content (successful deletion)
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
   /scim/v2/Groups:
     get:
       tags:
         - groups
       parameters:
-        - $ref: '#/components/parameters/filter'
-        - $ref: '#/components/parameters/excludedAttributes'
-        - $ref: '#/components/parameters/count'
-        - $ref: '#/components/parameters/startIndex'
+        - $ref: "#/components/parameters/filter"
+        - $ref: "#/components/parameters/excludedAttributes"
+        - $ref: "#/components/parameters/count"
+        - $ref: "#/components/parameters/startIndex"
       responses:
         200:
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupCollection'
+                $ref: "#/components/schemas/GroupsListing"
     post:
       tags:
         - groups
@@ -126,14 +129,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroup'
+              $ref: "#/components/schemas/CreateGroup"
       responses:
         201:
           description: The group has been created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Group'
+                $ref: "#/components/schemas/Group"
   /scim/v2/Groups/{id}:
     parameters:
       - name: id
@@ -141,7 +144,7 @@ paths:
         in: path
         schema:
           type: string
-      - $ref: '#/components/parameters/excludedAttributes'
+      - $ref: "#/components/parameters/excludedAttributes"
     get:
       tags:
         - groups
@@ -151,9 +154,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Group'
+                $ref: "#/components/schemas/Group"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
     put:
       tags:
         - groups
@@ -162,16 +165,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Group'
+              $ref: "#/components/schemas/Group"
       responses:
         200:
           description: Group replaced.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Group'
+                $ref: "#/components/schemas/Group"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
     patch:
       tags:
         - groups
@@ -180,60 +183,58 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GroupPatchOp'
+              $ref: "#/components/schemas/Patch"
       responses:
         200:
           description: Group replaced.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Group'
+                $ref: "#/components/schemas/Group"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
     delete:
       tags:
         - groups
       responses:
-        '204':
+        204:
           description: No Content (successful deletion)
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
   /scim/v2/ServiceProviderConfig:
     get:
       tags:
         - introspection
       responses:
         200:
-          description: The request has succeeded.
+          description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServiceProviderConfig'
+                $ref: "#/components/schemas/ServiceProviderConfig"
   /scim/v2/ResourceTypes:
     get:
       tags:
         - introspection
       responses:
         200:
-          description: ''
+          description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResourceTypes'
+                $ref: "#/components/schemas/ResourceTypes"
   /scim/v2/Schemas:
     get:
       tags:
         - introspection
       responses:
         200:
-          description: ''
+          description: Success
           content:
             application/json:
               schema:
                 $ref:
-                  '#/components/schemas/Schemas'
-security:
-  - basic: [ ]
+                  "#/components/schemas/Schemas"
 components:
   parameters:
     filter:
@@ -276,112 +277,20 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ScimException'
+            $ref: "#/components/schemas/ScimException"
   schemas:
-    ListResponseSchemas:
-      description: The list of schemas
-      type: array
-      items:
-        type: string
-        enum:
-          - 'urn:ietf:params:scim:api:messages:2.0:ListResponse'
-      default: [ 'urn:ietf:params:scim:api:messages:2.0:ListResponse' ]
-
-    GroupCollection:
-      description: Class describing a collection of gorups
-      type: object
-      required:
-        - schemas
-        - totalResults
-        - startIndex
-        - itemsPerPage
-        - Resources
-      properties:
-        schemas:
-          $ref: '#/components/schemas/ListResponseSchemas'
-        totalResults:
-          type: integer
-        startIndex:
-          type: integer
-        itemsPerPage:
-          type: integer
-        Resources:
-          description: The list of groups
-          type: array
-          items: { }
-    UserGroups:
-      description: The user groups
-      type: object
-      required:
-        - display
-        - value
-      properties:
-        display:
-          type: string
-        value:
-          type: string
-    UserMetadata:
-      description: User metadata
-      type: object
-      required:
-        - resourceType
-        - location
-      properties:
-        resourceType:
-          default: User
-          type: string
-        location:
-          description: The URL where the user can be accessed
-          type: string
-    GroupPatchOp:
-      description: Patch Group
-      type: object
-      required:
-        - schemas
-        - operations
-      properties:
-        schemas:
-          description: The list of schemas
-          type: array
-          items:
-            default: 'urn:ietf:params:scim:api:messages:2.0:PatchOp'
-            type: string
-        operations:
-          description: Patch operation details
-          type: array
-          items:
-            type: object
-            required:
-              - op
-              - value
-            properties:
-              op:
-                type: string
-              value:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  displayName:
-                    type: string
-    GroupMembers:
-      description: Group Members
-      type: object
-      required:
-        - value
-      properties:
-        display:
-          type: string
-        value:
-          type: string
-
-    GroupResourceSchemas:
-      type: array
-      items:
-        type: string
-        enum:
-          - "urn:ietf:params:scim:schemas:core:2.0:Group"
-      default: [ "urn:ietf:params:scim:schemas:core:2.0:Group" ]
+    # Groups
+    GroupsListing:
+      allOf:
+        - $ref: "#/components/schemas/ListResponse"
+        - type: object
+          required:
+            - Resources
+          properties:
+            Resources:
+              type: array
+              items:
+                $ref: "#/components/schemas/Group"
 
     CreateGroup:
       required:
@@ -389,14 +298,14 @@ components:
         - displayName
       properties:
         schemas:
-          $ref: '#/components/schemas/GroupResourceSchemas'
+          $ref: "#/components/schemas/GroupResourceSchemas"
         externalId:
           type: string
         displayName:
           type: string
     Group:
       allOf:
-        - $ref: '#/components/schemas/CreateGroup'
+        - $ref: "#/components/schemas/CreateGroup"
         - type: object
           required:
             - id
@@ -412,7 +321,7 @@ components:
                 additionalProperties: true
             meta:
               allOf:
-                - $ref: '#/components/schemas/BaseMeta'
+                - $ref: "#/components/schemas/BaseMeta"
                 - type: object
                   properties:
                     resourceType:
@@ -420,64 +329,32 @@ components:
                       enum:
                         - ServiceProviderConfig
                       default: ServiceProviderConfig
+    GroupResourceSchemas:
+      type: array
+      items:
+        type: string
+        enum:
+          - "urn:ietf:params:scim:schemas:core:2.0:Group"
+      default: [ "urn:ietf:params:scim:schemas:core:2.0:Group" ]
+    GroupResourceMeta:
+      properties:
+        resourceType:
+          type: string
+          enum:
+            - Group
+      default: { resourceType: "Group" }
     # Users
-    #
-    UserCollection:
-      description: Class describing a collection of users
-      type: object
-      required:
-        - schemas
-        - totalResults
-        - startIndex
-        - itemsPerPage
-        - Resources
-      properties:
-        schemas:
-          $ref: '#/components/schemas/ListResponseSchemas'
-        totalResults:
-          type: integer
-        startIndex:
-          type: integer
-        itemsPerPage:
-          type: integer
-        Resources:
-          description: The list of users
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-    UserPatchOp:
-      description: Patch User
-      type: object
-      required:
-        - schemas
-        - operations
-      properties:
-        schemas:
-          description: The list of schemas
-          type: array
-          items:
-            type: string
-            enum:
-              - 'urn:ietf:params:scim:api:messages:2.0:PatchOp'
-          default: [ 'urn:ietf:params:scim:api:messages:2.0:PatchOp' ]
-        operations:
-          description: Patch operation details
-          type: array
-          items:
-            type: object
-            required:
-              - op
-              - value
-            properties:
-              op:
-                type: string
-              value:
-                type: object
-                required:
-                  - active
-                properties:
-                  active:
-                    type: boolean
+    UsersListing:
+      allOf:
+        - $ref: "#/components/schemas/ListResponse"
+        - type: object
+          required:
+            - Resources
+          properties:
+            Resources:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
     CreateUser:
       type: object
       required:
@@ -488,21 +365,21 @@ components:
         - groups
       properties:
         schemas:
-          $ref: '#/components/schemas/UserResourceSchemas'
+          $ref: "#/components/schemas/UserResourceSchemas"
         externalId:
           type: string
         userName:
-          description: 'Username, typically their email address'
+          description: Username, typically their email address
           type: string
         displayName:
           type: string
         name:
-          $ref: '#/components/schemas/UserFullName'
+          $ref: "#/components/schemas/UserFullName"
         emails:
           description: The list of emails
           type: array
           items:
-            $ref: '#/components/schemas/UserEmail'
+            $ref: "#/components/schemas/UserEmail"
           default: [ ]
         active:
           type: boolean
@@ -514,17 +391,15 @@ components:
           default: [ ]
     User:
       allOf:
-        - $ref: '#/components/schemas/CreateUser'
+        - $ref: "#/components/schemas/CreateUser"
         - type: object
           required:
-            # TODO: is this actually required?
-            #            - id
             - meta
           properties:
             id:
               type: string
             meta:
-              $ref: '#/components/schemas/UserResourceMeta'
+              $ref: "#/components/schemas/UserResourceMeta"
     UserFullName:
       description: The full name of the user
       type: object
@@ -541,7 +416,6 @@ components:
           type: string
         honorificSuffix:
           type: string
-
     UserEmail:
       description: The user email
       type: object
@@ -566,7 +440,6 @@ components:
         enum:
           - "urn:ietf:params:scim:schemas:core:2.0:User"
       default: [ "urn:ietf:params:scim:schemas:core:2.0:User" ]
-
     UserResourceMeta:
       type: object
       properties:
@@ -576,33 +449,7 @@ components:
             - "User"
       default: { resourceType: "User" }
 
-
-    ScimException:
-      description: SCIM Exception
-      type: object
-      required:
-        - schemas
-        - detail
-        - status
-      properties:
-        schemas:
-          description: The list of schemas
-          type: array
-          items:
-            enum:
-              - 'urn:ietf:params:scim:api:messages:2.0:Error'
-            type: string
-          default: [ "urn:ietf:params:scim:api:messages:2.0:Error" ]
-        detail:
-          type: string
-        status:
-          type: number
-        metadata:
-          type: object
-          additionalProperties: true
-    #
     # Introspection
-    #
     BaseMeta:
       type: object
       properties:
@@ -618,7 +465,6 @@ components:
           format: date-time
         version:
           type: string
-
     ServiceProviderConfig:
       type: object
       required:
@@ -708,10 +554,10 @@ components:
         authenticationSchemes:
           type: array
           items:
-            $ref: '#/components/schemas/ServiceProviderConfigAuthenticationScheme'
+            $ref: "#/components/schemas/ServiceProviderConfigAuthenticationScheme"
         meta:
           allOf:
-            - $ref: '#/components/schemas/BaseMeta'
+            - $ref: "#/components/schemas/BaseMeta"
             - type: object
               properties:
                 resourceType:
@@ -719,7 +565,6 @@ components:
                   enum:
                     - ServiceProviderConfig
                   default: ServiceProviderConfig
-
     ServiceProviderConfigAuthenticationScheme:
       type: object
       required:
@@ -780,7 +625,7 @@ components:
 
     ResourceTypes:
       allOf:
-        - $ref: '#/components/schemas/ListResponse'
+        - $ref: "#/components/schemas/ListResponse"
         - type: object
           required:
             - Resources
@@ -788,7 +633,7 @@ components:
             Resources:
               type: array
               items:
-                $ref: '#/components/schemas/ResourceType'
+                $ref: "#/components/schemas/ResourceType"
     ResourceType:
       type: object
       properties:
@@ -831,7 +676,7 @@ components:
 
     Schemas:
       allOf:
-        - $ref: '#/components/schemas/ListResponse'
+        - $ref: "#/components/schemas/ListResponse"
         - type: object
           required:
             - Resources
@@ -839,7 +684,7 @@ components:
             Resources:
               type: array
               items:
-                $ref: '#/components/schemas/Schema'
+                $ref: "#/components/schemas/Schema"
     Schema:
       type: object
       properties:
@@ -852,7 +697,7 @@ components:
           default: [ "urn:ietf:params:scim:schemas:core:2.0:Schema" ]
         id:
           type: string
-          example: 'urn:ietf:params:scim:schemas:oktaprise:2.0:Users'
+          example: "urn:ietf:params:scim:schemas:oktaprise:2.0:Users"
         name:
           type: string
           example: OktapriseUsers
@@ -862,7 +707,7 @@ components:
         attributes:
           type: array
           items:
-            $ref: '#/components/schemas/ScimAttribute'
+            $ref: "#/components/schemas/ScimAttribute"
         meta:
           type: object
           properties:
@@ -916,3 +761,71 @@ components:
         - required
         - mutability
         - returned
+
+    # Common
+    Patch:
+      type: object
+      required:
+        - schemas
+        - operations
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            type: string
+            enum:
+              - "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+          default: [ "urn:ietf:params:scim:api:messages:2.0:PatchOp" ]
+        operations:
+          description: Patch operation details
+          type: array
+          items:
+            type: object
+            required:
+              - op
+              - value
+            properties:
+              op:
+                type: string
+                enum:
+                  - add
+                  - remove
+                  - replace
+              path:
+                type: string
+              value:
+                type: object
+                additionalProperties: true
+
+    ScimException:
+      description: SCIM Exception
+      type: object
+      required:
+        - schemas
+        - detail
+        - status
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            enum:
+              - "urn:ietf:params:scim:api:messages:2.0:Error"
+            type: string
+          default: [ "urn:ietf:params:scim:api:messages:2.0:Error" ]
+        detail:
+          type: string
+        status:
+          type: number
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ListResponseSchemas:
+      type: array
+      items:
+        type: string
+        enum:
+          - "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+      default: [ "urn:ietf:params:scim:api:messages:2.0:ListResponse" ]
