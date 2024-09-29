@@ -54,6 +54,12 @@ export type t_ListResponse = {
   totalResults: number
 }
 
+export type t_PatchOperation = {
+  op: "add" | "remove" | "replace"
+  path?: string | undefined
+  value: any
+}
+
 export type t_ResourceType = {
   description: string
   endpoint?: string | undefined
@@ -108,8 +114,21 @@ export type t_ScimException = {
       }
     | undefined
   schemas: "urn:ietf:params:scim:api:messages:2.0:Error"[]
+  scimType?: t_ScimExceptionType | undefined
   status: number
 }
+
+export type t_ScimExceptionType =
+  | "invalidFilter"
+  | "tooMany"
+  | "uniqueness"
+  | "mutability"
+  | "invalidSyntax"
+  | "invalidPath"
+  | "noTarget"
+  | "invalidValue"
+  | "invalidVers"
+  | "sensitive"
 
 export type t_ServiceProviderConfig = {
   authenticationSchemes: t_ServiceProviderConfigAuthenticationScheme[]
@@ -234,13 +253,7 @@ export type t_GetScimV2UsersIdParamSchema = {
 }
 
 export type t_PatchScimV2GroupsIdBodySchema = {
-  Operations?:
-    | {
-        op: "add" | "remove" | "replace"
-        path?: string | undefined
-        value: any
-      }[]
-    | undefined
+  Operations?: t_PatchOperation[] | undefined
   schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
 }
 
@@ -253,13 +266,7 @@ export type t_PatchScimV2GroupsIdQuerySchema = {
 }
 
 export type t_PatchScimV2UsersIdBodySchema = {
-  Operations?:
-    | {
-        op: "add" | "remove" | "replace"
-        path?: string | undefined
-        value: any
-      }[]
-    | undefined
+  Operations?: t_PatchOperation[] | undefined
   schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
 }
 

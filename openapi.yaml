@@ -781,21 +781,23 @@ components:
           description: Patch operation details
           type: array
           items:
-            type: object
-            required:
-              - op
-              - value
-            properties:
-              op:
-                type: string
-                enum:
-                  - add
-                  - remove
-                  - replace
-              path:
-                type: string
-              value:
-                additionalProperties: true
+            $ref: '#/components/schemas/PatchOperation'
+    PatchOperation:
+      type: object
+      required:
+        - op
+        - value
+      properties:
+        op:
+          type: string
+          enum:
+            - add
+            - remove
+            - replace
+        path:
+          type: string
+        value:
+          additionalProperties: true
 
     ScimException:
       description: SCIM Exception
@@ -817,10 +819,24 @@ components:
           type: string
         status:
           type: number
+        scimType:
+          $ref: '#/components/schemas/ScimExceptionType'
         metadata:
           type: object
           additionalProperties: true
-
+    ScimExceptionType:
+      type: string
+      enum:
+        - invalidFilter
+        - tooMany
+        - uniqueness
+        - mutability
+        - invalidSyntax
+        - invalidPath
+        - noTarget
+        - invalidValue
+        - invalidVers
+        - sensitive
     ListResponseSchemas:
       type: array
       items:

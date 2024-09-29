@@ -1,22 +1,34 @@
 import {ZodError} from "zod"
-import type {t_ScimException} from "./generated/models"
+import type {t_ScimException, t_ScimExceptionType} from "./generated/models"
 import {s_ScimException} from "./generated/schemas"
 
 export abstract class DomainError<Type extends string, Meta> extends Error {
   abstract readonly type: Type
   abstract readonly statusCode: number
+  readonly scimType: t_ScimExceptionType | undefined
+  readonly metadata: Meta | undefined
 
-  readonly metadata: Meta
-
-  constructor(message: string, metadata: Meta, cause?: Error) {
+  constructor({
+    message,
+    scimType,
+    metadata,
+    cause,
+  }: {
+    message: string
+    scimType?: t_ScimExceptionType
+    metadata?: Meta
+    cause?: Error
+  }) {
     super(message)
     this.cause = cause
+    this.scimType = scimType
     this.metadata = metadata
   }
 
   toJSON(): t_ScimException {
     return s_ScimException.passthrough().parse({
       status: this.statusCode,
+      scimType: this.scimType,
       detail: this.message,
       metadata: this.metadata,
     })
@@ -28,7 +40,7 @@ export class NotFoundError extends DomainError<"not-found", {id: string}> {
   statusCode = 404
 
   constructor(id: string) {
-    super(`Resource "${id}" not found`, {id})
+    super({message: `Resource "${id}" not found`, metadata: {id}})
   }
 }
 
@@ -37,10 +49,23 @@ export class ConflictError extends DomainError<"conflict", unknown> {
   statusCode = 409
 
   constructor(value: string) {
-    super(
-      `Conflicts with existing resource for unique field with value '${value}'`,
-      {value},
-    )
+    super({
+      message: `Conflicts with existing resource for unique field with value '${value}'`,
+      scimType: "uniqueness",
+      metadata: {value},
+    })
+  }
+}
+
+export class PatchError extends DomainError<"patch", unknown> {
+  type = "patch" as const
+  statusCode = 400
+
+  constructor(message: string, scimType: t_ScimExceptionType) {
+    super({
+      message,
+      scimType,
+    })
   }
 }
 
@@ -49,22 +74,24 @@ export class ValidationError extends DomainError<"validation", unknown> {
   statusCode = 400
 
   constructor(err: Error) {
-    super(
-      "Validation failed",
-      err instanceof ZodError
-        ? err.errors
-        : // TODO: don't return internal error details to clients
-          {
-            message: err.message,
-            stack: err.stack,
-            cause: err.cause &&
-              err.cause instanceof Error && {
-                message: err.cause.message,
-                stack: err.cause.stack,
-              },
-          },
-      err,
-    )
+    super({
+      message: "Validation failed",
+      scimType: "invalidValue",
+      metadata:
+        err instanceof ZodError
+          ? err.errors
+          : // TODO: don't return internal error details to clients
+            {
+              message: err.message,
+              stack: err.stack,
+              cause: err.cause &&
+                err.cause instanceof Error && {
+                  message: err.cause.message,
+                  stack: err.cause.stack,
+                },
+            },
+      cause: err,
+    })
   }
 }
 
@@ -76,10 +103,9 @@ export class InternalServerError extends DomainError<
   statusCode = 500
 
   constructor(err: Error) {
-    super(
-      "Internal server error",
-      // TODO: don't return internal error details to clients
-      {
+    super({
+      message: "Internal server error",
+      metadata: {
         message: err.message,
         stack: err.stack,
         cause: err.cause &&
@@ -88,7 +114,7 @@ export class InternalServerError extends DomainError<
             stack: err.cause.stack,
           },
       },
-      err,
-    )
+      cause: err,
+    })
   }
 }

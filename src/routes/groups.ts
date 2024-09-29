@@ -1,3 +1,4 @@
+import {PatchError, ValidationError} from "../errors"
 import {
   type DeleteScimV2GroupsId,
   type GetScimV2Groups,
@@ -8,7 +9,7 @@ import {
   createRouter,
 } from "../generated/routes/groups"
 import {firebase} from "../idp-adapters/idp-adapters"
-import {notImplemented, parseFilter} from "../utils"
+import {notImplemented, parseFilter, performPatchOperation} from "../utils"
 
 const postScimV2Groups: PostScimV2Groups = async ({body}, respond) => {
   const group = await firebase.createGroup(body)
@@ -36,8 +37,16 @@ const patchScimV2GroupsId: PatchScimV2GroupsId = async (
   respond,
 ) => {
   const group = await firebase.getGroup(params.id)
-  // todo implement
-  return respond.with200().body(group)
+  const operations = body.Operations ?? []
+
+  let updatedGroup = {...group}
+  for (const operation of operations) {
+    updatedGroup = performPatchOperation(group, operation)
+  }
+
+  await firebase.replaceGroup(group.id, updatedGroup)
+
+  return respond.with200().body(updatedGroup)
 }
 
 const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {

@@ -34,19 +34,10 @@ export const s_ListResponse = z.object({
   startIndex: z.coerce.number().optional().default(1),
 })
 
-export const s_Patch = z.object({
-  schemas: z
-    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]))
-    .default(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]),
-  Operations: z
-    .array(
-      z.object({
-        op: z.enum(["add", "remove", "replace"]),
-        path: z.string().optional(),
-        value: z.any(),
-      }),
-    )
-    .optional(),
+export const s_PatchOperation = z.object({
+  op: z.enum(["add", "remove", "replace"]),
+  path: z.string().optional(),
+  value: z.any(),
 })
 
 export const s_ResourceType = z.object({
@@ -75,14 +66,18 @@ export const s_ScimAttribute = z.object({
   uniqueness: z.enum(["none", "server", "global"]).optional().default("none"),
 })
 
-export const s_ScimException = z.object({
-  schemas: z
-    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:Error"]))
-    .default(["urn:ietf:params:scim:api:messages:2.0:Error"]),
-  detail: z.string(),
-  status: z.coerce.number(),
-  metadata: z.record(z.any()).optional(),
-})
+export const s_ScimExceptionType = z.enum([
+  "invalidFilter",
+  "tooMany",
+  "uniqueness",
+  "mutability",
+  "invalidSyntax",
+  "invalidPath",
+  "noTarget",
+  "invalidValue",
+  "invalidVers",
+  "sensitive",
+])
 
 export const s_ServiceProviderConfigAuthenticationScheme = z.object({
   type: z.enum([
@@ -140,6 +135,13 @@ export const s_CreateUser = z.object({
   groups: z.array(z.any()).default([]),
 })
 
+export const s_Patch = z.object({
+  schemas: z
+    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]))
+    .default(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]),
+  Operations: z.array(s_PatchOperation).optional(),
+})
+
 export const s_ResourceTypes = s_ListResponse.merge(
   z.object({Resources: z.array(s_ResourceType)}),
 )
@@ -159,6 +161,16 @@ export const s_Schema = z.object({
       location: z.string().optional(),
     })
     .optional(),
+})
+
+export const s_ScimException = z.object({
+  schemas: z
+    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:Error"]))
+    .default(["urn:ietf:params:scim:api:messages:2.0:Error"]),
+  detail: z.string(),
+  status: z.coerce.number(),
+  scimType: s_ScimExceptionType.optional(),
+  metadata: z.record(z.any()).optional(),
 })
 
 export const s_ServiceProviderConfig = z.object({

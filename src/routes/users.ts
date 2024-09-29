@@ -16,7 +16,7 @@ import {
 } from "../generated/routes/users"
 import {firebase} from "../idp-adapters/idp-adapters"
 import type {CreateUser} from "../idp-adapters/types"
-import {notImplemented, parseFilter} from "../utils"
+import {parseFilter} from "../utils"
 
 const requestBodyToCreateUser = (
   body: t_CreateUser | t_PutScimV2UsersIdBodySchema,
@@ -98,10 +98,12 @@ export const putScimV2UsersId: PutScimV2UsersId = async (
 }
 
 export const patchScimV2UsersId: PatchScimV2UsersId = async (
-  {query},
+  {params},
   respond,
 ) => {
-  return notImplemented({}, respond)
+  const user = await firebase.getUser(params.id)
+  //TODO: implement
+  return respond.with200().body(user)
 }
 
 export const deleteScimV2UsersId: DeleteScimV2UsersId = async (
