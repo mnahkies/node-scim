@@ -394,6 +394,7 @@ components:
         - $ref: "#/components/schemas/CreateUser"
         - type: object
           required:
+            - id
             - meta
           properties:
             id:

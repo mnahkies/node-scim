@@ -241,7 +241,7 @@ export const s_Schemas = s_ListResponse.merge(
 )
 
 export const s_User = s_CreateUser.merge(
-  z.object({id: z.string().optional(), meta: s_UserResourceMeta}),
+  z.object({id: z.string(), meta: s_UserResourceMeta}),
 )
 
 export const s_GroupsListing = s_ListResponse.merge(

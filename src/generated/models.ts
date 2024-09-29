@@ -184,7 +184,7 @@ export type t_ServiceProviderConfigAuthenticationScheme = {
 }
 
 export type t_User = t_CreateUser & {
-  id?: string | undefined
+  id: string
   meta: t_UserResourceMeta
 }
 
@@ -314,7 +314,7 @@ export type t_PutScimV2GroupsIdQuerySchema = {
 }
 
 export type t_PutScimV2UsersIdBodySchema = t_CreateUser & {
-  id?: string | undefined
+  id: string
   meta: t_UserResourceMeta
 }
 

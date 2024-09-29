@@ -39,14 +39,14 @@ const patchScimV2GroupsId: PatchScimV2GroupsId = async (
   const group = await firebase.getGroup(params.id)
   const operations = body.Operations ?? []
 
-  let updatedGroup = {...group}
+  let updated = {...group}
   for (const operation of operations) {
-    updatedGroup = performPatchOperation(group, operation)
+    updated = performPatchOperation(updated, operation)
   }
 
-  await firebase.replaceGroup(group.id, updatedGroup)
+  await firebase.replaceGroup(group.id, updated)
 
-  return respond.with200().body(updatedGroup)
+  return respond.with200().body(updated)
 }
 
 const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
