@@ -8,7 +8,10 @@ export type CreateUser = {
 }
 
 export interface IdpAdapter {
-  listUsers(): Promise<t_User[]>
+  listUsers(pagination: {
+    take: number | undefined
+    skip: number | undefined
+  }): Promise<t_User[]>
   getUser(id: string): Promise<t_User>
   createUser(user: CreateUser): Promise<t_User>
   updateUser(id: string, user: CreateUser): Promise<t_User>

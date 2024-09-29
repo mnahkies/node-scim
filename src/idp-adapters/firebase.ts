@@ -11,6 +11,36 @@ import type {t_CreateGroup, t_Group, t_User} from "../generated/models"
 import {create$Ref} from "../utils"
 import type {CreateUser, IdpAdapter} from "./types"
 
+export async function* listUsers(
+  auth: Auth,
+  {
+    skip = 0,
+    take = Number.POSITIVE_INFINITY,
+  }: {skip?: number | undefined; take?: number | undefined},
+): AsyncGenerator<UserRecord> {
+  let nextPageToken: string | undefined = undefined
+  let i = 0
+  do {
+    const result = await auth.listUsers(1000, nextPageToken)
+
+    for (const user of result.users) {
+      if (skip > 0) {
+        skip--
+        continue
+      }
+
+      yield user
+      i++
+
+      if (i === take) {
+        return
+      }
+    }
+
+    nextPageToken = result.pageToken
+  } while (nextPageToken)
+}
+
 async function mapFirebaseUserToScimUserResource(
   user: UserRecord,
 ): Promise<t_User> {
@@ -63,10 +93,17 @@ export class FirebaseAuthService implements IdpAdapter {
     await this.auth.getProviderConfig(this.config.providerId)
   }
 
-  async listUsers(): Promise<t_User[]> {
-    // TODO: pagination
-    const result = await this.auth.listUsers(1000)
-    return Promise.all(result.users.map(mapFirebaseUserToScimUserResource))
+  async listUsers({
+    take,
+    skip,
+  }: {take: number | undefined; skip: number | undefined}): Promise<t_User[]> {
+    const result: t_User[] = []
+
+    for await (const firebaseUser of listUsers(this.auth, {take, skip})) {
+      result.push(await mapFirebaseUserToScimUserResource(firebaseUser))
+    }
+
+    return result
   }
 
   async getUser(id: string): Promise<t_User> {

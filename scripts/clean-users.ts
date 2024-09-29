@@ -1,21 +1,7 @@
 import {initializeApp} from "firebase-admin/app"
 import {getAuth} from "firebase-admin/auth"
-import type {Auth, UserRecord} from "firebase-admin/auth"
 import {config} from "../src/config"
-
-async function* listUsers(auth: Auth): AsyncGenerator<UserRecord> {
-  let nextPageToken: string | undefined = undefined
-
-  do {
-    const result = await auth.listUsers(1000, nextPageToken)
-
-    for (const user of result.users) {
-      yield user
-    }
-
-    nextPageToken = result.pageToken
-  } while (nextPageToken)
-}
+import {listUsers} from "../src/idp-adapters/firebase"
 
 async function main() {
   const app = initializeApp({

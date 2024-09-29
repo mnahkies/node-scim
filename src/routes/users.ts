@@ -47,7 +47,13 @@ const requestBodyToCreateUser = (
 }
 
 export const getScimV2Users: GetScimV2Users = async ({query}, respond) => {
-  let users = await firebase.listUsers()
+  let users = await firebase.listUsers({
+    take: query.count,
+    skip:
+      query.startIndex !== undefined && query.count !== undefined
+        ? (query.startIndex - 1) * query.count
+        : 0,
+  })
 
   // todo; support filter properly
   if (query.filter) {
