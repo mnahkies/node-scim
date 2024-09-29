@@ -13,28 +13,9 @@ paths:
       tags:
         - users
       parameters:
-        - name: filter
-          description: >-
-            Filter search for userName, and status. i.e.:
-            `/Users?filter=userName eq j@doe.com`
-          in: query
-          schema:
-            description: >-
-              Filter search for userName, and status. i.e.:
-              `/Users?filter=userName eq j@doe.com`
-            type: string
-        - name: count
-          description: Number of results per search
-          in: query
-          schema:
-            description: Number of results per search
-            type: integer
-        - name: startIndex
-          description: Index of the result
-          in: query
-          schema:
-            description: Index of the result
-            type: integer
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/count'
+        - $ref: '#/components/parameters/startIndex'
       responses:
         200:
           description: The request has succeeded.
@@ -126,29 +107,10 @@ paths:
       tags:
         - groups
       parameters:
-        - name: filter
-          description: >-
-            Filter search for displayName, and status. i.e.:
-            `/Groups?filter=displayName eq "Admins"`
-          in: query
-          schema:
-            description: >-
-              Filter search for displayName, and status. i.e.:
-              `/Groups?filter=displayName eq "Admins"`
-            type: string
+        - $ref: '#/components/parameters/filter'
         - $ref: '#/components/parameters/excludedAttributes'
-        - name: count
-          description: Number of results per search
-          in: query
-          schema:
-            description: Number of results per search
-            type: integer
-        - name: startIndex
-          description: Index of the result
-          in: query
-          schema:
-            description: Index of the result
-            type: integer
+        - $ref: '#/components/parameters/count'
+        - $ref: '#/components/parameters/startIndex'
       responses:
         200:
           description: The request has succeeded.
@@ -274,6 +236,27 @@ security:
   - basic: [ ]
 components:
   parameters:
+    filter:
+      name: filter
+      description: >-
+        Filter search for userName, and status. i.e.:
+        `/Users?filter=userName eq j@doe.com`
+      in: query
+      schema:
+        type: string
+    count:
+      name: count
+      description: Number of results per search
+      in: query
+      schema:
+        type: integer
+    startIndex:
+      name: startIndex
+      description: Index of the result
+      in: query
+      schema:
+        description: Index of the result
+        type: integer
     excludedAttributes:
       name: excludedAttributes
       description: |
