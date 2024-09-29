@@ -20,6 +20,12 @@ export const s_BaseMeta = z.object({
   version: z.string().optional(),
 })
 
+export const s_GroupMember = z.object({
+  value: z.string(),
+  $ref: z.string().optional(),
+  type: z.enum(["User", "Group"]).optional(),
+})
+
 export const s_GroupResourceSchemas = z
   .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:Group"]))
   .default(["urn:ietf:params:scim:schemas:core:2.0:Group"])
@@ -37,7 +43,7 @@ export const s_ListResponse = z.object({
 export const s_PatchOperation = z.object({
   op: z.enum(["add", "remove", "replace"]),
   path: z.string().optional(),
-  value: z.any(),
+  value: z.any().optional(),
 })
 
 export const s_ResourceType = z.object({
@@ -110,6 +116,13 @@ export const s_UserFullName = z.object({
   honorificSuffix: z.string().optional(),
 })
 
+export const s_UserGroup = z.object({
+  value: z.string().optional(),
+  $ref: z.string().optional(),
+  display: z.string().optional(),
+  type: z.enum(["direct", "indirect"]).optional(),
+})
+
 export const s_UserResourceMeta = z
   .object({resourceType: z.enum(["User"]).optional()})
   .default({resourceType: "User"})
@@ -132,7 +145,7 @@ export const s_CreateUser = z.object({
   name: s_UserFullName.optional(),
   emails: z.array(s_UserEmail).default([]),
   active: PermissiveBoolean.default(true),
-  groups: z.array(z.any()).default([]),
+  groups: z.array(s_UserGroup).default([]),
 })
 
 export const s_Patch = z.object({
@@ -222,7 +235,7 @@ export const s_ServiceProviderConfig = z.object({
 export const s_Group = s_CreateGroup.merge(
   z.object({
     id: z.string(),
-    members: z.array(z.record(z.any())).optional(),
+    members: z.array(s_GroupMember).optional(),
     meta: s_BaseMeta
       .merge(
         z.object({

@@ -8,7 +8,7 @@ statement
   }
 
 word
-  = chars:[a-zA-Z0-9]+ {
+  = chars:[a-zA-Z0-9@._-]+ {
       return chars.join("");
   }
 

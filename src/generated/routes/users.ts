@@ -280,7 +280,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   const putScimV2UsersIdParamSchema = z.object({id: z.string()})
 
-  const putScimV2UsersIdBodySchema = s_User
+  const putScimV2UsersIdBodySchema = s_CreateUser
 
   const putScimV2UsersIdResponseValidator = responseValidationFactory(
     [

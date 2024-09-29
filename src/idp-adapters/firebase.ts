@@ -6,19 +6,29 @@ import {
   getAuth,
 } from "firebase-admin/auth"
 import {groupsRepository} from "../database/repositories"
-import {ConflictError, NotFoundError, ValidationError} from "../errors"
-import type {t_Group, t_User} from "../generated/models"
-import type {CreateGroup, CreateUser, IdpAdapter} from "./types"
+import {ConflictError, NotFoundError} from "../errors"
+import type {t_CreateGroup, t_Group, t_User} from "../generated/models"
+import {create$Ref} from "../utils"
+import type {CreateUser, IdpAdapter} from "./types"
 
-function mapFirebaseUserToScimUserResource(user: UserRecord): t_User {
+async function mapFirebaseUserToScimUserResource(
+  user: UserRecord,
+): Promise<t_User> {
   console.info(JSON.stringify(user, undefined, 2))
 
   return {
     id: user.uid,
     displayName: user.displayName,
     active: !user.disabled,
-    emails: [],
-    groups: [],
+    emails: user.email
+      ? [
+          {
+            primary: true,
+            value: user.email,
+          },
+        ]
+      : [],
+    groups: await groupsRepository.userGroups(user.uid),
     meta: {
       resourceType: "User",
     },
@@ -56,7 +66,7 @@ export class FirebaseAuthService implements IdpAdapter {
   async listUsers(): Promise<t_User[]> {
     // TODO: pagination
     const result = await this.auth.listUsers(1000)
-    return result.users.map(mapFirebaseUserToScimUserResource)
+    return Promise.all(result.users.map(mapFirebaseUserToScimUserResource))
   }
 
   async getUser(id: string): Promise<t_User> {
@@ -69,6 +79,21 @@ export class FirebaseAuthService implements IdpAdapter {
       return mapFirebaseUserToScimUserResource(user)
     } catch (err: unknown) {
       this.mapNotFoundError(err, id)
+      throw err
+    }
+  }
+
+  private async userExists(id: string): Promise<boolean> {
+    try {
+      await this.auth.getUser(id)
+      return true
+    } catch (err: unknown) {
+      if (
+        err instanceof FirebaseAuthError &&
+        err.code === "auth/user-not-found"
+      ) {
+        return false
+      }
       throw err
     }
   }
@@ -158,12 +183,32 @@ export class FirebaseAuthService implements IdpAdapter {
     return groupsRepository.listGroups()
   }
 
-  async createGroup(group: CreateGroup): Promise<t_Group> {
+  async createGroup(group: t_CreateGroup): Promise<t_Group> {
     return groupsRepository.create(group)
   }
 
-  async replaceGroup(id: string, group: CreateGroup): Promise<t_Group> {
-    return groupsRepository.replace(id, group)
+  async replaceGroup(id: string, group: t_Group): Promise<t_Group> {
+    const members = await Promise.all(
+      (group.members ?? []).map(async (member) => {
+        if (await this.userExists(member.value)) {
+          return {
+            value: member.value,
+            type: "User" as const,
+            $ref: create$Ref(member.value, "User"),
+          }
+        }
+        if (await groupsRepository.groupExists(member.value)) {
+          return {
+            value: member.value,
+            type: "Group" as const,
+            $ref: create$Ref(member.value, "Group"),
+          }
+        }
+        throw new NotFoundError(member.value)
+      }),
+    )
+
+    return groupsRepository.replace(id, {...group, members})
   }
 
   async deleteGroup(id: string): Promise<void> {

@@ -307,7 +307,7 @@ export function createRouter(implementation: Implementation): KoaRouter {
     excludedAttributes: z.string().optional(),
   })
 
-  const putScimV2GroupsIdBodySchema = s_Group
+  const putScimV2GroupsIdBodySchema = s_CreateGroup
 
   const putScimV2GroupsIdResponseValidator = responseValidationFactory(
     [

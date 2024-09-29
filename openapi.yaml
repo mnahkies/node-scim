@@ -69,7 +69,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/CreateUser"
       responses:
         200:
           description: User replaced.
@@ -165,7 +165,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Group"
+              $ref: "#/components/schemas/CreateGroup"
       responses:
         200:
           description: Group replaced.
@@ -314,11 +314,9 @@ components:
               description: GUID
               type: string
             members:
-              description: The list of groups
               type: array
               items:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/GroupMember'
             meta:
               allOf:
                 - $ref: "#/components/schemas/BaseMeta"
@@ -329,6 +327,24 @@ components:
                       enum:
                         - ServiceProviderConfig
                       default: ServiceProviderConfig
+    GroupMember:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          description: Id for the group member
+          type: string
+        $ref:
+          description: The URI corresponding to the User SCIM resource
+          example: https://exampe.com/scim/v2/Users/8cfKAJ3823PGsZShATgAiFT3Of22
+          type: string
+          format: uri
+        type:
+          type: string
+          enum:
+            - User
+            - Group
     GroupResourceSchemas:
       type: array
       items:
@@ -387,8 +403,28 @@ components:
         groups:
           description: List of user groups
           type: array
-          items: { }
+          items:
+            $ref: '#/components/schemas/UserGroup'
           default: [ ]
+    UserGroup:
+      type: object
+      properties:
+        value:
+          description: The id of the User's group.
+          type: string
+        $ref:
+          description: The URI of the corresponding 'Group' resource to which the user belongs.
+          example: https://exampe.com/scim/v2/Groups/8cfKAJ3823PGsZShATgAiFT3Of22
+          type: string
+          format: uri
+        display:
+          description: A human-readable name, primarily used for display purposes.  READ-ONLY.
+          type: string
+        type:
+          type: string
+          enum:
+            - direct
+            - indirect
     User:
       allOf:
         - $ref: "#/components/schemas/CreateUser"
@@ -401,6 +437,7 @@ components:
               type: string
             meta:
               $ref: "#/components/schemas/UserResourceMeta"
+
     UserFullName:
       description: The full name of the user
       type: object
@@ -787,7 +824,6 @@ components:
       type: object
       required:
         - op
-        - value
       properties:
         op:
           type: string

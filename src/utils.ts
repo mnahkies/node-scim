@@ -1,5 +1,6 @@
 import type {KoaRuntimeResponder} from "@nahkies/typescript-koa-runtime/server"
 import {parse} from "../parser.js"
+import {config} from "./config"
 import {PatchError} from "./errors"
 import type {t_PatchOperation} from "./generated/models"
 
@@ -13,6 +14,10 @@ export function parseFilter(filter: string): {
   operator: "eq" | "ne" | "co" | "sw" | "ew" | "gt" | "lt" | "ge" | "le"
 } {
   return parse(filter, undefined)
+}
+
+export function create$Ref(id: string, type: "User" | "Group") {
+  return `https://${config.hostname}:${config.port}/scim/v2/${type}s/${id}`
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>

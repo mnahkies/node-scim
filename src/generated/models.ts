@@ -20,7 +20,7 @@ export type t_CreateUser = {
   displayName?: string | undefined
   emails: t_UserEmail[]
   externalId?: string | undefined
-  groups: any[]
+  groups: t_UserGroup[]
   name?: t_UserFullName | undefined
   schemas: t_UserResourceSchemas
   userName: string
@@ -28,16 +28,18 @@ export type t_CreateUser = {
 
 export type t_Group = t_CreateGroup & {
   id: string
-  members?:
-    | {
-        [key: string]: any | undefined
-      }[]
-    | undefined
+  members?: t_GroupMember[] | undefined
   meta?:
     | (t_BaseMeta & {
         resourceType?: "ServiceProviderConfig" | undefined
       })
     | undefined
+}
+
+export type t_GroupMember = {
+  $ref?: string | undefined
+  type?: ("User" | "Group") | undefined
+  value: string
 }
 
 export type t_GroupResourceSchemas =
@@ -57,7 +59,7 @@ export type t_ListResponse = {
 export type t_PatchOperation = {
   op: "add" | "remove" | "replace"
   path?: string | undefined
-  value: any
+  value?: any | undefined
 }
 
 export type t_ResourceType = {
@@ -204,6 +206,13 @@ export type t_UserFullName = {
   middleName?: string | undefined
 }
 
+export type t_UserGroup = {
+  $ref?: string | undefined
+  display?: string | undefined
+  type?: ("direct" | "indirect") | undefined
+  value?: string | undefined
+}
+
 export type t_UserResourceMeta = {
   resourceType?: "User" | undefined
 }
@@ -285,24 +294,16 @@ export type t_PostScimV2UsersBodySchema = {
   displayName?: string | undefined
   emails: t_UserEmail[]
   externalId?: string | undefined
-  groups: any[]
+  groups: t_UserGroup[]
   name?: t_UserFullName | undefined
   schemas: t_UserResourceSchemas
   userName: string
 }
 
-export type t_PutScimV2GroupsIdBodySchema = t_CreateGroup & {
-  id: string
-  members?:
-    | {
-        [key: string]: any | undefined
-      }[]
-    | undefined
-  meta?:
-    | (t_BaseMeta & {
-        resourceType?: "ServiceProviderConfig" | undefined
-      })
-    | undefined
+export type t_PutScimV2GroupsIdBodySchema = {
+  displayName: string
+  externalId?: string | undefined
+  schemas: t_GroupResourceSchemas
 }
 
 export type t_PutScimV2GroupsIdParamSchema = {
@@ -313,9 +314,15 @@ export type t_PutScimV2GroupsIdQuerySchema = {
   excludedAttributes?: string | undefined
 }
 
-export type t_PutScimV2UsersIdBodySchema = t_CreateUser & {
-  id: string
-  meta: t_UserResourceMeta
+export type t_PutScimV2UsersIdBodySchema = {
+  active: boolean
+  displayName?: string | undefined
+  emails: t_UserEmail[]
+  externalId?: string | undefined
+  groups: t_UserGroup[]
+  name?: t_UserFullName | undefined
+  schemas: t_UserResourceSchemas
+  userName: string
 }
 
 export type t_PutScimV2UsersIdParamSchema = {

@@ -20,8 +20,10 @@ const putScimV2GroupsId: PutScimV2GroupsId = async (
   {params, body},
   respond,
 ) => {
-  const group = await firebase.replaceGroup(params.id, body)
-  return respond.with200().body(group)
+  const group = await firebase.getGroup(params.id)
+  // TODO: deep merge, check if RFC actually specifies this as a merge
+  const updated = await firebase.replaceGroup(params.id, {...group, ...body})
+  return respond.with200().body(updated)
 }
 
 const deleteScimV2GroupsId: DeleteScimV2GroupsId = async (

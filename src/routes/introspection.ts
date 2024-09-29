@@ -17,7 +17,7 @@ const getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
   return respond.with200().body({
     documentationUri: "http://example.com/docs",
     patch: {
-      supported: false,
+      supported: true,
     },
     bulk: {
       supported: false,
@@ -25,7 +25,7 @@ const getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
       maxOperations: 10,
     },
     filter: {
-      supported: false,
+      supported: true,
       maxResults: 100,
     },
     changePassword: {

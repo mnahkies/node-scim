@@ -1,12 +1,34 @@
 import crypto from "node:crypto"
 import {ConflictError, NotFoundError} from "../errors"
-import type {t_Group} from "../generated/models"
-import type {CreateGroup} from "../idp-adapters/types"
+import type {t_CreateGroup, t_Group, t_UserGroup} from "../generated/models"
+import {create$Ref} from "../utils"
 
 export class GroupsRepository {
   private readonly data = new Map<string, t_Group>()
 
-  async create(it: CreateGroup): Promise<t_Group> {
+  async userGroups(userId: string): Promise<t_UserGroup[]> {
+    const result: t_UserGroup[] = []
+
+    for (const group of this.data.values()) {
+      if (group.members?.find((it) => it.value === userId)) {
+        result.push({
+          value: group.id,
+          display: group.displayName,
+          $ref: create$Ref(group.id, "Group"),
+          // TODO: support retrieving indirect membership
+          type: "direct",
+        })
+      }
+    }
+
+    return result
+  }
+
+  async groupExists(id: string): Promise<boolean> {
+    return this.data.has(id)
+  }
+
+  async create(it: t_CreateGroup): Promise<t_Group> {
     if (
       Array.from(this.data.values()).find(
         (e) => e.displayName === it.displayName,
@@ -22,7 +44,9 @@ export class GroupsRepository {
       id,
       externalId: it.externalId,
       displayName: it.displayName,
+      // TODO: is it possible to provide members at time of group creation?
       members: [],
+      // TODO: metadata
       meta: {},
     }
 
@@ -31,17 +55,18 @@ export class GroupsRepository {
     return group
   }
 
-  async replace(id: string, it: CreateGroup): Promise<t_Group> {
+  async replace(id: string, it: t_Group): Promise<t_Group> {
     if (!this.data.has(id)) {
       throw new NotFoundError(id)
     }
 
     const group = {
       schemas: ["urn:ietf:params:scim:schemas:core:2.0:Group" as const],
-      id: crypto.randomUUID(),
+      id,
       externalId: it.externalId,
       displayName: it.displayName,
-      members: [],
+      members: it.members ?? [],
+      // TODO: metadata
       meta: {},
     }
 
