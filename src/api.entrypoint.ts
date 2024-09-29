@@ -3,6 +3,7 @@ import type {AddressInfo} from "node:net"
 import KoaRouter from "@koa/router"
 import Koa from "koa"
 import {config} from "./config"
+import {firebase} from "./idp-adapters/idp-adapters"
 import {authenticationMiddleware} from "./middleware/authentication.middleware"
 import {bodyMiddleware} from "./middleware/body.middleware"
 import {errorMiddleware} from "./middleware/error.middleware"
@@ -10,11 +11,14 @@ import {loggerMiddleware} from "./middleware/logger.middleware"
 import {createGroupsRouter} from "./routes/groups"
 import {createIntrospectionRouter} from "./routes/introspection"
 import {createUsersRouter} from "./routes/users"
+
 export async function main(): Promise<{
   app: Koa
   server: Server
   address: AddressInfo
 }> {
+  await firebase.checkAuth()
+
   const app = new Koa()
 
   app.use(loggerMiddleware())

@@ -21,6 +21,11 @@ export function authenticationMiddleware({
 
     const buffer = Buffer.from(token, "utf-8")
 
+    if (buffer.length !== secretKey.length) {
+      console.warn("buffers of different length")
+      return respond401(ctx)
+    }
+
     const isMatch = crypto.timingSafeEqual(buffer, secretKey)
 
     if (!isMatch) {

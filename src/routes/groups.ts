@@ -2,6 +2,7 @@ import {
   type DeleteScimV2GroupsId,
   type GetScimV2Groups,
   type GetScimV2GroupsId,
+  type PatchScimV2GroupsId,
   type PostScimV2Groups,
   type PutScimV2GroupsId,
   createRouter,
@@ -28,6 +29,15 @@ const deleteScimV2GroupsId: DeleteScimV2GroupsId = async (
 ) => {
   await firebase.deleteGroup(params.id)
   return respond.with204().body()
+}
+
+const patchScimV2GroupsId: PatchScimV2GroupsId = async (
+  {params, body},
+  respond,
+) => {
+  const group = await firebase.getGroup(params.id)
+  // todo implement
+  return respond.with200().body(group)
 }
 
 const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
@@ -89,7 +99,7 @@ export function createGroupsRouter() {
     postScimV2Groups,
     getScimV2GroupsId,
     putScimV2GroupsId,
-    patchScimV2GroupsId: notImplemented,
+    patchScimV2GroupsId,
     deleteScimV2GroupsId,
   })
 }

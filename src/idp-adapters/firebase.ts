@@ -49,6 +49,10 @@ export class FirebaseAuthService implements IdpAdapter {
     this.auth = getAuth(this.app)
   }
 
+  async checkAuth() {
+    await this.auth.getProviderConfig(this.config.providerId)
+  }
+
   async listUsers(): Promise<t_User[]> {
     // TODO: pagination
     const result = await this.auth.listUsers(1000)

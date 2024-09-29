@@ -31,6 +31,6 @@
     "rules": {
       "recommended": true
     },
-    "ignore": ["package.json", "src/generated", "parser.js"]
+    "ignore": ["package.json", "src/generated", "parser.js", "parser.d.ts"]
   }
 }
