@@ -52,7 +52,16 @@ const patchScimV2GroupsId: PatchScimV2GroupsId = async (
 }
 
 const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
-  let groups = await firebase.listGroups()
+  const take = query.count
+  const skip =
+    query.startIndex !== undefined && query.count !== undefined
+      ? (query.startIndex - 1) * query.count
+      : 0
+
+  let groups = await firebase.listGroups({
+    take,
+    skip,
+  })
 
   // todo; support filter properly
   if (query.filter) {

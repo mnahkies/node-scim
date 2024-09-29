@@ -9,7 +9,7 @@ import {groupsRepository} from "../database/repositories"
 import {ConflictError, NotFoundError} from "../errors"
 import type {t_CreateGroup, t_Group, t_User} from "../generated/models"
 import {create$Ref} from "../utils"
-import type {CreateUser, IdpAdapter} from "./types"
+import type {CreateUser, IdpAdapter, PaginationParams} from "./types"
 
 export async function* listUsers(
   auth: Auth,
@@ -93,10 +93,7 @@ export class FirebaseAuthService implements IdpAdapter {
     await this.auth.getProviderConfig(this.config.providerId)
   }
 
-  async listUsers({
-    take,
-    skip,
-  }: {take: number | undefined; skip: number | undefined}): Promise<t_User[]> {
+  async listUsers({take, skip}: PaginationParams): Promise<t_User[]> {
     const result: t_User[] = []
 
     for await (const firebaseUser of listUsers(this.auth, {take, skip})) {
@@ -216,8 +213,8 @@ export class FirebaseAuthService implements IdpAdapter {
     }
   }
 
-  async listGroups() {
-    return groupsRepository.listGroups()
+  async listGroups({take, skip}: PaginationParams) {
+    return groupsRepository.listGroups({take, skip})
   }
 
   async createGroup(group: t_CreateGroup): Promise<t_Group> {

@@ -1,6 +1,7 @@
 import crypto from "node:crypto"
 import {ConflictError, NotFoundError} from "../errors"
 import type {t_CreateGroup, t_Group, t_UserGroup} from "../generated/models"
+import type {PaginationParams} from "../idp-adapters/types"
 import {create$Ref} from "../utils"
 
 export class GroupsRepository {
@@ -93,7 +94,24 @@ export class GroupsRepository {
     return result
   }
 
-  async listGroups() {
-    return Array.from(this.data.values())
+  async listGroups({
+    take = Number.POSITIVE_INFINITY,
+    skip = 0,
+  }: PaginationParams) {
+    const result: t_Group[] = []
+
+    for (const group of this.data.values()) {
+      if (skip > 0) {
+        skip--
+        continue
+      }
+      result.push(group)
+
+      if (result.length >= take) {
+        break
+      }
+    }
+
+    return result
   }
 }
