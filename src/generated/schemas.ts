@@ -38,13 +38,15 @@ export const s_Patch = z.object({
   schemas: z
     .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]))
     .default(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]),
-  operations: z.array(
-    z.object({
-      op: z.enum(["add", "remove", "replace"]),
-      path: z.string().optional(),
-      value: z.record(z.any()),
-    }),
-  ),
+  Operations: z
+    .array(
+      z.object({
+        op: z.enum(["add", "remove", "replace"]),
+        path: z.string().optional(),
+        value: z.any(),
+      }),
+    )
+    .optional(),
 })
 
 export const s_ResourceType = z.object({

@@ -777,7 +777,7 @@ components:
             enum:
               - "urn:ietf:params:scim:api:messages:2.0:PatchOp"
           default: [ "urn:ietf:params:scim:api:messages:2.0:PatchOp" ]
-        operations:
+        Operations:
           description: Patch operation details
           type: array
           items:
@@ -795,7 +795,6 @@ components:
               path:
                 type: string
               value:
-                type: object
                 additionalProperties: true
 
     ScimException:

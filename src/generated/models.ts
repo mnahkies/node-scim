@@ -234,13 +234,13 @@ export type t_GetScimV2UsersIdParamSchema = {
 }
 
 export type t_PatchScimV2GroupsIdBodySchema = {
-  operations: {
-    op: "add" | "remove" | "replace"
-    path?: string | undefined
-    value: {
-      [key: string]: any | undefined
-    }
-  }[]
+  Operations?:
+    | {
+        op: "add" | "remove" | "replace"
+        path?: string | undefined
+        value: any
+      }[]
+    | undefined
   schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
 }
 
@@ -253,13 +253,13 @@ export type t_PatchScimV2GroupsIdQuerySchema = {
 }
 
 export type t_PatchScimV2UsersIdBodySchema = {
-  operations: {
-    op: "add" | "remove" | "replace"
-    path?: string | undefined
-    value: {
-      [key: string]: any | undefined
-    }
-  }[]
+  Operations?:
+    | {
+        op: "add" | "remove" | "replace"
+        path?: string | undefined
+        value: any
+      }[]
+    | undefined
   schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
 }
 
