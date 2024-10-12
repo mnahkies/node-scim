@@ -95,6 +95,15 @@ export class ValidationError extends DomainError<"validation", unknown> {
   }
 }
 
+export class ForbiddenError extends DomainError<"forbidden", unknown> {
+  type = "forbidden" as const
+  statusCode = 403
+
+  constructor() {
+    super({message: "Forbidden"})
+  }
+}
+
 export class InternalServerError extends DomainError<
   "internal-server-error",
   unknown

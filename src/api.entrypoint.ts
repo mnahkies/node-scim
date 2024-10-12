@@ -8,6 +8,7 @@ import {authenticationMiddleware} from "./middleware/authentication.middleware"
 import {bodyMiddleware} from "./middleware/body.middleware"
 import {errorMiddleware} from "./middleware/error.middleware"
 import {loggerMiddleware} from "./middleware/logger.middleware"
+import {createDocsRouter} from "./routes/docs"
 import {createGroupsRouter} from "./routes/groups"
 import {createIntrospectionRouter} from "./routes/introspection"
 import {createUsersRouter} from "./routes/users"
@@ -24,25 +25,36 @@ export async function main(): Promise<{
   app.use(loggerMiddleware())
   app.use(errorMiddleware())
   app.use(bodyMiddleware())
-  app.use(authenticationMiddleware({secretKey: config.secretKey}))
 
-  const router = new KoaRouter()
+  const publicRouter = new KoaRouter()
 
-  router.get("/", (ctx) => {
+  publicRouter.get("/", (ctx) => {
     ctx.status = 200
     ctx.body = {status: "running"}
   })
+
+  const docsRouter = createDocsRouter()
+  publicRouter.use(docsRouter.routes(), docsRouter.allowedMethods())
+
+  const authedRouter = new KoaRouter()
+
+  authedRouter.use(authenticationMiddleware({secretKey: config.secretKey}))
 
   const usersRouter = createUsersRouter()
   const groupsRouter = createGroupsRouter()
   const introspectionRouter = createIntrospectionRouter()
 
-  router.use(usersRouter.routes(), usersRouter.allowedMethods())
-  router.use(groupsRouter.routes(), groupsRouter.allowedMethods())
-  router.use(introspectionRouter.routes(), introspectionRouter.allowedMethods())
+  authedRouter.use(usersRouter.routes(), usersRouter.allowedMethods())
+  authedRouter.use(groupsRouter.routes(), groupsRouter.allowedMethods())
+  authedRouter.use(
+    introspectionRouter.routes(),
+    introspectionRouter.allowedMethods(),
+  )
 
-  app.use(router.allowedMethods())
-  app.use(router.routes())
+  app.use(publicRouter.allowedMethods())
+  app.use(publicRouter.routes())
+  app.use(authedRouter.allowedMethods())
+  app.use(authedRouter.routes())
 
   return new Promise((resolve, reject) => {
     try {
