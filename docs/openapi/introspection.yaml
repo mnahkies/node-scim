@@ -1,0 +1,315 @@
+openapi: 3.1.0
+info:
+  title: node-scim - introspection
+  version: "0.0.1"
+tags:
+  - name: introspection
+paths:
+  /scim/v2/ServiceProviderConfig:
+    get:
+      tags:
+        - introspection
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceProviderConfig"
+  /scim/v2/ResourceTypes:
+    get:
+      tags:
+        - introspection
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceTypes"
+  /scim/v2/Schemas:
+    get:
+      tags:
+        - introspection
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref:
+                  "#/components/schemas/Schemas"
+components:
+  schemas:
+    ServiceProviderConfig:
+      type: object
+      required:
+        - patch
+        - bulk
+        - filter
+        - changePassword
+        - sort
+        - etag
+        - authenticationSchemes
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            enum:
+              - "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"
+          default: [ "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig" ]
+        documentationUri:
+          type: string
+          format: uri
+        patch:
+          type: object
+          properties:
+            supported:
+              type: boolean
+              default: false
+        bulk:
+          type: object
+          properties:
+            supported:
+              type: boolean
+              default: false
+            maxOperations:
+              type: integer
+            maxPayloadSize:
+              type: integer
+        filter:
+          type: object
+          properties:
+            supported:
+              type: boolean
+              default: false
+            maxResults:
+              type: integer
+        changePassword:
+          type: object
+          properties:
+            supported:
+              type: boolean
+              default: false
+        sort:
+          type: object
+          properties:
+            supported:
+              type: boolean
+              default: false
+        etag:
+          type: object
+          properties:
+            supported:
+              type: boolean
+              default: false
+        pagination:
+          type: object
+          properties:
+            cursor:
+              type: boolean
+              default: false
+            index:
+              type: boolean
+              default: false
+            defaultPaginationMethod:
+              type: string
+              enum:
+                - index
+                - cursor
+            defaultPageSize:
+              type: number
+              default: 10
+            maxPageSize:
+              type: number
+              default: 100
+            cursorTimeout:
+              type: number
+              default: 3600
+        authenticationSchemes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceProviderConfigAuthenticationScheme"
+        meta:
+          allOf:
+            - $ref: "./common.yaml#/components/schemas/BaseMeta"
+            - type: object
+              properties:
+                resourceType:
+                  type: string
+                  enum:
+                    - ServiceProviderConfig
+                  default: ServiceProviderConfig
+    ServiceProviderConfigAuthenticationScheme:
+      type: object
+      required:
+        - type
+        - name
+        - description
+      properties:
+        type:
+          type: string
+          enum:
+            - oauth
+            - oauth2
+            - oauthbearertoken
+            - httpbasic
+            - httpdigest
+          example: oauthbearertoken
+        name:
+          type: string
+          example: OAuth Bearer Token
+        description:
+          type: string
+          example: Authentication scheme using the OAuth Bearer Token Standard
+        specUri:
+          type: string
+          format: uri
+          example: https://www.rfc-editor.org/info/rfc6750
+        documentationUri:
+          type: string
+          format: uri
+          example: https://example.com/help/oauth.html
+        primary:
+          type: boolean
+          default: false
+
+    ResourceTypes:
+      allOf:
+        - $ref: "./common.yaml#/components/schemas/ListResponse"
+        - type: object
+          required:
+            - Resources
+          properties:
+            Resources:
+              type: array
+              items:
+                $ref: "#/components/schemas/ResourceType"
+    ResourceType:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "The unique identifier for the SCIM schema."
+        name:
+          type: string
+          description: "The name of the SCIM schema."
+        description:
+          type: string
+          description: "A description of the SCIM schema."
+        endpoint:
+          type: string
+          description: |
+            The resource type's HTTP-addressable endpoint relative to the Base URL of the service provider, e.g., "Users".  REQUIRED.
+          example: Users
+        schema:
+          type: string
+          description: "The URI of the SCIM schema."
+          example: "urn:ietf:params:scim:schemas:core:2.0:User"
+        schemaExtensions:
+          type: array
+          description: "An array of URIs representing schema extensions."
+          items:
+            type: object
+            properties:
+              schema:
+                type: string
+                description: "A URI for a schema extension."
+                example: "urn:edu:2.0:Staff"
+              required:
+                type: boolean
+                default: false
+      required:
+        - name
+        - description
+        - schema
+        - schemaExtensions
+
+    Schemas:
+      allOf:
+        - $ref: "./common.yaml#/components/schemas/ListResponse"
+        - type: object
+          required:
+            - Resources
+          properties:
+            Resources:
+              type: array
+              items:
+                $ref: "#/components/schemas/Schema"
+    Schema:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            enum:
+              - "urn:ietf:params:scim:schemas:core:2.0:Schema"
+          default: [ "urn:ietf:params:scim:schemas:core:2.0:Schema" ]
+        id:
+          type: string
+          example: "urn:ietf:params:scim:schemas:oktaprise:2.0:Users"
+        name:
+          type: string
+          example: OktapriseUsers
+        description:
+          type: string
+          example: Oktaprise parameters.
+        attributes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScimAttribute"
+        meta:
+          type: object
+          properties:
+            resourceType:
+              type: string
+              example: Schema
+            location:
+              type: string
+              example: /scim/v2/Schemas/urn:ietf:params:scim:schemas:oktaprise:2.0:Users
+    ScimAttribute:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "The name of the SCIM attribute."
+        type:
+          type: string
+          description: "The data type of the SCIM attribute."
+        multiValued:
+          type: boolean
+          description: "Indicates whether the SCIM attribute can have multiple values."
+        description:
+          type: string
+          description: "A description of the SCIM attribute."
+        required:
+          type: boolean
+          description: "Indicates if the SCIM attribute is required."
+        caseExact:
+          type: boolean
+          description: "Indicates whether the attribute is case sensitive."
+          default: false
+        mutability:
+          type: string
+          description: "Indicates how the attribute can be modified (`readOnly`, `readWrite`, etc.)."
+        returned:
+          type: string
+          description: "Defines when the attribute is returned (`always`, `never`, etc.)."
+        uniqueness:
+          type: string
+          description: "Specifies the uniqueness of the attribute (`none`, `server`, `global`)."
+          enum:
+            - none
+            - server
+            - global
+          default: none
+      required:
+        - name
+        - type
+        - multiValued
+        - description
+        - required
+        - mutability
+        - returned

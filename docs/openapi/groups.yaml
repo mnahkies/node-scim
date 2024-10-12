@@ -1,0 +1,185 @@
+openapi: 3.1.0
+info:
+  title: node-scim - groups
+  version: "0.0.1"
+tags:
+  - name: groups
+paths:
+  /scim/v2/Groups:
+    get:
+      tags:
+        - groups
+      parameters:
+        - $ref: "./common.yaml#/components/parameters/filter"
+        - $ref: "./common.yaml#/components/parameters/excludedAttributes"
+        - $ref: "./common.yaml#/components/parameters/count"
+        - $ref: "./common.yaml#/components/parameters/startIndex"
+      responses:
+        200:
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupsListing"
+    post:
+      tags:
+        - groups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroup"
+      responses:
+        201:
+          description: The group has been created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+  /scim/v2/Groups/{id}:
+    parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+      - $ref: "./common.yaml#/components/parameters/excludedAttributes"
+    get:
+      tags:
+        - groups
+      responses:
+        200:
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+    put:
+      tags:
+        - groups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroup"
+      responses:
+        200:
+          description: Group replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+    patch:
+      tags:
+        - groups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./common.yaml#/components/schemas/Patch"
+      responses:
+        200:
+          description: Group replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+    delete:
+      tags:
+        - groups
+      responses:
+        204:
+          description: No Content (successful deletion)
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+components:
+  schemas:
+    CreateGroup:
+      required:
+        - schemas
+        - displayName
+      properties:
+        schemas:
+          $ref: "#/components/schemas/GroupResourceSchemas"
+        externalId:
+          type: string
+        displayName:
+          type: string
+    Group:
+      allOf:
+        - $ref: "#/components/schemas/CreateGroup"
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              description: GUID
+              type: string
+            members:
+              type: array
+              items:
+                $ref: '#/components/schemas/GroupMember'
+            meta:
+              allOf:
+                - $ref: "./common.yaml#/components/schemas/BaseMeta"
+                - type: object
+                  properties:
+                    resourceType:
+                      type: string
+                      enum:
+                        - ServiceProviderConfig
+                      default: ServiceProviderConfig
+    GroupMember:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          description: Id for the group member
+          type: string
+        $ref:
+          description: The URI corresponding to the User SCIM resource
+          example: https://exampe.com/scim/v2/Users/8cfKAJ3823PGsZShATgAiFT3Of22
+          type: string
+          format: uri
+        type:
+          type: string
+          enum:
+            - User
+            - Group
+
+    GroupsListing:
+      allOf:
+        - $ref: "./common.yaml#/components/schemas/ListResponse"
+        - type: object
+          required:
+            - Resources
+          properties:
+            Resources:
+              type: array
+              items:
+                $ref: "#/components/schemas/Group"
+
+    GroupResourceSchemas:
+      type: array
+      items:
+        type: string
+        enum:
+          - "urn:ietf:params:scim:schemas:core:2.0:Group"
+      default: [ "urn:ietf:params:scim:schemas:core:2.0:Group" ]
+    GroupResourceMeta:
+      properties:
+        resourceType:
+          type: string
+          enum:
+            - Group
+      default: { resourceType: "Group" }

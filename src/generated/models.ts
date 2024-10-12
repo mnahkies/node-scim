@@ -9,21 +9,47 @@ export type t_BaseMeta = {
   version?: string | undefined
 }
 
+export type t_ListResponse = {
+  itemsPerPage?: number | undefined
+  schemas?: "urn:ietf:params:scim:api:messages:2.0:ListResponse"[] | undefined
+  startIndex?: number | undefined
+  totalResults: number
+}
+
+export type t_PatchOperation = {
+  op: "add" | "remove" | "replace"
+  path?: string | undefined
+  value?: any | undefined
+}
+
+export type t_ScimException = {
+  detail: string
+  metadata?:
+    | {
+        [key: string]: any | undefined
+      }
+    | undefined
+  schemas: "urn:ietf:params:scim:api:messages:2.0:Error"[]
+  scimType?: t_ScimExceptionType | undefined
+  status: number
+}
+
+export type t_ScimExceptionType =
+  | "invalidFilter"
+  | "tooMany"
+  | "uniqueness"
+  | "mutability"
+  | "invalidSyntax"
+  | "invalidPath"
+  | "noTarget"
+  | "invalidValue"
+  | "invalidVers"
+  | "sensitive"
+
 export type t_CreateGroup = {
   displayName: string
   externalId?: string | undefined
   schemas: t_GroupResourceSchemas
-}
-
-export type t_CreateUser = {
-  active: boolean
-  displayName?: string | undefined
-  emails: t_UserEmail[]
-  externalId?: string | undefined
-  groups: t_UserGroup[]
-  name?: t_UserFullName | undefined
-  schemas: t_UserResourceSchemas
-  userName: string
 }
 
 export type t_Group = t_CreateGroup & {
@@ -47,19 +73,6 @@ export type t_GroupResourceSchemas =
 
 export type t_GroupsListing = t_ListResponse & {
   Resources: t_Group[]
-}
-
-export type t_ListResponse = {
-  itemsPerPage?: number | undefined
-  schemas?: "urn:ietf:params:scim:api:messages:2.0:ListResponse"[] | undefined
-  startIndex?: number | undefined
-  totalResults: number
-}
-
-export type t_PatchOperation = {
-  op: "add" | "remove" | "replace"
-  path?: string | undefined
-  value?: any | undefined
 }
 
 export type t_ResourceType = {
@@ -107,30 +120,6 @@ export type t_ScimAttribute = {
   type: string
   uniqueness?: ("none" | "server" | "global") | undefined
 }
-
-export type t_ScimException = {
-  detail: string
-  metadata?:
-    | {
-        [key: string]: any | undefined
-      }
-    | undefined
-  schemas: "urn:ietf:params:scim:api:messages:2.0:Error"[]
-  scimType?: t_ScimExceptionType | undefined
-  status: number
-}
-
-export type t_ScimExceptionType =
-  | "invalidFilter"
-  | "tooMany"
-  | "uniqueness"
-  | "mutability"
-  | "invalidSyntax"
-  | "invalidPath"
-  | "noTarget"
-  | "invalidValue"
-  | "invalidVers"
-  | "sensitive"
 
 export type t_ServiceProviderConfig = {
   authenticationSchemes: t_ServiceProviderConfigAuthenticationScheme[]
@@ -183,6 +172,17 @@ export type t_ServiceProviderConfigAuthenticationScheme = {
   primary?: boolean | undefined
   specUri?: string | undefined
   type: "oauth" | "oauth2" | "oauthbearertoken" | "httpbasic" | "httpdigest"
+}
+
+export type t_CreateUser = {
+  active: boolean
+  displayName?: string | undefined
+  emails: t_UserEmail[]
+  externalId?: string | undefined
+  groups: t_UserGroup[]
+  name?: t_UserFullName | undefined
+  schemas: t_UserResourceSchemas
+  userName: string
 }
 
 export type t_User = t_CreateUser & {

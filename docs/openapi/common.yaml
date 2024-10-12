@@ -1,0 +1,169 @@
+openapi: 3.1.0
+info:
+  title: node-scim - common
+  version: "0.0.1"
+paths: {}
+components:
+  parameters:
+    filter:
+      name: filter
+      description: >-
+        Filter search for userName, and status. i.e.:
+        `/Users?filter=userName eq j@doe.com`
+      in: query
+      schema:
+        type: string
+    count:
+      name: count
+      description: Number of results per search
+      in: query
+      schema:
+        type: integer
+    startIndex:
+      name: startIndex
+      description: Index of the result
+      in: query
+      schema:
+        description: Index of the result
+        type: integer
+    excludedAttributes:
+      name: excludedAttributes
+      description: |
+        A multi-valued list of strings indicating the
+        names of resource attributes to be removed from the default set of
+        attributes to return.  This parameter SHALL have no effect on
+        attributes whose schema "returned" setting is "always" (see
+        Sections 2.2 and 7 of [RFC7643]).  Attribute names MUST be in
+        standard attribute notation (Section 3.10) form.  See Section 3.9
+        for additional retrieval query parameters.
+      in: query
+      schema:
+        type: string
+  responses:
+    NotFound:
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ScimException"
+  schemas:
+    BaseMeta:
+      type: object
+      properties:
+        location:
+          type: string
+          format: uri
+          example: https://example.com/scim/v2/ServiceProviderConfig
+        created:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    Patch:
+      type: object
+      required:
+        - schemas
+        - operations
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            type: string
+            enum:
+              - "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+          default: [ "urn:ietf:params:scim:api:messages:2.0:PatchOp" ]
+        Operations:
+          description: Patch operation details
+          type: array
+          items:
+            $ref: '#/components/schemas/PatchOperation'
+    PatchOperation:
+      type: object
+      required:
+        - op
+      properties:
+        op:
+          type: string
+          enum:
+            - add
+            - remove
+            - replace
+        path:
+          type: string
+        value:
+          additionalProperties: true
+
+    ScimException:
+      description: SCIM Exception
+      type: object
+      required:
+        - schemas
+        - detail
+        - status
+      properties:
+        schemas:
+          description: The list of schemas
+          type: array
+          items:
+            enum:
+              - "urn:ietf:params:scim:api:messages:2.0:Error"
+            type: string
+          default: [ "urn:ietf:params:scim:api:messages:2.0:Error" ]
+        detail:
+          type: string
+        status:
+          type: number
+        scimType:
+          $ref: '#/components/schemas/ScimExceptionType'
+        metadata:
+          type: object
+          additionalProperties: true
+    ScimExceptionType:
+      type: string
+      enum:
+        - invalidFilter
+        - tooMany
+        - uniqueness
+        - mutability
+        - invalidSyntax
+        - invalidPath
+        - noTarget
+        - invalidValue
+        - invalidVers
+        - sensitive
+
+    ListResponse:
+      type: object
+      required:
+        - totalResults
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            enum:
+              - "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+          default: [ "urn:ietf:params:scim:api:messages:2.0:ListResponse" ]
+        totalResults:
+          type: number
+          example: 1
+        itemsPerPage:
+          type: number
+          example: 100
+          default: 100
+        startIndex:
+          type: number
+          example: 1
+          default: 1
+    ListResponseSchemas:
+      type: array
+      items:
+        type: string
+        enum:
+          - "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+      default: [ "urn:ietf:params:scim:api:messages:2.0:ListResponse" ]

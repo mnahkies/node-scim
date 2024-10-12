@@ -1,0 +1,230 @@
+openapi: 3.1.0
+info:
+  title: node-scim - users
+  version: "0.0.1"
+tags:
+  - name: users
+paths:
+  /scim/v2/Users:
+    get:
+      tags:
+        - users
+      parameters:
+        - $ref: "./common.yaml#/components/parameters/filter"
+        - $ref: "./common.yaml#/components/parameters/count"
+        - $ref: "./common.yaml#/components/parameters/startIndex"
+      responses:
+        200:
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersListing"
+    post:
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUser"
+      responses:
+        201:
+          description: The user has been created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /scim/v2/Users/{id}:
+    parameters:
+      - name: id
+        required: true
+        in: path
+        schema:
+          type: string
+    get:
+      tags:
+        - users
+      responses:
+        200:
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+    put:
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUser"
+      responses:
+        200:
+          description: User replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+    patch:
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./common.yaml#/components/schemas/Patch"
+      responses:
+        200:
+          description: User replaced.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+    delete:
+      tags:
+        - users
+      responses:
+        204:
+          description: No Content (successful deletion)
+        404:
+          $ref: "./common.yaml#/components/responses/NotFound"
+components:
+  schemas:
+    CreateUser:
+      type: object
+      required:
+        - schemas
+        - userName
+        - emails
+        - active
+        - groups
+      properties:
+        schemas:
+          $ref: "#/components/schemas/UserResourceSchemas"
+        externalId:
+          type: string
+        userName:
+          description: Username, typically their email address
+          type: string
+        displayName:
+          type: string
+        name:
+          $ref: "#/components/schemas/UserFullName"
+        emails:
+          description: The list of emails
+          type: array
+          items:
+            $ref: "#/components/schemas/UserEmail"
+          default: [ ]
+        active:
+          type: boolean
+          default: true
+        groups:
+          description: List of user groups
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGroup'
+          default: [ ]
+    UserGroup:
+      type: object
+      properties:
+        value:
+          description: The id of the User's group.
+          type: string
+        $ref:
+          description: The URI of the corresponding 'Group' resource to which the user belongs.
+          example: https://exampe.com/scim/v2/Groups/8cfKAJ3823PGsZShATgAiFT3Of22
+          type: string
+          format: uri
+        display:
+          description: A human-readable name, primarily used for display purposes.  READ-ONLY.
+          type: string
+        type:
+          type: string
+          enum:
+            - direct
+            - indirect
+    User:
+      allOf:
+        - $ref: "#/components/schemas/CreateUser"
+        - type: object
+          required:
+            - id
+            - meta
+          properties:
+            id:
+              type: string
+            meta:
+              $ref: "#/components/schemas/UserResourceMeta"
+
+    UserFullName:
+      description: The full name of the user
+      type: object
+      properties:
+        formatted:
+          type: string
+        familyName:
+          type: string
+        givenName:
+          type: string
+        middleName:
+          type: string
+        honorificPrefix:
+          type: string
+        honorificSuffix:
+          type: string
+    UserEmail:
+      description: The user email
+      type: object
+      required:
+        - value
+      properties:
+        primary:
+          type: boolean
+          default: false
+        type:
+          type: string
+        value:
+          type: string
+          format: email
+        display:
+          type: string
+
+    UsersListing:
+      allOf:
+        - $ref: "./common.yaml#/components/schemas/ListResponse"
+        - type: object
+          required:
+            - Resources
+          properties:
+            Resources:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+
+    UserResourceSchemas:
+      type: array
+      items:
+        type: string
+        enum:
+          - "urn:ietf:params:scim:schemas:core:2.0:User"
+      default: [ "urn:ietf:params:scim:schemas:core:2.0:User" ]
+    UserResourceMeta:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum:
+            - "User"
+      default: { resourceType: "User" }
