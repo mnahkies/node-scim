@@ -1,12 +1,9 @@
-import type {KoaRuntimeResponder} from "@nahkies/typescript-koa-runtime/server"
+import {Service} from "diod"
 import {parse} from "../parser.js"
-import {config} from "./config"
+// biome-ignore lint/style/useImportType: needed for DI
+import {Config} from "./config"
 import {PatchError} from "./errors"
 import type {t_PatchOperation} from "./generated/models"
-
-export async function notImplemented(_: unknown, respond: KoaRuntimeResponder) {
-  return respond.withStatus(501)
-}
 
 export function parseFilter(filter: string): {
   left: string
@@ -16,8 +13,17 @@ export function parseFilter(filter: string): {
   return parse(filter, undefined)
 }
 
-export function create$Ref(id: string, type: "User" | "Group") {
-  return `https://${config.hostname}:${config.port}/scim/v2/${type}s/${id}`
+@Service()
+export class ReferenceManager {
+  constructor(private readonly config: Config) {}
+
+  path(path: string) {
+    return `https://${this.config.hostname}:${this.config.port}${path}`
+  }
+
+  create$Ref(id: string, type: "User" | "Group") {
+    return this.path(`/scim/v2/${type}s/${id}`)
+  }
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>

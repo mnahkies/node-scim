@@ -1586,6 +1586,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"diod@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "diod@npm:3.0.0"
+  checksum: 10/75d056ac341749823a50f63c9ae8da46526bb0740772ccf8337e68bf95d08e7ffa3f9a51bd4a77b621e429b9e3e700eba6e8706002a7bfd64a02c4e590b5a728
+  languageName: node
+  linkType: hard
+
 "dotenv@npm:^16.4.5":
   version: 16.4.5
   resolution: "dotenv@npm:16.4.5"
@@ -3213,6 +3220,7 @@ __metadata:
     "@types/koa": "npm:^2.15.0"
     "@types/koa__cors": "npm:^5.0.0"
     "@types/koa__router": "npm:^12.0.4"
+    diod: "npm:^3.0.0"
     firebase-admin: "npm:^12.6.0"
     getenv: "npm:^1.0.0"
     husky: "npm:^9.1.6"
@@ -3220,6 +3228,8 @@ __metadata:
     koa-body: "npm:^6.0.1"
     lint-staged: "npm:^15.2.10"
     nodemon: "npm:^3.1.7"
+    reflect-metadata: "npm:^0.2.2"
+    tslib: "npm:^2.7.0"
     tsx: "npm:^4.19.1"
     typescript: "npm:^5.6.3"
     zod: "npm:^3.23.8"
@@ -3532,6 +3542,13 @@ __metadata:
   dependencies:
     picomatch: "npm:^2.2.1"
   checksum: 10/196b30ef6ccf9b6e18c4e1724b7334f72a093d011a99f3b5920470f0b3406a51770867b3e1ae9711f227ef7a7065982f6ee2ce316746b2cb42c88efe44297fe7
+  languageName: node
+  linkType: hard
+
+"reflect-metadata@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "reflect-metadata@npm:0.2.2"
+  checksum: 10/1c93f9ac790fea1c852fde80c91b2760420069f4862f28e6fae0c00c6937a56508716b0ed2419ab02869dd488d123c4ab92d062ae84e8739ea7417fae10c4745
   languageName: node
   linkType: hard
 
