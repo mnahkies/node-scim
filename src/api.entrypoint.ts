@@ -38,7 +38,7 @@ function di() {
   builder.registerAndUse(ReferenceManager)
 
   builder.registerAndUse(GroupsRepository)
-  builder.register(IdpAdapter).use(FirebaseAuthService)
+  builder.register(IdpAdapter).use(FirebaseAuthService).asSingleton()
 
   builder.register(UsersImplementation).use(UsersHandlers)
   builder.register(GroupsImplementation).use(GroupsHandlers)

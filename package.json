@@ -13,7 +13,7 @@
     "lint": "biome lint --write .",
     "format": "biome check --write .",
     "build": "tsc -p ./tsconfig.json",
-    "dev": "dotenvx run -f .env -- tsx ./src/api.entrypoint.ts",
+    "dev": "yarn build && dotenvx run -f .env -- node ./dist/api.entrypoint.js",
     "watch:openapi": "nodemon --watch ./openapi.yaml --exec './scripts/generate.sh'",
     "clean:users": "dotenvx run -f .env -- tsx ./scripts/clean-users.ts",
     "ci-build": "yarn build",
