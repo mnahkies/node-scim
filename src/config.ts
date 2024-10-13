@@ -1,9 +1,11 @@
+import {Service} from "diod"
 import getenv from "getenv"
 
-export const config = {
-  port: getenv.int("PORT"),
-  hostname: getenv.string("HOSTNAME"),
-  secretKey: Buffer.from(getenv("SECRET_KEY"), "utf-8"),
-  projectId: getenv("PROJECT_ID"),
-  providerId: getenv("PROVIDER_ID"),
+@Service()
+export class Config {
+  readonly port = getenv.int("PORT")
+  readonly hostname = getenv.string("HOSTNAME")
+  readonly secretKey = Buffer.from(getenv("SECRET_KEY"), "utf-8")
+  readonly projectId = getenv("PROJECT_ID")
+  readonly providerId = getenv("PROVIDER_ID")
 }

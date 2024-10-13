@@ -1,24 +1,63 @@
+import "reflect-metadata"
+
 import type {Server} from "node:http"
 import type {AddressInfo} from "node:net"
 import KoaRouter from "@koa/router"
+import {ContainerBuilder} from "diod"
 import Koa from "koa"
-import {config} from "./config"
-import {firebase} from "./idp-adapters/idp-adapters"
+import {Config} from "./config"
+import {GroupsRepository} from "./database/groups-repository"
+import {
+  Implementation as GroupsImplementation,
+  createRouter as createGroupsRouter,
+} from "./generated/routes/groups"
+import {
+  Implementation as IntrospectionImplementation,
+  createRouter as createIntrospectionRouter,
+} from "./generated/routes/introspection"
+import {
+  Implementation as UsersImplementation,
+  createRouter as createUsersRouter,
+} from "./generated/routes/users"
+import {FirebaseAuthService} from "./idp-adapters/firebase"
+import {IdpAdapter} from "./idp-adapters/types"
 import {authenticationMiddleware} from "./middleware/authentication.middleware"
 import {bodyMiddleware} from "./middleware/body.middleware"
 import {errorMiddleware} from "./middleware/error.middleware"
 import {loggerMiddleware} from "./middleware/logger.middleware"
 import {createDocsRouter} from "./routes/docs"
-import {createGroupsRouter} from "./routes/groups"
-import {createIntrospectionRouter} from "./routes/introspection"
-import {createUsersRouter} from "./routes/users"
+import {GroupsHandlers} from "./routes/groups"
+import {IntrospectionHandlers} from "./routes/introspection"
+import {UsersHandlers} from "./routes/users"
+import {ReferenceManager} from "./utils"
+
+function di() {
+  const builder = new ContainerBuilder()
+
+  builder.registerAndUse(Config).asSingleton()
+  builder.registerAndUse(ReferenceManager)
+
+  builder.registerAndUse(GroupsRepository)
+  builder.register(IdpAdapter).use(FirebaseAuthService)
+
+  builder.register(UsersImplementation).use(UsersHandlers)
+  builder.register(GroupsImplementation).use(GroupsHandlers)
+  builder.register(IntrospectionImplementation).use(IntrospectionHandlers)
+
+  return builder.build()
+}
 
 export async function main(): Promise<{
   app: Koa
   server: Server
   address: AddressInfo
 }> {
-  await firebase.checkAuth()
+  const container = di()
+
+  const config = container.get(Config)
+
+  const idpAdapter = container.get(IdpAdapter)
+  await idpAdapter.checkAuth()
 
   const app = new Koa()
 
@@ -40,9 +79,11 @@ export async function main(): Promise<{
 
   authedRouter.use(authenticationMiddleware({secretKey: config.secretKey}))
 
-  const usersRouter = createUsersRouter()
-  const groupsRouter = createGroupsRouter()
-  const introspectionRouter = createIntrospectionRouter()
+  const usersRouter = createUsersRouter(container.get(UsersImplementation))
+  const groupsRouter = createGroupsRouter(container.get(GroupsImplementation))
+  const introspectionRouter = createIntrospectionRouter(
+    container.get(IntrospectionImplementation),
+  )
 
   authedRouter.use(usersRouter.routes(), usersRouter.allowedMethods())
   authedRouter.use(groupsRouter.routes(), groupsRouter.allowedMethods())

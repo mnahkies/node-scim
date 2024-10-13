@@ -49,10 +49,13 @@
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
     "@nahkies/typescript-koa-runtime": "^0.14.0",
+    "diod": "^3.0.0",
     "firebase-admin": "^12.6.0",
     "getenv": "^1.0.0",
     "koa": "^2.15.3",
     "koa-body": "^6.0.1",
+    "reflect-metadata": "^0.2.2",
+    "tslib": "^2.7.0",
     "zod": "^3.23.8"
   }
 }
