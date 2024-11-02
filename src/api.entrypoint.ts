@@ -53,8 +53,24 @@ export async function main(): Promise<{
 
 if (require.main === module) {
   main()
-    .then(({address}) => {
+    .then(({address, server}) => {
       console.info(`listening on ${address.address}:${address.port}`)
+
+      const signals = ["SIGTERM", "SIGUSR2"] as const
+
+      signals.map((signal) =>
+        process.on(signal, () => {
+          console.info(`received '${signal}', closing`)
+
+          server.close((err) => {
+            if (err) {
+              console.error("failed to cleanly close server", err)
+              process.exit(1)
+            }
+            process.exit(0)
+          })
+        }),
+      )
     })
     .catch((err) => {
       console.error("fatal error during startup", err)
