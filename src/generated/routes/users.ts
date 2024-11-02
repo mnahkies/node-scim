@@ -130,7 +130,7 @@ export type DeleteScimV2UsersId = (
   | Response<404, t_ScimException>
 >
 
-export abstract class Implementation {
+export abstract class UsersImplementation {
   abstract getScimV2Users: GetScimV2Users
   abstract postScimV2Users: PostScimV2Users
   abstract getScimV2UsersId: GetScimV2UsersId
@@ -139,7 +139,9 @@ export abstract class Implementation {
   abstract deleteScimV2UsersId: DeleteScimV2UsersId
 }
 
-export function createRouter(implementation: Implementation): KoaRouter {
+export function createUsersRouter(
+  implementation: UsersImplementation,
+): KoaRouter {
   const router = new KoaRouter()
 
   const getScimV2UsersQuerySchema = z.object({
@@ -444,3 +446,6 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   return router
 }
+
+export {createUsersRouter as createRouter}
+export {UsersImplementation as Implementation}

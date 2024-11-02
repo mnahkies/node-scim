@@ -3,22 +3,19 @@ import "reflect-metadata"
 import type {Server} from "node:http"
 import type {AddressInfo} from "node:net"
 import KoaRouter from "@koa/router"
-import {ContainerBuilder} from "diod"
+import {ContainerBuilder, Service} from "diod"
 import Koa from "koa"
 import {Config} from "./config"
 import {GroupsRepository} from "./database/groups-repository"
 import {
-  Implementation as GroupsImplementation,
-  createRouter as createGroupsRouter,
+  GroupsImplementation,
+  createGroupsRouter,
 } from "./generated/routes/groups"
 import {
-  Implementation as IntrospectionImplementation,
-  createRouter as createIntrospectionRouter,
+  IntrospectionImplementation,
+  createIntrospectionRouter,
 } from "./generated/routes/introspection"
-import {
-  Implementation as UsersImplementation,
-  createRouter as createUsersRouter,
-} from "./generated/routes/users"
+import {UsersImplementation, createUsersRouter} from "./generated/routes/users"
 import {FirebaseAuthService} from "./idp-adapters/firebase"
 import {IdpAdapter} from "./idp-adapters/types"
 import {authenticationMiddleware} from "./middleware/authentication.middleware"
@@ -30,6 +27,37 @@ import {GroupsHandlers} from "./routes/groups"
 import {IntrospectionHandlers} from "./routes/introspection"
 import {UsersHandlers} from "./routes/users"
 import {ReferenceManager} from "./utils"
+
+@Service()
+class AuthedImplementation {
+  constructor(
+    private readonly config: Config,
+    private readonly usersImplementation: UsersImplementation,
+    private readonly groupsImplementation: GroupsImplementation,
+    private readonly introspectionImplementation: IntrospectionImplementation,
+  ) {}
+
+  createRouter() {
+    const router = new KoaRouter()
+
+    router.use(authenticationMiddleware({secretKey: this.config.secretKey}))
+
+    const usersRouter = createUsersRouter(this.usersImplementation)
+    const groupsRouter = createGroupsRouter(this.groupsImplementation)
+    const introspectionRouter = createIntrospectionRouter(
+      this.introspectionImplementation,
+    )
+
+    router.use(usersRouter.routes(), usersRouter.allowedMethods())
+    router.use(groupsRouter.routes(), groupsRouter.allowedMethods())
+    router.use(
+      introspectionRouter.routes(),
+      introspectionRouter.allowedMethods(),
+    )
+
+    return router
+  }
+}
 
 function di() {
   const builder = new ContainerBuilder()
@@ -43,6 +71,7 @@ function di() {
   builder.register(UsersImplementation).use(UsersHandlers)
   builder.register(GroupsImplementation).use(GroupsHandlers)
   builder.register(IntrospectionImplementation).use(IntrospectionHandlers)
+  builder.registerAndUse(AuthedImplementation)
 
   return builder.build()
 }
@@ -75,22 +104,7 @@ export async function main(): Promise<{
   const docsRouter = createDocsRouter()
   publicRouter.use(docsRouter.routes(), docsRouter.allowedMethods())
 
-  const authedRouter = new KoaRouter()
-
-  authedRouter.use(authenticationMiddleware({secretKey: config.secretKey}))
-
-  const usersRouter = createUsersRouter(container.get(UsersImplementation))
-  const groupsRouter = createGroupsRouter(container.get(GroupsImplementation))
-  const introspectionRouter = createIntrospectionRouter(
-    container.get(IntrospectionImplementation),
-  )
-
-  authedRouter.use(usersRouter.routes(), usersRouter.allowedMethods())
-  authedRouter.use(groupsRouter.routes(), groupsRouter.allowedMethods())
-  authedRouter.use(
-    introspectionRouter.routes(),
-    introspectionRouter.allowedMethods(),
-  )
+  const authedRouter = container.get(AuthedImplementation).createRouter()
 
   app.use(publicRouter.allowedMethods())
   app.use(publicRouter.routes())

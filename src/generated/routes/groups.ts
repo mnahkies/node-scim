@@ -144,7 +144,7 @@ export type DeleteScimV2GroupsId = (
   | Response<404, t_ScimException>
 >
 
-export abstract class Implementation {
+export abstract class GroupsImplementation {
   abstract getScimV2Groups: GetScimV2Groups
   abstract postScimV2Groups: PostScimV2Groups
   abstract getScimV2GroupsId: GetScimV2GroupsId
@@ -153,7 +153,9 @@ export abstract class Implementation {
   abstract deleteScimV2GroupsId: DeleteScimV2GroupsId
 }
 
-export function createRouter(implementation: Implementation): KoaRouter {
+export function createGroupsRouter(
+  implementation: GroupsImplementation,
+): KoaRouter {
   const router = new KoaRouter()
 
   const getScimV2GroupsQuerySchema = z.object({
@@ -491,3 +493,6 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   return router
 }
+
+export {createGroupsRouter as createRouter}
+export {GroupsImplementation as Implementation}

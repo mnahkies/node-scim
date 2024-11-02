@@ -219,6 +219,7 @@ components:
         type: string
         enum:
           - "urn:ietf:params:scim:schemas:core:2.0:User"
+          - "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
       default: [ "urn:ietf:params:scim:schemas:core:2.0:User" ]
     UserResourceMeta:
       type: object

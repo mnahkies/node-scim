@@ -4,7 +4,6 @@ set -e
 
 rm -rf ./src/generated
 
-# Relies on https://github.com/mnahkies/openapi-code-generator/pull/241 being released
  yarn openapi-code-generator \
   --input ./openapi.yaml \
   --input-type openapi3 \
@@ -13,7 +12,8 @@ rm -rf ./src/generated
   --schema-builder zod \
   --grouping-strategy first-tag \
   --extract-inline-schemas \
-  --ts-allow-any
+  --ts-allow-any \
+  --ts-server-implementation-method abstract-class
 
 yarn format
 yarn lint
