@@ -49,13 +49,15 @@ export type GetScimV2Schemas = (
   ctx: RouterContext,
 ) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_Schemas>>
 
-export type Implementation = {
-  getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig
-  getScimV2ResourceTypes: GetScimV2ResourceTypes
-  getScimV2Schemas: GetScimV2Schemas
+export abstract class IntrospectionImplementation {
+  abstract getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig
+  abstract getScimV2ResourceTypes: GetScimV2ResourceTypes
+  abstract getScimV2Schemas: GetScimV2Schemas
 }
 
-export function createRouter(implementation: Implementation): KoaRouter {
+export function createIntrospectionRouter(
+  implementation: IntrospectionImplementation,
+): KoaRouter {
   const router = new KoaRouter()
 
   const getScimV2ServiceProviderConfigResponseValidator =
@@ -174,3 +176,6 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   return router
 }
+
+export {createIntrospectionRouter as createRouter}
+export {IntrospectionImplementation as Implementation}

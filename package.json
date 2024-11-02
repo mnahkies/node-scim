@@ -13,16 +13,17 @@
     "lint": "biome lint --write .",
     "format": "biome check --write .",
     "build": "tsc -p ./tsconfig.json",
-    "dev": "dotenvx run -f .env -- tsx ./src/api.entrypoint.ts",
+    "dev": "yarn build && dotenvx run -f .env -- node ./dist/api.entrypoint.js",
     "watch:openapi": "nodemon --watch ./openapi.yaml --exec './scripts/generate.sh'",
+    "watch:dev": "nodemon --watch ./src -e ts --exec 'yarn dev'",
     "clean:users": "dotenvx run -f .env -- tsx ./scripts/clean-users.ts",
     "ci-build": "yarn build",
     "ci-lint": "biome ci ."
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.3",
-    "@dotenvx/dotenvx": "^1.19.0",
-    "@nahkies/openapi-code-generator": "^0.14.0",
+    "@biomejs/biome": "^1.9.4",
+    "@dotenvx/dotenvx": "^1.21.1",
+    "@nahkies/openapi-code-generator": "^0.16.0",
     "@tsconfig/node22": "^22.0.0",
     "@tsconfig/strictest": "^2.0.5",
     "@types/getenv": "^1.0.3",
@@ -32,7 +33,7 @@
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "nodemon": "^3.1.7",
-    "tsx": "^4.19.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   },
   "lint-staged": {
@@ -44,15 +45,18 @@
   "engines": {
     "node": ">=20 <23"
   },
-  "packageManager": "yarn@4.3.1",
+  "packageManager": "yarn@4.5.1",
   "dependencies": {
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
-    "@nahkies/typescript-koa-runtime": "^0.14.0",
-    "firebase-admin": "^12.6.0",
+    "@nahkies/typescript-koa-runtime": "^0.16.0",
+    "diod": "^3.0.0",
+    "firebase-admin": "^12.7.0",
     "getenv": "^1.0.0",
     "koa": "^2.15.3",
     "koa-body": "^6.0.1",
+    "reflect-metadata": "^0.2.2",
+    "tslib": "^2.8.1",
     "zod": "^3.23.8"
   }
 }

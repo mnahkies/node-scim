@@ -1,3 +1,4 @@
+import {Service} from "diod"
 import {type App, initializeApp} from "firebase-admin/app"
 import {
   type Auth,
@@ -5,10 +6,11 @@ import {
   type UserRecord,
   getAuth,
 } from "firebase-admin/auth"
-import {groupsRepository} from "../database/repositories"
+import {Config} from "../config"
+import {GroupsRepository} from "../database/groups-repository"
 import {ConflictError, NotFoundError} from "../errors"
 import type {t_CreateGroup, t_Group, t_User} from "../generated/models"
-import {create$Ref} from "../utils"
+import {ReferenceFactory} from "../utils/reference-factory"
 import type {CreateUser, IdpAdapter, PaginationParams} from "./types"
 
 export async function* listUsers(
@@ -41,46 +43,15 @@ export async function* listUsers(
   } while (nextPageToken)
 }
 
-async function mapFirebaseUserToScimUserResource(
-  user: UserRecord,
-): Promise<t_User> {
-  console.info(JSON.stringify(user, undefined, 2))
-
-  return {
-    id: user.uid,
-    displayName: user.displayName,
-    active: !user.disabled,
-    emails: user.email
-      ? [
-          {
-            primary: true,
-            value: user.email,
-          },
-        ]
-      : [],
-    groups: await groupsRepository.userGroups(user.uid),
-    meta: {
-      resourceType: "User",
-    },
-    name: {
-      familyName: undefined,
-      formatted: user.displayName,
-      givenName: undefined,
-      honorificPrefix: undefined,
-      honorificSuffix: undefined,
-      middleName: undefined,
-    },
-    schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
-    userName: user.email ?? "",
-  }
-}
-
+@Service()
 export class FirebaseAuthService implements IdpAdapter {
   private readonly app: App
   private readonly auth: Auth
 
   constructor(
-    private readonly config: {projectId: string; providerId: string},
+    private readonly config: Config,
+    private readonly groupsRepository: GroupsRepository,
+    private readonly referenceManager: ReferenceFactory,
   ) {
     this.app = initializeApp({
       projectId: config.projectId,
@@ -97,7 +68,7 @@ export class FirebaseAuthService implements IdpAdapter {
     const result: t_User[] = []
 
     for await (const firebaseUser of listUsers(this.auth, {take, skip})) {
-      result.push(await mapFirebaseUserToScimUserResource(firebaseUser))
+      result.push(await this.mapFirebaseUserToScimUserResource(firebaseUser))
     }
 
     return result
@@ -110,7 +81,7 @@ export class FirebaseAuthService implements IdpAdapter {
       //   this.config.providerId,
       //   id,
       // )
-      return mapFirebaseUserToScimUserResource(user)
+      return this.mapFirebaseUserToScimUserResource(user)
     } catch (err: unknown) {
       this.mapNotFoundError(err, id)
       throw err
@@ -171,7 +142,7 @@ export class FirebaseAuthService implements IdpAdapter {
       },
     })
 
-    return mapFirebaseUserToScimUserResource(updatedFirebaseUser)
+    return this.mapFirebaseUserToScimUserResource(updatedFirebaseUser)
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -206,7 +177,7 @@ export class FirebaseAuthService implements IdpAdapter {
         },
       })
 
-      return mapFirebaseUserToScimUserResource(updatedFirebaseUser)
+      return this.mapFirebaseUserToScimUserResource(updatedFirebaseUser)
     } catch (err) {
       this.mapNotFoundError(err, id)
       throw err
@@ -214,11 +185,11 @@ export class FirebaseAuthService implements IdpAdapter {
   }
 
   async listGroups({take, skip}: PaginationParams) {
-    return groupsRepository.listGroups({take, skip})
+    return this.groupsRepository.listGroups({take, skip})
   }
 
   async createGroup(group: t_CreateGroup): Promise<t_Group> {
-    return groupsRepository.create(group)
+    return this.groupsRepository.create(group)
   }
 
   async replaceGroup(id: string, group: t_Group): Promise<t_Group> {
@@ -228,29 +199,29 @@ export class FirebaseAuthService implements IdpAdapter {
           return {
             value: member.value,
             type: "User" as const,
-            $ref: create$Ref(member.value, "User"),
+            $ref: this.referenceManager.create$Ref(member.value, "User"),
           }
         }
-        if (await groupsRepository.groupExists(member.value)) {
+        if (await this.groupsRepository.groupExists(member.value)) {
           return {
             value: member.value,
             type: "Group" as const,
-            $ref: create$Ref(member.value, "Group"),
+            $ref: this.referenceManager.create$Ref(member.value, "Group"),
           }
         }
         throw new NotFoundError(member.value)
       }),
     )
 
-    return groupsRepository.replace(id, {...group, members})
+    return this.groupsRepository.replace(id, {...group, members})
   }
 
   async deleteGroup(id: string): Promise<void> {
-    return groupsRepository.delete(id)
+    return this.groupsRepository.delete(id)
   }
 
   async getGroup(id: string): Promise<t_Group> {
-    return groupsRepository.getById(id)
+    return this.groupsRepository.getById(id)
   }
 
   private mapNotFoundError(err: unknown, id: string) {
@@ -259,6 +230,40 @@ export class FirebaseAuthService implements IdpAdapter {
       err.code === "auth/user-not-found"
     ) {
       throw new NotFoundError(id)
+    }
+  }
+
+  private async mapFirebaseUserToScimUserResource(
+    user: UserRecord,
+  ): Promise<t_User> {
+    console.info(JSON.stringify(user, undefined, 2))
+
+    return {
+      id: user.uid,
+      displayName: user.displayName,
+      active: !user.disabled,
+      emails: user.email
+        ? [
+            {
+              primary: true,
+              value: user.email,
+            },
+          ]
+        : [],
+      groups: await this.groupsRepository.userGroups(user.uid),
+      meta: {
+        resourceType: "User",
+      },
+      name: {
+        familyName: undefined,
+        formatted: user.displayName,
+        givenName: undefined,
+        honorificPrefix: undefined,
+        honorificSuffix: undefined,
+        middleName: undefined,
+      },
+      schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
+      userName: user.email ?? "",
     }
   }
 }

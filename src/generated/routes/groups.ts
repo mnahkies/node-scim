@@ -144,16 +144,18 @@ export type DeleteScimV2GroupsId = (
   | Response<404, t_ScimException>
 >
 
-export type Implementation = {
-  getScimV2Groups: GetScimV2Groups
-  postScimV2Groups: PostScimV2Groups
-  getScimV2GroupsId: GetScimV2GroupsId
-  putScimV2GroupsId: PutScimV2GroupsId
-  patchScimV2GroupsId: PatchScimV2GroupsId
-  deleteScimV2GroupsId: DeleteScimV2GroupsId
+export abstract class GroupsImplementation {
+  abstract getScimV2Groups: GetScimV2Groups
+  abstract postScimV2Groups: PostScimV2Groups
+  abstract getScimV2GroupsId: GetScimV2GroupsId
+  abstract putScimV2GroupsId: PutScimV2GroupsId
+  abstract patchScimV2GroupsId: PatchScimV2GroupsId
+  abstract deleteScimV2GroupsId: DeleteScimV2GroupsId
 }
 
-export function createRouter(implementation: Implementation): KoaRouter {
+export function createGroupsRouter(
+  implementation: GroupsImplementation,
+): KoaRouter {
   const router = new KoaRouter()
 
   const getScimV2GroupsQuerySchema = z.object({
@@ -491,3 +493,6 @@ export function createRouter(implementation: Implementation): KoaRouter {
 
   return router
 }
+
+export {createGroupsRouter as createRouter}
+export {GroupsImplementation as Implementation}

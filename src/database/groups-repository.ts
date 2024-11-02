@@ -1,11 +1,15 @@
 import crypto from "node:crypto"
+import {Service} from "diod"
 import {ConflictError, NotFoundError} from "../errors"
 import type {t_CreateGroup, t_Group, t_UserGroup} from "../generated/models"
 import type {PaginationParams} from "../idp-adapters/types"
-import {create$Ref} from "../utils"
+import {ReferenceFactory} from "../utils/reference-factory"
 
+@Service()
 export class GroupsRepository {
   private readonly data = new Map<string, t_Group>()
+
+  constructor(private readonly referenceManager: ReferenceFactory) {}
 
   async userGroups(userId: string): Promise<t_UserGroup[]> {
     const result: t_UserGroup[] = []
@@ -15,7 +19,7 @@ export class GroupsRepository {
         result.push({
           value: group.id,
           display: group.displayName,
-          $ref: create$Ref(group.id, "Group"),
+          $ref: this.referenceManager.create$Ref(group.id, "Group"),
           // TODO: support retrieving indirect membership
           type: "direct",
         })

@@ -12,12 +12,16 @@ export type PaginationParams = {
   skip: number | undefined
 }
 
-export interface IdpAdapter {
-  listUsers(pagination: PaginationParams): Promise<t_User[]>
-  getUser(id: string): Promise<t_User>
-  createUser(user: CreateUser): Promise<t_User>
-  updateUser(id: string, user: CreateUser): Promise<t_User>
-  createGroup(group: t_CreateGroup): Promise<t_Group>
-  replaceGroup(id: string, group: t_Group): Promise<t_Group>
-  listGroups(pagination: PaginationParams): Promise<t_Group[]>
+export abstract class IdpAdapter {
+  abstract checkAuth(): Promise<void>
+  abstract listUsers(pagination: PaginationParams): Promise<t_User[]>
+  abstract getUser(id: string): Promise<t_User>
+  abstract createUser(user: CreateUser): Promise<t_User>
+  abstract deleteUser(id: string): Promise<void>
+  abstract updateUser(id: string, user: CreateUser): Promise<t_User>
+  abstract createGroup(group: t_CreateGroup): Promise<t_Group>
+  abstract replaceGroup(id: string, group: t_Group): Promise<t_Group>
+  abstract deleteGroup(id: string): Promise<void>
+  abstract getGroup(id: string): Promise<t_Group>
+  abstract listGroups(pagination: PaginationParams): Promise<t_Group[]>
 }

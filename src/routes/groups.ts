@@ -1,125 +1,113 @@
-import {PatchError, ValidationError} from "../errors"
-import {
-  type DeleteScimV2GroupsId,
-  type GetScimV2Groups,
-  type GetScimV2GroupsId,
-  type PatchScimV2GroupsId,
-  type PostScimV2Groups,
-  type PutScimV2GroupsId,
-  createRouter,
+import {Service} from "diod"
+import type {
+  DeleteScimV2GroupsId,
+  GetScimV2Groups,
+  GetScimV2GroupsId,
+  Implementation,
+  PatchScimV2GroupsId,
+  PostScimV2Groups,
+  PutScimV2GroupsId,
 } from "../generated/routes/groups"
-import {firebase} from "../idp-adapters/idp-adapters"
-import {notImplemented, parseFilter, performPatchOperation} from "../utils"
+import {IdpAdapter} from "../idp-adapters/types"
+import {parseFilter, performPatchOperation} from "../utils"
 
-const postScimV2Groups: PostScimV2Groups = async ({body}, respond) => {
-  const group = await firebase.createGroup(body)
-  return respond.with201().body(group)
-}
+@Service()
+export class GroupsHandlers implements Implementation {
+  constructor(private readonly firebase: IdpAdapter) {}
 
-const putScimV2GroupsId: PutScimV2GroupsId = async (
-  {params, body},
-  respond,
-) => {
-  const group = await firebase.getGroup(params.id)
-  // TODO: deep merge, check if RFC actually specifies this as a merge
-  const updated = await firebase.replaceGroup(params.id, {...group, ...body})
-  return respond.with200().body(updated)
-}
-
-const deleteScimV2GroupsId: DeleteScimV2GroupsId = async (
-  {params},
-  respond,
-) => {
-  await firebase.deleteGroup(params.id)
-  return respond.with204().body()
-}
-
-const patchScimV2GroupsId: PatchScimV2GroupsId = async (
-  {params, body},
-  respond,
-) => {
-  const group = await firebase.getGroup(params.id)
-  const operations = body.Operations ?? []
-
-  let updated = {...group}
-  for (const operation of operations) {
-    updated = performPatchOperation(updated, operation)
+  postScimV2Groups: PostScimV2Groups = async ({body}, respond) => {
+    const group = await this.firebase.createGroup(body)
+    return respond.with201().body(group)
   }
 
-  await firebase.replaceGroup(group.id, updated)
+  putScimV2GroupsId: PutScimV2GroupsId = async ({params, body}, respond) => {
+    const group = await this.firebase.getGroup(params.id)
+    // TODO: deep merge, check if RFC actually specifies this as a merge
+    const updated = await this.firebase.replaceGroup(params.id, {
+      ...group,
+      ...body,
+    })
+    return respond.with200().body(updated)
+  }
 
-  return respond.with200().body(updated)
-}
+  deleteScimV2GroupsId: DeleteScimV2GroupsId = async ({params}, respond) => {
+    await this.firebase.deleteGroup(params.id)
+    return respond.with204().body()
+  }
 
-const getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
-  const take = query.count
-  const skip =
-    query.startIndex !== undefined && query.count !== undefined
-      ? (query.startIndex - 1) * query.count
-      : 0
+  patchScimV2GroupsId: PatchScimV2GroupsId = async (
+    {params, body},
+    respond,
+  ) => {
+    const group = await this.firebase.getGroup(params.id)
+    const operations = body.Operations ?? []
 
-  let groups = await firebase.listGroups({
-    take,
-    skip,
-  })
+    let updated = {...group}
+    for (const operation of operations) {
+      updated = performPatchOperation(updated, operation)
+    }
 
-  // todo; support filter properly
-  if (query.filter) {
-    const filter = parseFilter(query.filter)
-    groups = groups.filter((it) => {
-      switch (filter.operator) {
-        case "eq":
+    await this.firebase.replaceGroup(group.id, updated)
+
+    return respond.with200().body(updated)
+  }
+
+  getScimV2Groups: GetScimV2Groups = async ({query}, respond) => {
+    const take = query.count
+    const skip =
+      query.startIndex !== undefined && query.count !== undefined
+        ? (query.startIndex - 1) * query.count
+        : 0
+
+    let groups = await this.firebase.listGroups({
+      take,
+      skip,
+    })
+
+    // todo; support filter properly
+    if (query.filter) {
+      const filter = parseFilter(query.filter)
+      groups = groups.filter((it) => {
+        switch (filter.operator) {
+          case "eq":
+            // @ts-ignore
+            return it[filter.left].toLowerCase() === filter.right.toLowerCase()
+          default:
+            throw new Error("not supported")
+        }
+      })
+    }
+
+    if (query.excludedAttributes) {
+      const excludedAttributes = query.excludedAttributes.split(",")
+      for (const excludedAttribute of excludedAttributes) {
+        for (const group of groups) {
           // @ts-ignore
-          return it[filter.left].toLowerCase() === filter.right.toLowerCase()
-        default:
-          throw new Error("not supported")
+          group[excludedAttribute] = undefined
+        }
       }
+    }
+
+    return respond.with200().body({
+      itemsPerPage: groups.length,
+      schemas: ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
+      Resources: groups,
+      startIndex: 0,
+      totalResults: groups.length,
     })
   }
 
-  if (query.excludedAttributes) {
-    const excludedAttributes = query.excludedAttributes.split(",")
-    for (const excludedAttribute of excludedAttributes) {
-      for (const group of groups) {
+  getScimV2GroupsId: GetScimV2GroupsId = async ({params, query}, respond) => {
+    const group = await this.firebase.getGroup(params.id)
+
+    if (query.excludedAttributes) {
+      const excludedAttributes = query.excludedAttributes.split(",")
+      for (const excludedAttribute of excludedAttributes) {
         // @ts-ignore
         group[excludedAttribute] = undefined
       }
     }
+
+    return respond.with200().body(group)
   }
-
-  return respond.with200().body({
-    itemsPerPage: groups.length,
-    schemas: ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
-    Resources: groups,
-    startIndex: 0,
-    totalResults: groups.length,
-  })
-}
-
-const getScimV2GroupsId: GetScimV2GroupsId = async (
-  {params, query},
-  respond,
-) => {
-  const group = await firebase.getGroup(params.id)
-
-  if (query.excludedAttributes) {
-    const excludedAttributes = query.excludedAttributes.split(",")
-    for (const excludedAttribute of excludedAttributes) {
-      // @ts-ignore
-      group[excludedAttribute] = undefined
-    }
-  }
-
-  return respond.with200().body(group)
-}
-
-export function createGroupsRouter() {
-  return createRouter({
-    getScimV2Groups,
-    postScimV2Groups,
-    getScimV2GroupsId,
-    putScimV2GroupsId,
-    patchScimV2GroupsId,
-    deleteScimV2GroupsId,
-  })
 }

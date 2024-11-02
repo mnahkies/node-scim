@@ -128,7 +128,12 @@ export const s_UserResourceMeta = z
   .default({resourceType: "User"})
 
 export const s_UserResourceSchemas = z
-  .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:User"]))
+  .array(
+    z.enum([
+      "urn:ietf:params:scim:schemas:core:2.0:User",
+      "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User",
+    ]),
+  )
   .default(["urn:ietf:params:scim:schemas:core:2.0:User"])
 
 export const s_CreateGroup = z.object({

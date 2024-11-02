@@ -217,8 +217,10 @@ export type t_UserResourceMeta = {
   resourceType?: "User" | undefined
 }
 
-export type t_UserResourceSchemas =
-  "urn:ietf:params:scim:schemas:core:2.0:User"[]
+export type t_UserResourceSchemas = (
+  | "urn:ietf:params:scim:schemas:core:2.0:User"
+  | "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+)[]
 
 export type t_UsersListing = t_ListResponse & {
   Resources: t_User[]

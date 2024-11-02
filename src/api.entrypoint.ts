@@ -1,92 +1,76 @@
+import "reflect-metadata"
+
 import type {Server} from "node:http"
 import type {AddressInfo} from "node:net"
-import KoaRouter from "@koa/router"
+import {ContainerBuilder} from "diod"
 import Koa from "koa"
-import {config} from "./config"
-import {firebase} from "./idp-adapters/idp-adapters"
-import {authenticationMiddleware} from "./middleware/authentication.middleware"
-import {bodyMiddleware} from "./middleware/body.middleware"
-import {errorMiddleware} from "./middleware/error.middleware"
-import {loggerMiddleware} from "./middleware/logger.middleware"
-import {createDocsRouter} from "./routes/docs"
-import {createGroupsRouter} from "./routes/groups"
-import {createIntrospectionRouter} from "./routes/introspection"
-import {createUsersRouter} from "./routes/users"
+import {Config} from "./config"
+import {GroupsRepository} from "./database/groups-repository"
+import {ApplicationFactory} from "./factories/application.factory"
+import {AuthenticatedRouterFactory} from "./factories/authenticated-router.factory"
+import {PublicRouterFactory} from "./factories/public-router.factory"
+import {GroupsImplementation} from "./generated/routes/groups"
+import {IntrospectionImplementation} from "./generated/routes/introspection"
+import {UsersImplementation} from "./generated/routes/users"
+import {FirebaseAuthService} from "./idp-adapters/firebase"
+import {IdpAdapter} from "./idp-adapters/types"
+import {GroupsHandlers} from "./routes/groups"
+import {IntrospectionHandlers} from "./routes/introspection"
+import {UsersHandlers} from "./routes/users"
+import {ReferenceFactory} from "./utils/reference-factory"
+
+export function createContainerBuilder() {
+  const builder = new ContainerBuilder()
+
+  builder.registerAndUse(Config).asSingleton()
+  builder.registerAndUse(ReferenceFactory)
+
+  builder.registerAndUse(GroupsRepository).asSingleton()
+
+  builder.register(IdpAdapter).use(FirebaseAuthService).asSingleton()
+
+  builder.register(UsersImplementation).use(UsersHandlers)
+  builder.register(GroupsImplementation).use(GroupsHandlers)
+  builder.register(IntrospectionImplementation).use(IntrospectionHandlers)
+
+  builder.registerAndUse(PublicRouterFactory)
+  builder.registerAndUse(AuthenticatedRouterFactory)
+
+  builder.registerAndUse(ApplicationFactory)
+
+  return builder
+}
 
 export async function main(): Promise<{
   app: Koa
   server: Server
   address: AddressInfo
 }> {
-  await firebase.checkAuth()
-
-  const app = new Koa()
-
-  app.use(loggerMiddleware())
-  app.use(errorMiddleware())
-  app.use(bodyMiddleware())
-
-  const publicRouter = new KoaRouter()
-
-  publicRouter.get("/", (ctx) => {
-    ctx.status = 200
-    ctx.body = {status: "running"}
-  })
-
-  const docsRouter = createDocsRouter()
-  publicRouter.use(docsRouter.routes(), docsRouter.allowedMethods())
-
-  const authedRouter = new KoaRouter()
-
-  authedRouter.use(authenticationMiddleware({secretKey: config.secretKey}))
-
-  const usersRouter = createUsersRouter()
-  const groupsRouter = createGroupsRouter()
-  const introspectionRouter = createIntrospectionRouter()
-
-  authedRouter.use(usersRouter.routes(), usersRouter.allowedMethods())
-  authedRouter.use(groupsRouter.routes(), groupsRouter.allowedMethods())
-  authedRouter.use(
-    introspectionRouter.routes(),
-    introspectionRouter.allowedMethods(),
-  )
-
-  app.use(publicRouter.allowedMethods())
-  app.use(publicRouter.routes())
-  app.use(authedRouter.allowedMethods())
-  app.use(authedRouter.routes())
-
-  return new Promise((resolve, reject) => {
-    try {
-      const server = app.listen(config.port)
-
-      server.once("listening", () => {
-        try {
-          const address = server.address()
-
-          if (!address || typeof address !== "object") {
-            throw new Error("failed to bind port")
-          }
-
-          resolve({app, server, address})
-        } catch (err) {
-          reject(err)
-        }
-      })
-
-      server.once("error", (err) => {
-        reject(err)
-      })
-    } catch (err) {
-      reject(err)
-    }
-  })
+  const builder = createContainerBuilder()
+  const container = builder.build()
+  return container.get(ApplicationFactory).start()
 }
 
 if (require.main === module) {
   main()
-    .then(({address}) => {
+    .then(({address, server}) => {
       console.info(`listening on ${address.address}:${address.port}`)
+
+      const signals = ["SIGTERM", "SIGUSR2"] as const
+
+      signals.map((signal) =>
+        process.on(signal, () => {
+          console.info(`received '${signal}', closing`)
+
+          server.close((err) => {
+            if (err) {
+              console.error("failed to cleanly close server", err)
+              process.exit(1)
+            }
+            process.exit(0)
+          })
+        }),
+      )
     })
     .catch((err) => {
       console.error("fatal error during startup", err)
