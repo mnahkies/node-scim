@@ -121,48 +121,34 @@ export type t_ScimAttribute = {
   uniqueness?: ("none" | "server" | "global") | undefined
 }
 
+export type t_ServiceProviderBulkConfig = {
+  maxOperations?: number | undefined
+  maxPayloadSize?: number | undefined
+  supported?: boolean | undefined
+}
+
+export type t_ServiceProviderChangePasswordConfig = {
+  supported?: boolean | undefined
+}
+
 export type t_ServiceProviderConfig = {
   authenticationSchemes: t_ServiceProviderConfigAuthenticationScheme[]
-  bulk: {
-    maxOperations?: number | undefined
-    maxPayloadSize?: number | undefined
-    supported?: boolean | undefined
-  }
-  changePassword: {
-    supported?: boolean | undefined
-  }
+  bulk: t_ServiceProviderBulkConfig
+  changePassword: t_ServiceProviderChangePasswordConfig
   documentationUri?: string | undefined
-  etag: {
-    supported?: boolean | undefined
-  }
-  filter: {
-    maxResults?: number | undefined
-    supported?: boolean | undefined
-  }
+  etag: t_ServiceProviderEtagConfig
+  filter: t_ServiceProviderFilterConfig
   meta?:
     | (t_BaseMeta & {
         resourceType?: "ServiceProviderConfig" | undefined
       })
     | undefined
-  pagination?:
-    | {
-        cursor?: boolean | undefined
-        cursorTimeout?: number | undefined
-        defaultPageSize?: number | undefined
-        defaultPaginationMethod?: ("index" | "cursor") | undefined
-        index?: boolean | undefined
-        maxPageSize?: number | undefined
-      }
-    | undefined
-  patch: {
-    supported?: boolean | undefined
-  }
+  pagination?: t_ServiceProviderPaginationConfig | undefined
+  patch: t_ServiceProviderPatchConfig
   schemas?:
     | "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"[]
     | undefined
-  sort: {
-    supported?: boolean | undefined
-  }
+  sort: t_ServiceProviderSortConfig
 }
 
 export type t_ServiceProviderConfigAuthenticationScheme = {
@@ -172,6 +158,32 @@ export type t_ServiceProviderConfigAuthenticationScheme = {
   primary?: boolean | undefined
   specUri?: string | undefined
   type: "oauth" | "oauth2" | "oauthbearertoken" | "httpbasic" | "httpdigest"
+}
+
+export type t_ServiceProviderEtagConfig = {
+  supported?: boolean | undefined
+}
+
+export type t_ServiceProviderFilterConfig = {
+  maxResults?: number | undefined
+  supported?: boolean | undefined
+}
+
+export type t_ServiceProviderPaginationConfig = {
+  cursor?: boolean | undefined
+  cursorTimeout?: number | undefined
+  defaultPageSize?: number | undefined
+  defaultPaginationMethod?: ("index" | "cursor") | undefined
+  index?: boolean | undefined
+  maxPageSize?: number | undefined
+}
+
+export type t_ServiceProviderPatchConfig = {
+  supported?: boolean | undefined
+}
+
+export type t_ServiceProviderSortConfig = {
+  supported?: boolean | undefined
 }
 
 export type t_CreateUser = {

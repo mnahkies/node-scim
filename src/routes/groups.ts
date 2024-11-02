@@ -13,17 +13,17 @@ import {parseFilter, performPatchOperation} from "../utils"
 
 @Service()
 export class GroupsHandlers implements Implementation {
-  constructor(private readonly firebase: IdpAdapter) {}
+  constructor(private readonly idpAdapter: IdpAdapter) {}
 
   postScimV2Groups: PostScimV2Groups = async ({body}, respond) => {
-    const group = await this.firebase.createGroup(body)
+    const group = await this.idpAdapter.createGroup(body)
     return respond.with201().body(group)
   }
 
   putScimV2GroupsId: PutScimV2GroupsId = async ({params, body}, respond) => {
-    const group = await this.firebase.getGroup(params.id)
+    const group = await this.idpAdapter.getGroup(params.id)
     // TODO: deep merge, check if RFC actually specifies this as a merge
-    const updated = await this.firebase.replaceGroup(params.id, {
+    const updated = await this.idpAdapter.replaceGroup(params.id, {
       ...group,
       ...body,
     })
@@ -31,7 +31,7 @@ export class GroupsHandlers implements Implementation {
   }
 
   deleteScimV2GroupsId: DeleteScimV2GroupsId = async ({params}, respond) => {
-    await this.firebase.deleteGroup(params.id)
+    await this.idpAdapter.deleteGroup(params.id)
     return respond.with204().body()
   }
 
@@ -39,7 +39,7 @@ export class GroupsHandlers implements Implementation {
     {params, body},
     respond,
   ) => {
-    const group = await this.firebase.getGroup(params.id)
+    const group = await this.idpAdapter.getGroup(params.id)
     const operations = body.Operations ?? []
 
     let updated = {...group}
@@ -47,7 +47,7 @@ export class GroupsHandlers implements Implementation {
       updated = performPatchOperation(updated, operation)
     }
 
-    await this.firebase.replaceGroup(group.id, updated)
+    await this.idpAdapter.replaceGroup(group.id, updated)
 
     return respond.with200().body(updated)
   }
@@ -59,7 +59,7 @@ export class GroupsHandlers implements Implementation {
         ? (query.startIndex - 1) * query.count
         : 0
 
-    let groups = await this.firebase.listGroups({
+    let groups = await this.idpAdapter.listGroups({
       take,
       skip,
     })
@@ -98,7 +98,7 @@ export class GroupsHandlers implements Implementation {
   }
 
   getScimV2GroupsId: GetScimV2GroupsId = async ({params, query}, respond) => {
-    const group = await this.firebase.getGroup(params.id)
+    const group = await this.idpAdapter.getGroup(params.id)
 
     if (query.excludedAttributes) {
       const excludedAttributes = query.excludedAttributes.split(",")

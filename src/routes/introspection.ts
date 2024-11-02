@@ -1,17 +1,19 @@
 import {Service} from "diod"
-import type {t_ResourceType} from "../generated/models"
 import type {
   GetScimV2ResourceTypes,
   GetScimV2Schemas,
   GetScimV2ServiceProviderConfig,
   Implementation,
 } from "../generated/routes/introspection"
-import {ScimSchemaCoreGroup, ScimSchemaCoreUser} from "../scim-schemas"
+import {IdpAdapter} from "../idp-adapters/types"
 import {ReferenceFactory} from "../utils/reference-factory"
 
 @Service()
 export class IntrospectionHandlers implements Implementation {
-  constructor(private readonly referenceManager: ReferenceFactory) {}
+  constructor(
+    private readonly idpAdaptor: IdpAdapter,
+    private readonly referenceManager: ReferenceFactory,
+  ) {}
 
   getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
     _,
@@ -19,28 +21,38 @@ export class IntrospectionHandlers implements Implementation {
   ) => {
     const now = new Date().toISOString()
 
+    const capabilities = await this.idpAdaptor.capabilities()
+
     return respond.with200().body({
       documentationUri: "https://example.com/docs",
       patch: {
-        supported: true,
+        supported: false,
+        ...capabilities.patch,
       },
       bulk: {
         supported: false,
-        maxPayloadSize: 1048576,
-        maxOperations: 10,
+        ...capabilities.bulk,
       },
       filter: {
-        supported: true,
-        maxResults: 100,
+        supported: false,
+        ...capabilities.filter,
       },
       changePassword: {
         supported: false,
+        ...capabilities.changePassword,
       },
       sort: {
         supported: false,
+        ...capabilities.sort,
       },
       etag: {
         supported: false,
+        ...capabilities.etag,
+      },
+      pagination: {
+        cursor: false,
+        index: false,
+        ...capabilities.pagination,
       },
       authenticationSchemes: [
         {
@@ -53,42 +65,18 @@ export class IntrospectionHandlers implements Implementation {
           primary: true,
         },
       ],
-      pagination: {
-        cursor: false,
-        index: true,
-        defaultPaginationMethod: "index",
-        defaultPageSize: 10,
-        maxPageSize: 100,
-        cursorTimeout: 3600,
-      },
       meta: {
         location: this.referenceManager.path("/scim/v2/ServiceProviderConfig"),
         resourceType: "ServiceProviderConfig",
         created: now,
         lastModified: now,
       },
+      schemas: ["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"],
     })
   }
 
   getScimV2ResourceTypes: GetScimV2ResourceTypes = async (_, respond) => {
-    const Resources = [
-      {
-        id: "User",
-        name: "Users",
-        description: "User Account",
-        schema: "urn:ietf:params:scim:schemas:core:2.0:User",
-        schemaExtensions: [
-          // "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
-        ],
-      },
-      {
-        id: "Group",
-        name: "Groups",
-        description: "Group",
-        schema: "urn:ietf:params:scim:schemas:core:2.0:Group",
-        schemaExtensions: [],
-      },
-    ] satisfies t_ResourceType[]
+    const Resources = await this.idpAdaptor.resourceTypes()
 
     return respond.with200().body({
       totalResults: Resources.length,
@@ -97,7 +85,7 @@ export class IntrospectionHandlers implements Implementation {
   }
 
   getScimV2Schemas: GetScimV2Schemas = async (_, respond) => {
-    const Resources = [ScimSchemaCoreUser, ScimSchemaCoreGroup]
+    const Resources = await this.idpAdaptor.resourceSchemas()
 
     return respond.with200().body({
       totalResults: Resources.length,
