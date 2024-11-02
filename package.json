@@ -17,7 +17,7 @@
     "watch:openapi": "nodemon --watch ./openapi.yaml --watch ./docs/openapi -e yaml --exec './scripts/generate.sh'",
     "watch:dev": "nodemon --watch ./src -e ts --delay 2 --exec 'yarn dev'",
     "clean:users": "dotenvx run -f .env -- tsx ./scripts/clean-users.ts",
-    "ci-build": "yarn build",
+    "ci-build": "yarn generate && yarn build",
     "ci-lint": "biome ci ."
   },
   "devDependencies": {
