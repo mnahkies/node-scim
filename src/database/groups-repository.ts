@@ -3,14 +3,13 @@ import {Service} from "diod"
 import {ConflictError, NotFoundError} from "../errors"
 import type {t_CreateGroup, t_Group, t_UserGroup} from "../generated/models"
 import type {PaginationParams} from "../idp-adapters/types"
-// biome-ignore lint/style/useImportType: needed for DI
-import {ReferenceManager} from "../utils"
+import {ReferenceFactory} from "../utils/reference-factory"
 
 @Service()
 export class GroupsRepository {
   private readonly data = new Map<string, t_Group>()
 
-  constructor(private readonly referenceManager: ReferenceManager) {}
+  constructor(private readonly referenceManager: ReferenceFactory) {}
 
   async userGroups(userId: string): Promise<t_UserGroup[]> {
     const result: t_UserGroup[] = []

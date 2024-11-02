@@ -15,7 +15,6 @@ import type {
   PostScimV2Users,
   PutScimV2UsersId,
 } from "../generated/routes/users"
-// biome-ignore lint/style/useImportType: needed for DI
 import {CreateUser, IdpAdapter} from "../idp-adapters/types"
 import {parseFilter, performPatchOperation} from "../utils"
 

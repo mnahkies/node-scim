@@ -8,7 +8,6 @@ import type {
   PostScimV2Groups,
   PutScimV2GroupsId,
 } from "../generated/routes/groups"
-// biome-ignore lint/style/useImportType: needed for DI
 import {IdpAdapter} from "../idp-adapters/types"
 import {parseFilter, performPatchOperation} from "../utils"
 

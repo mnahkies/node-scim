@@ -1,7 +1,4 @@
-import {Service} from "diod"
 import {parse} from "../parser.js"
-// biome-ignore lint/style/useImportType: needed for DI
-import {Config} from "./config"
 import {PatchError} from "./errors"
 import type {t_PatchOperation} from "./generated/models"
 
@@ -11,19 +8,6 @@ export function parseFilter(filter: string): {
   operator: "eq" | "ne" | "co" | "sw" | "ew" | "gt" | "lt" | "ge" | "le"
 } {
   return parse(filter, undefined)
-}
-
-@Service()
-export class ReferenceManager {
-  constructor(private readonly config: Config) {}
-
-  path(path: string) {
-    return `https://${this.config.hostname}:${this.config.port}${path}`
-  }
-
-  create$Ref(id: string, type: "User" | "Group") {
-    return this.path(`/scim/v2/${type}s/${id}`)
-  }
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>

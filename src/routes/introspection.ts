@@ -7,12 +7,11 @@ import type {
   Implementation,
 } from "../generated/routes/introspection"
 import {ScimSchemaCoreGroup, ScimSchemaCoreUser} from "../scim-schemas"
-// biome-ignore lint/style/useImportType: needed for DI
-import {ReferenceManager} from "../utils"
+import {ReferenceFactory} from "../utils/reference-factory"
 
 @Service()
 export class IntrospectionHandlers implements Implementation {
-  constructor(private readonly referenceManager: ReferenceManager) {}
+  constructor(private readonly referenceManager: ReferenceFactory) {}
 
   getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig = async (
     _,
@@ -21,7 +20,7 @@ export class IntrospectionHandlers implements Implementation {
     const now = new Date().toISOString()
 
     return respond.with200().body({
-      documentationUri: "http://example.com/docs",
+      documentationUri: "https://example.com/docs",
       patch: {
         supported: true,
       },
@@ -48,8 +47,8 @@ export class IntrospectionHandlers implements Implementation {
           name: "OAuth Bearer Token",
           description:
             "Authentication scheme using the OAuth Bearer Token Standard",
-          specUri: "http://www.rfc-editor.org/info/rfc6750",
-          documentationUri: "http://example.com/help/oauth.html",
+          specUri: "https://www.rfc-editor.org/info/rfc6750",
+          documentationUri: "https://example.com/help/oauth.html",
           type: "oauthbearertoken",
           primary: true,
         },

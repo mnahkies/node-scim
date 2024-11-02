@@ -6,14 +6,11 @@ import {
   type UserRecord,
   getAuth,
 } from "firebase-admin/auth"
-// biome-ignore lint/style/useImportType: needed for DI
 import {Config} from "../config"
-// biome-ignore lint/style/useImportType: needed for DI
 import {GroupsRepository} from "../database/groups-repository"
 import {ConflictError, NotFoundError} from "../errors"
 import type {t_CreateGroup, t_Group, t_User} from "../generated/models"
-// biome-ignore lint/style/useImportType: needed for DI
-import {ReferenceManager} from "../utils"
+import {ReferenceFactory} from "../utils/reference-factory"
 import type {CreateUser, IdpAdapter, PaginationParams} from "./types"
 
 export async function* listUsers(
@@ -54,7 +51,7 @@ export class FirebaseAuthService implements IdpAdapter {
   constructor(
     private readonly config: Config,
     private readonly groupsRepository: GroupsRepository,
-    private readonly referenceManager: ReferenceManager,
+    private readonly referenceManager: ReferenceFactory,
   ) {
     this.app = initializeApp({
       projectId: config.projectId,
