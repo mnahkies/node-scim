@@ -9,9 +9,21 @@ import {
 import {Config} from "../config"
 import {GroupsRepository} from "../database/groups-repository"
 import {ConflictError, NotFoundError} from "../errors"
-import type {t_CreateGroup, t_Group, t_User} from "../generated/models"
+import type {
+  t_CreateGroup,
+  t_Group,
+  t_ResourceType,
+  t_Schema,
+  t_User,
+} from "../generated/models"
+import {ScimSchemaCoreGroup, ScimSchemaCoreUser} from "../scim-schemas"
 import {ReferenceFactory} from "../utils/reference-factory"
-import type {CreateUser, IdpAdapter, PaginationParams} from "./types"
+import type {
+  CreateUser,
+  IdpAdapter,
+  PaginationParams,
+  ServiceProviderConfigCapabilities,
+} from "./types"
 
 export async function* listUsers(
   auth: Auth,
@@ -44,7 +56,7 @@ export async function* listUsers(
 }
 
 @Service()
-export class FirebaseAuthService implements IdpAdapter {
+export class FirebaseAuthIdpAdapter implements IdpAdapter {
   private readonly app: App
   private readonly auth: Auth
 
@@ -64,6 +76,62 @@ export class FirebaseAuthService implements IdpAdapter {
     await this.auth.getProviderConfig(this.config.providerId)
   }
 
+  //region Introspection
+  async capabilities(): Promise<ServiceProviderConfigCapabilities> {
+    return {
+      patch: {supported: true},
+      bulk: {
+        supported: false,
+      },
+      filter: {
+        supported: true,
+        maxResults: 100,
+      },
+      changePassword: {
+        supported: false,
+      },
+      sort: {
+        supported: false,
+      },
+      pagination: {
+        cursor: false,
+        index: true,
+        defaultPaginationMethod: "index",
+        defaultPageSize: 10,
+        maxPageSize: 100,
+        cursorTimeout: 3600,
+      },
+    }
+  }
+
+  async resourceTypes(): Promise<t_ResourceType[]> {
+    return [
+      {
+        id: "User",
+        name: "Users",
+        description: "User Account",
+        schema: "urn:ietf:params:scim:schemas:core:2.0:User",
+        schemaExtensions: [
+          // "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+        ],
+      },
+      {
+        id: "Group",
+        name: "Groups",
+        description: "Group",
+        schema: "urn:ietf:params:scim:schemas:core:2.0:Group",
+        schemaExtensions: [],
+      },
+    ]
+  }
+
+  async resourceSchemas(): Promise<t_Schema[]> {
+    return [ScimSchemaCoreUser, ScimSchemaCoreGroup]
+  }
+
+  //endregion
+
+  //region Users
   async listUsers({take, skip}: PaginationParams): Promise<t_User[]> {
     const result: t_User[] = []
 
@@ -183,7 +251,9 @@ export class FirebaseAuthService implements IdpAdapter {
       throw err
     }
   }
+  //endregion
 
+  //region Groups
   async listGroups({take, skip}: PaginationParams) {
     return this.groupsRepository.listGroups({take, skip})
   }
@@ -223,6 +293,7 @@ export class FirebaseAuthService implements IdpAdapter {
   async getGroup(id: string): Promise<t_Group> {
     return this.groupsRepository.getById(id)
   }
+  //endregion
 
   private mapNotFoundError(err: unknown, id: string) {
     if (

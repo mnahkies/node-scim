@@ -12,7 +12,7 @@ import {PublicRouterFactory} from "./factories/public-router.factory"
 import {GroupsImplementation} from "./generated/routes/groups"
 import {IntrospectionImplementation} from "./generated/routes/introspection"
 import {UsersImplementation} from "./generated/routes/users"
-import {FirebaseAuthService} from "./idp-adapters/firebase"
+import {FirebaseAuthIdpAdapter} from "./idp-adapters/firebase"
 import {IdpAdapter} from "./idp-adapters/types"
 import {GroupsHandlers} from "./routes/groups"
 import {IntrospectionHandlers} from "./routes/introspection"
@@ -27,7 +27,7 @@ export function createContainerBuilder() {
 
   builder.registerAndUse(GroupsRepository).asSingleton()
 
-  builder.register(IdpAdapter).use(FirebaseAuthService).asSingleton()
+  builder.register(IdpAdapter).use(FirebaseAuthIdpAdapter).asSingleton()
 
   builder.register(UsersImplementation).use(UsersHandlers)
   builder.register(GroupsImplementation).use(GroupsHandlers)

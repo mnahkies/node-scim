@@ -85,6 +85,16 @@ export const s_ScimExceptionType = z.enum([
   "sensitive",
 ])
 
+export const s_ServiceProviderBulkConfig = z.object({
+  supported: PermissiveBoolean.optional().default(false),
+  maxOperations: z.coerce.number().optional(),
+  maxPayloadSize: z.coerce.number().optional(),
+})
+
+export const s_ServiceProviderChangePasswordConfig = z.object({
+  supported: PermissiveBoolean.optional().default(false),
+})
+
 export const s_ServiceProviderConfigAuthenticationScheme = z.object({
   type: z.enum([
     "oauth",
@@ -98,6 +108,32 @@ export const s_ServiceProviderConfigAuthenticationScheme = z.object({
   specUri: z.string().optional(),
   documentationUri: z.string().optional(),
   primary: PermissiveBoolean.optional().default(false),
+})
+
+export const s_ServiceProviderEtagConfig = z.object({
+  supported: PermissiveBoolean.optional().default(false),
+})
+
+export const s_ServiceProviderFilterConfig = z.object({
+  supported: PermissiveBoolean.optional().default(false),
+  maxResults: z.coerce.number().optional(),
+})
+
+export const s_ServiceProviderPaginationConfig = z.object({
+  cursor: PermissiveBoolean.optional().default(false),
+  index: PermissiveBoolean.optional().default(false),
+  defaultPaginationMethod: z.enum(["index", "cursor"]).optional(),
+  defaultPageSize: z.coerce.number().optional().default(10),
+  maxPageSize: z.coerce.number().optional().default(100),
+  cursorTimeout: z.coerce.number().optional().default(3600),
+})
+
+export const s_ServiceProviderPatchConfig = z.object({
+  supported: PermissiveBoolean.optional().default(false),
+})
+
+export const s_ServiceProviderSortConfig = z.object({
+  supported: PermissiveBoolean.optional().default(false),
 })
 
 export const s_UserEmail = z.object({
@@ -199,31 +235,13 @@ export const s_ServiceProviderConfig = z.object({
     .optional()
     .default(["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"]),
   documentationUri: z.string().optional(),
-  patch: z.object({supported: PermissiveBoolean.optional().default(false)}),
-  bulk: z.object({
-    supported: PermissiveBoolean.optional().default(false),
-    maxOperations: z.coerce.number().optional(),
-    maxPayloadSize: z.coerce.number().optional(),
-  }),
-  filter: z.object({
-    supported: PermissiveBoolean.optional().default(false),
-    maxResults: z.coerce.number().optional(),
-  }),
-  changePassword: z.object({
-    supported: PermissiveBoolean.optional().default(false),
-  }),
-  sort: z.object({supported: PermissiveBoolean.optional().default(false)}),
-  etag: z.object({supported: PermissiveBoolean.optional().default(false)}),
-  pagination: z
-    .object({
-      cursor: PermissiveBoolean.optional().default(false),
-      index: PermissiveBoolean.optional().default(false),
-      defaultPaginationMethod: z.enum(["index", "cursor"]).optional(),
-      defaultPageSize: z.coerce.number().optional().default(10),
-      maxPageSize: z.coerce.number().optional().default(100),
-      cursorTimeout: z.coerce.number().optional().default(3600),
-    })
-    .optional(),
+  patch: s_ServiceProviderPatchConfig,
+  bulk: s_ServiceProviderBulkConfig,
+  filter: s_ServiceProviderFilterConfig,
+  changePassword: s_ServiceProviderChangePasswordConfig,
+  sort: s_ServiceProviderSortConfig,
+  etag: s_ServiceProviderEtagConfig,
+  pagination: s_ServiceProviderPaginationConfig.optional(),
   authenticationSchemes: z.array(s_ServiceProviderConfigAuthenticationScheme),
   meta: s_BaseMeta
     .merge(

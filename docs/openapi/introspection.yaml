@@ -41,6 +41,78 @@ paths:
                   "#/components/schemas/Schemas"
 components:
   schemas:
+    ServiceProviderPatchConfig:
+      type: object
+      properties:
+        supported:
+          type: boolean
+          default: false
+
+    ServiceProviderBulkConfig:
+      type: object
+      properties:
+        supported:
+          type: boolean
+          default: false
+        maxOperations:
+          type: integer
+        maxPayloadSize:
+          type: integer
+
+    ServiceProviderFilterConfig:
+      type: object
+      properties:
+        supported:
+          type: boolean
+          default: false
+        maxResults:
+          type: integer
+
+    ServiceProviderChangePasswordConfig:
+      type: object
+      properties:
+        supported:
+          type: boolean
+          default: false
+
+    ServiceProviderSortConfig:
+      type: object
+      properties:
+        supported:
+          type: boolean
+          default: false
+
+    ServiceProviderEtagConfig:
+      type: object
+      properties:
+        supported:
+          type: boolean
+          default: false
+
+    ServiceProviderPaginationConfig:
+      type: object
+      properties:
+        cursor:
+          type: boolean
+          default: false
+        index:
+          type: boolean
+          default: false
+        defaultPaginationMethod:
+          type: string
+          enum:
+            - index
+            - cursor
+        defaultPageSize:
+          type: number
+          default: 10
+        maxPageSize:
+          type: number
+          default: 100
+        cursorTimeout:
+          type: number
+          default: 3600
+
     ServiceProviderConfig:
       type: object
       required:
@@ -63,70 +135,19 @@ components:
           type: string
           format: uri
         patch:
-          type: object
-          properties:
-            supported:
-              type: boolean
-              default: false
+          $ref: '#/components/schemas/ServiceProviderPatchConfig'
         bulk:
-          type: object
-          properties:
-            supported:
-              type: boolean
-              default: false
-            maxOperations:
-              type: integer
-            maxPayloadSize:
-              type: integer
+          $ref: '#/components/schemas/ServiceProviderBulkConfig'
         filter:
-          type: object
-          properties:
-            supported:
-              type: boolean
-              default: false
-            maxResults:
-              type: integer
+          $ref: '#/components/schemas/ServiceProviderFilterConfig'
         changePassword:
-          type: object
-          properties:
-            supported:
-              type: boolean
-              default: false
+          $ref: '#/components/schemas/ServiceProviderChangePasswordConfig'
         sort:
-          type: object
-          properties:
-            supported:
-              type: boolean
-              default: false
+          $ref: '#/components/schemas/ServiceProviderSortConfig'
         etag:
-          type: object
-          properties:
-            supported:
-              type: boolean
-              default: false
+          $ref: '#/components/schemas/ServiceProviderEtagConfig'
         pagination:
-          type: object
-          properties:
-            cursor:
-              type: boolean
-              default: false
-            index:
-              type: boolean
-              default: false
-            defaultPaginationMethod:
-              type: string
-              enum:
-                - index
-                - cursor
-            defaultPageSize:
-              type: number
-              default: 10
-            maxPageSize:
-              type: number
-              default: 100
-            cursorTimeout:
-              type: number
-              default: 3600
+          $ref: '#/components/schemas/ServiceProviderPaginationConfig'
         authenticationSchemes:
           type: array
           items:
