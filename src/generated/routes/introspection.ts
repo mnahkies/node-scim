@@ -7,13 +7,13 @@ import {KoaRuntimeError} from "@nahkies/typescript-koa-runtime/errors"
 import {
   KoaRuntimeResponder,
   KoaRuntimeResponse,
+  Params,
   Response,
+  SkipResponse,
   StatusCode,
 } from "@nahkies/typescript-koa-runtime/server"
-import {
-  Params,
-  responseValidationFactory,
-} from "@nahkies/typescript-koa-runtime/zod"
+import {responseValidationFactory} from "@nahkies/typescript-koa-runtime/zod"
+import {Next} from "koa"
 import {t_ResourceTypes, t_Schemas, t_ServiceProviderConfig} from "../models"
 import {s_ResourceTypes, s_Schemas, s_ServiceProviderConfig} from "../schemas"
 
@@ -25,8 +25,11 @@ export type GetScimV2ServiceProviderConfig = (
   params: Params<void, void, void, void>,
   respond: GetScimV2ServiceProviderConfigResponder,
   ctx: RouterContext,
+  next: Next,
 ) => Promise<
-  KoaRuntimeResponse<unknown> | Response<200, t_ServiceProviderConfig>
+  | KoaRuntimeResponse<unknown>
+  | Response<200, t_ServiceProviderConfig>
+  | typeof SkipResponse
 >
 
 export type GetScimV2ResourceTypesResponder = {
@@ -37,7 +40,12 @@ export type GetScimV2ResourceTypes = (
   params: Params<void, void, void, void>,
   respond: GetScimV2ResourceTypesResponder,
   ctx: RouterContext,
-) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_ResourceTypes>>
+  next: Next,
+) => Promise<
+  | KoaRuntimeResponse<unknown>
+  | Response<200, t_ResourceTypes>
+  | typeof SkipResponse
+>
 
 export type GetScimV2SchemasResponder = {
   with200(): KoaRuntimeResponse<t_Schemas>
@@ -47,7 +55,10 @@ export type GetScimV2Schemas = (
   params: Params<void, void, void, void>,
   respond: GetScimV2SchemasResponder,
   ctx: RouterContext,
-) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_Schemas>>
+  next: Next,
+) => Promise<
+  KoaRuntimeResponse<unknown> | Response<200, t_Schemas> | typeof SkipResponse
+>
 
 export abstract class IntrospectionImplementation {
   abstract getScimV2ServiceProviderConfig: GetScimV2ServiceProviderConfig
@@ -84,10 +95,15 @@ export function createIntrospectionRouter(
       }
 
       const response = await implementation
-        .getScimV2ServiceProviderConfig(input, responder, ctx)
+        .getScimV2ServiceProviderConfig(input, responder, ctx, next)
         .catch((err) => {
           throw KoaRuntimeError.HandlerError(err)
         })
+
+      // escape hatch to allow responses to be sent by the implementation handler
+      if (response === SkipResponse) {
+        return
+      }
 
       const {status, body} =
         response instanceof KoaRuntimeResponse ? response.unpack() : response
@@ -124,10 +140,15 @@ export function createIntrospectionRouter(
       }
 
       const response = await implementation
-        .getScimV2ResourceTypes(input, responder, ctx)
+        .getScimV2ResourceTypes(input, responder, ctx, next)
         .catch((err) => {
           throw KoaRuntimeError.HandlerError(err)
         })
+
+      // escape hatch to allow responses to be sent by the implementation handler
+      if (response === SkipResponse) {
+        return
+      }
 
       const {status, body} =
         response instanceof KoaRuntimeResponse ? response.unpack() : response
@@ -161,10 +182,15 @@ export function createIntrospectionRouter(
     }
 
     const response = await implementation
-      .getScimV2Schemas(input, responder, ctx)
+      .getScimV2Schemas(input, responder, ctx, next)
       .catch((err) => {
         throw KoaRuntimeError.HandlerError(err)
       })
+
+    // escape hatch to allow responses to be sent by the implementation handler
+    if (response === SkipResponse) {
+      return
+    }
 
     const {status, body} =
       response instanceof KoaRuntimeResponse ? response.unpack() : response

@@ -10,14 +10,16 @@ import {
 import {
   KoaRuntimeResponder,
   KoaRuntimeResponse,
+  Params,
   Response,
+  SkipResponse,
   StatusCode,
 } from "@nahkies/typescript-koa-runtime/server"
 import {
-  Params,
   parseRequestInput,
   responseValidationFactory,
 } from "@nahkies/typescript-koa-runtime/zod"
+import {Next} from "koa"
 import {z} from "zod"
 import {
   t_DeleteScimV2UsersIdParamSchema,
@@ -48,7 +50,12 @@ export type GetScimV2Users = (
   params: Params<void, t_GetScimV2UsersQuerySchema, void, void>,
   respond: GetScimV2UsersResponder,
   ctx: RouterContext,
-) => Promise<KoaRuntimeResponse<unknown> | Response<200, t_UsersListing>>
+  next: Next,
+) => Promise<
+  | KoaRuntimeResponse<unknown>
+  | Response<200, t_UsersListing>
+  | typeof SkipResponse
+>
 
 export type PostScimV2UsersResponder = {
   with201(): KoaRuntimeResponse<t_User>
@@ -58,7 +65,10 @@ export type PostScimV2Users = (
   params: Params<void, void, t_PostScimV2UsersBodySchema, void>,
   respond: PostScimV2UsersResponder,
   ctx: RouterContext,
-) => Promise<KoaRuntimeResponse<unknown> | Response<201, t_User>>
+  next: Next,
+) => Promise<
+  KoaRuntimeResponse<unknown> | Response<201, t_User> | typeof SkipResponse
+>
 
 export type GetScimV2UsersIdResponder = {
   with200(): KoaRuntimeResponse<t_User>
@@ -69,10 +79,12 @@ export type GetScimV2UsersId = (
   params: Params<t_GetScimV2UsersIdParamSchema, void, void, void>,
   respond: GetScimV2UsersIdResponder,
   ctx: RouterContext,
+  next: Next,
 ) => Promise<
   | KoaRuntimeResponse<unknown>
   | Response<200, t_User>
   | Response<404, t_ScimException>
+  | typeof SkipResponse
 >
 
 export type PutScimV2UsersIdResponder = {
@@ -89,10 +101,12 @@ export type PutScimV2UsersId = (
   >,
   respond: PutScimV2UsersIdResponder,
   ctx: RouterContext,
+  next: Next,
 ) => Promise<
   | KoaRuntimeResponse<unknown>
   | Response<200, t_User>
   | Response<404, t_ScimException>
+  | typeof SkipResponse
 >
 
 export type PatchScimV2UsersIdResponder = {
@@ -109,10 +123,12 @@ export type PatchScimV2UsersId = (
   >,
   respond: PatchScimV2UsersIdResponder,
   ctx: RouterContext,
+  next: Next,
 ) => Promise<
   | KoaRuntimeResponse<unknown>
   | Response<200, t_User>
   | Response<404, t_ScimException>
+  | typeof SkipResponse
 >
 
 export type DeleteScimV2UsersIdResponder = {
@@ -124,10 +140,12 @@ export type DeleteScimV2UsersId = (
   params: Params<t_DeleteScimV2UsersIdParamSchema, void, void, void>,
   respond: DeleteScimV2UsersIdResponder,
   ctx: RouterContext,
+  next: Next,
 ) => Promise<
   | KoaRuntimeResponse<unknown>
   | Response<204, void>
   | Response<404, t_ScimException>
+  | typeof SkipResponse
 >
 
 export abstract class UsersImplementation {
@@ -177,10 +195,15 @@ export function createUsersRouter(
     }
 
     const response = await implementation
-      .getScimV2Users(input, responder, ctx)
+      .getScimV2Users(input, responder, ctx, next)
       .catch((err) => {
         throw KoaRuntimeError.HandlerError(err)
       })
+
+    // escape hatch to allow responses to be sent by the implementation handler
+    if (response === SkipResponse) {
+      return
+    }
 
     const {status, body} =
       response instanceof KoaRuntimeResponse ? response.unpack() : response
@@ -219,10 +242,15 @@ export function createUsersRouter(
     }
 
     const response = await implementation
-      .postScimV2Users(input, responder, ctx)
+      .postScimV2Users(input, responder, ctx, next)
       .catch((err) => {
         throw KoaRuntimeError.HandlerError(err)
       })
+
+    // escape hatch to allow responses to be sent by the implementation handler
+    if (response === SkipResponse) {
+      return
+    }
 
     const {status, body} =
       response instanceof KoaRuntimeResponse ? response.unpack() : response
@@ -267,10 +295,15 @@ export function createUsersRouter(
     }
 
     const response = await implementation
-      .getScimV2UsersId(input, responder, ctx)
+      .getScimV2UsersId(input, responder, ctx, next)
       .catch((err) => {
         throw KoaRuntimeError.HandlerError(err)
       })
+
+    // escape hatch to allow responses to be sent by the implementation handler
+    if (response === SkipResponse) {
+      return
+    }
 
     const {status, body} =
       response instanceof KoaRuntimeResponse ? response.unpack() : response
@@ -321,10 +354,15 @@ export function createUsersRouter(
     }
 
     const response = await implementation
-      .putScimV2UsersId(input, responder, ctx)
+      .putScimV2UsersId(input, responder, ctx, next)
       .catch((err) => {
         throw KoaRuntimeError.HandlerError(err)
       })
+
+    // escape hatch to allow responses to be sent by the implementation handler
+    if (response === SkipResponse) {
+      return
+    }
 
     const {status, body} =
       response instanceof KoaRuntimeResponse ? response.unpack() : response
@@ -378,10 +416,15 @@ export function createUsersRouter(
       }
 
       const response = await implementation
-        .patchScimV2UsersId(input, responder, ctx)
+        .patchScimV2UsersId(input, responder, ctx, next)
         .catch((err) => {
           throw KoaRuntimeError.HandlerError(err)
         })
+
+      // escape hatch to allow responses to be sent by the implementation handler
+      if (response === SkipResponse) {
+        return
+      }
 
       const {status, body} =
         response instanceof KoaRuntimeResponse ? response.unpack() : response
@@ -430,10 +473,15 @@ export function createUsersRouter(
       }
 
       const response = await implementation
-        .deleteScimV2UsersId(input, responder, ctx)
+        .deleteScimV2UsersId(input, responder, ctx, next)
         .catch((err) => {
           throw KoaRuntimeError.HandlerError(err)
         })
+
+      // escape hatch to allow responses to be sent by the implementation handler
+      if (response === SkipResponse) {
+        return
+      }
 
       const {status, body} =
         response instanceof KoaRuntimeResponse ? response.unpack() : response
