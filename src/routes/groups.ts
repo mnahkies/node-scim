@@ -9,7 +9,7 @@ import type {
   PutScimV2GroupsId,
 } from "../generated/routes/groups"
 import {IdpAdapter} from "../idp-adapters/types"
-import {parseFilter, performPatchOperation} from "../utils"
+import {evaluateFilter, parseFilter, performPatchOperation} from "../utils"
 
 @Service()
 export class GroupsHandlers implements Implementation {
@@ -64,18 +64,9 @@ export class GroupsHandlers implements Implementation {
       skip,
     })
 
-    // todo; support filter properly
     if (query.filter) {
       const filter = parseFilter(query.filter)
-      groups = groups.filter((it) => {
-        switch (filter.operator) {
-          case "eq":
-            // @ts-ignore
-            return it[filter.left].toLowerCase() === filter.right.toLowerCase()
-          default:
-            throw new Error("not supported")
-        }
-      })
+      groups = groups.filter((it) => evaluateFilter(filter, it))
     }
 
     if (query.excludedAttributes) {

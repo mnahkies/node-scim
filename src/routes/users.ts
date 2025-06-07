@@ -16,7 +16,7 @@ import type {
   PutScimV2UsersId,
 } from "../generated/routes/users"
 import {CreateUser, IdpAdapter} from "../idp-adapters/types"
-import {parseFilter, performPatchOperation} from "../utils"
+import {evaluateFilter, parseFilter, performPatchOperation} from "../utils"
 
 const requestBodyToCreateUser = (
   body: t_CreateUser | t_PutScimV2UsersIdBodySchema,
@@ -62,18 +62,9 @@ export class UsersHandlers implements Implementation {
       skip,
     })
 
-    // todo; support filter properly
     if (query.filter) {
       const filter = parseFilter(query.filter)
-      users = users.filter((it) => {
-        switch (filter.operator) {
-          case "eq":
-            // @ts-ignore
-            return it[filter.left].toLowerCase() === filter.right.toLowerCase()
-          default:
-            throw new Error("not supported")
-        }
-      })
+      users = users.filter((it) => evaluateFilter(filter, it))
     }
 
     return respond.with200().body({
