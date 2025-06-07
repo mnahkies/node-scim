@@ -37,8 +37,7 @@ jobs:
 
       - run: yarn ci-build
 
-      # TODO: add test suite
-      #      - run: yarn ci-test
+      - run: yarn ci-test
 
       - run: yarn ci-lint
 
