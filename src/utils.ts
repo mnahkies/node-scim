@@ -11,7 +11,7 @@ export function parseFilter(filter: string): {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-function getType(obj: any, value: any) {
+export function getType(obj: any, value: any) {
   if (Array.isArray(obj) && Array.isArray(value)) {
     return "multi-value"
   }
