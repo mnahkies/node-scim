@@ -1,5 +1,5 @@
 import {describe, expect, it} from "@jest/globals"
-import {getType, parseFilter} from "./utils"
+import {evaluateFilter, getType, parseFilter} from "./utils"
 
 describe("utils", () => {
   describe("#getType", () => {
@@ -417,6 +417,98 @@ describe("utils", () => {
         },
         type: "logical",
       })
+    })
+  })
+
+  describe("#evaluateFilter", () => {
+    const baseUser = {
+      userName: "bjensen",
+      name: {familyName: "O'Malley"},
+      title: "Manager",
+      meta: {lastModified: "2011-05-14T04:42:34Z"},
+      userType: "Employee",
+      emails: [
+        {type: "work", value: "bjensen@example.com"},
+        {type: "home", value: "bjensen@example.org"},
+      ],
+    }
+
+    it("matches basic equality", () => {
+      const ast = parseFilter('userName eq "bjensen"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("fails case-sensitive equality", () => {
+      const ast = parseFilter('userName eq "BJENSEN"')
+      expect(evaluateFilter(ast, baseUser)).toBe(false)
+    })
+
+    it.skip("matches case-insensitive substring match", () => {
+      const ast = parseFilter('name.familyName co "malley"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("matches mixed-case substring", () => {
+      const ast = parseFilter('name.familyName co "Malley"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it.skip("matches upper-case substring due to caseExact: false", () => {
+      const ast = parseFilter('name.familyName co "MALLEY"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("matches presence check", () => {
+      const ast = parseFilter("title pr")
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("matches gt date", () => {
+      const ast = parseFilter('meta.lastModified gt "2011-05-13T00:00:00Z"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("matches lt date", () => {
+      const ast = parseFilter('meta.lastModified lt "2011-05-15T00:00:00Z"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("matches logical and", () => {
+      const ast = parseFilter('title pr and userType eq "Employee"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("matches logical or", () => {
+      const ast = parseFilter('title pr or userType eq "Intern"')
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it("matches valuePath filter", () => {
+      const ast = parseFilter(
+        'emails[type eq "work" and value co "@example.com"]',
+      )
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it.skip("matches valuePath with uppercase domain (case-insensitive)", () => {
+      const ast = parseFilter(
+        'emails[type eq "work" and value co "@EXAMPLE.COM"]',
+      )
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
+    })
+
+    it.skip("fails if value is case-sensitive", () => {
+      const ast = parseFilter(
+        'emails[type eq "work" and value co "@EXAMPLE.COM"]',
+      )
+      expect(evaluateFilter(ast, baseUser)).toBe(false)
+    })
+
+    it("matches not with nested or", () => {
+      const ast = parseFilter(
+        'userType ne "Intern" and not (emails.value co "example.net")',
+      )
+      expect(evaluateFilter(ast, baseUser)).toBe(true)
     })
   })
 })

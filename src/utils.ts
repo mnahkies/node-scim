@@ -44,11 +44,18 @@ export type FilterNot = {
   expression: FilterAST
 }
 
+export type FilterValuePath = {
+  type: "valuePath"
+  attribute: FilterAttribute
+  filter: FilterAST
+}
+
 export type FilterAST =
   | FilterPresent
   | FilterComparison
   | FilterLogical
   | FilterNot
+  | FilterValuePath
 
 export function parseFilter(filter: string): FilterAST {
   return parse(filter, undefined)
@@ -118,6 +125,20 @@ export function evaluateFilter(ast: FilterAST, obj: any): boolean {
     }
     case "not": {
       return !evaluateFilter(ast.expression, obj)
+    }
+    case "valuePath": {
+      const collection = resolveAttrPath(obj, ast.attribute.path)
+
+      if (!Array.isArray(collection)) {
+        return false
+      }
+
+      return collection.some((item) => evaluateFilter(ast.filter, item))
+    }
+
+    default: {
+      // @ts-expect-error: exhaustive check
+      throw new Error(`unsupported type '${ast.type}' `)
     }
   }
 }
