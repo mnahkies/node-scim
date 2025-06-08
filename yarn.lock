@@ -1480,6 +1480,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@peggyjs/from-mem@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@peggyjs/from-mem@npm:2.0.0"
+  dependencies:
+    semver: "npm:7.7.1"
+  checksum: 10/2e9b51819dca7e9f064817d6e93715657aa7c4e47bd4b2540a56ff7ec719929a4c170eecbf379c20a15d71082d0f2672778e8cfc8bd588e09a6f0ddb4b03a41d
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -1751,10 +1760,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/node22@npm:^22.0.2":
-  version: 22.0.2
-  resolution: "@tsconfig/node22@npm:22.0.2"
-  checksum: 10/b9fb6543856cbac8b9b79c234bbefa3415f083e0a46e6f0fbe418fe21c5d086440222e1383258d75ebac951cbe17564a6d146fafc59c889d6302decd1a7880dd
+"@tsconfig/node24@npm:^24.0.1":
+  version: 24.0.1
+  resolution: "@tsconfig/node24@npm:24.0.1"
+  checksum: 10/0ea96dea3aae641da61e0c376306f2314a6c63b200359925f8ad949705246d5dfab01cc25aaf8d8d04a81919390aa2bfddf172a947f85583e1db977a4dd3fb4f
   languageName: node
   linkType: hard
 
@@ -5446,7 +5455,7 @@ __metadata:
     "@nahkies/typescript-koa-runtime": "npm:^0.20.1"
     "@swc/core": "npm:^1.11.29"
     "@swc/jest": "npm:^0.2.38"
-    "@tsconfig/node22": "npm:^22.0.2"
+    "@tsconfig/node24": "npm:^24.0.1"
     "@tsconfig/strictest": "npm:^2.0.5"
     "@types/getenv": "npm:^1.0.3"
     "@types/koa": "npm:^2.15.0"
@@ -5461,6 +5470,7 @@ __metadata:
     koa-body: "npm:^6.0.1"
     lint-staged: "npm:^16.1.0"
     nodemon: "npm:^3.1.10"
+    peggy: "npm:^5.0.3"
     prettier: "npm:^3.5.3"
     reflect-metadata: "npm:^0.2.2"
     tslib: "npm:^2.8.1"
@@ -5683,6 +5693,19 @@ __metadata:
   version: 6.3.0
   resolution: "path-to-regexp@npm:6.3.0"
   checksum: 10/6822f686f01556d99538b350722ef761541ec0ce95ca40ce4c29e20a5b492fe8361961f57993c71b2418de12e604478dcf7c430de34b2c31a688363a7a944d9c
+  languageName: node
+  linkType: hard
+
+"peggy@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "peggy@npm:5.0.3"
+  dependencies:
+    "@peggyjs/from-mem": "npm:2.0.0"
+    commander: "npm:^14.0.0"
+    source-map-generator: "npm:2.0.0"
+  bin:
+    peggy: bin/peggy.js
+  checksum: 10/c933a94b64dfe1197d1e67aa03e5b5c3d14bed67c245e7f76a0b8c3d73056d068126e6ecbf2576c58b3ae32820316f51ec4ff79e36d87a5dcbd26b1242ae38ad
   languageName: node
   linkType: hard
 
@@ -5971,6 +5994,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"semver@npm:7.7.1":
+  version: 7.7.1
+  resolution: "semver@npm:7.7.1"
+  bin:
+    semver: bin/semver.js
+  checksum: 10/4cfa1eb91ef3751e20fc52e47a935a0118d56d6f15a837ab814da0c150778ba2ca4f1a4d9068b33070ea4273629e615066664c2cfcd7c272caf7a8a0f6518b2c
+  languageName: node
+  linkType: hard
+
 "semver@npm:^6.3.1":
   version: 6.3.1
   resolution: "semver@npm:6.3.1"
@@ -6135,6 +6167,13 @@ __metadata:
     ip-address: "npm:^9.0.5"
     smart-buffer: "npm:^4.2.0"
   checksum: 10/ab3af97aeb162f32c80e176c717ccf16a11a6ebb4656a62b94c0f96495ea2a1f4a8206c04b54438558485d83d0c5f61920c07a1a5d3963892a589b40cc6107dd
+  languageName: node
+  linkType: hard
+
+"source-map-generator@npm:2.0.0":
+  version: 2.0.0
+  resolution: "source-map-generator@npm:2.0.0"
+  checksum: 10/0c21b287c2e71d0175db4f52c5aaa8615ef1a7f374d13d12448bf4fa702fc53717cea3edf646a49522b5df87c5b9ed467cb537d54c12085faecb567ea9f64948
   languageName: node
   linkType: hard
 
