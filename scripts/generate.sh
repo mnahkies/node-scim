@@ -15,7 +15,7 @@ rm -rf ./src/generated
   --ts-allow-any \
   --ts-server-implementation-method abstract-class
 
-yarn peggy -o ./parser.js --format es --dts ./parser.peggy
+yarn peggy -o ./parser.js --format commonjs --dts ./parser.peggy
 
 yarn format
 yarn lint

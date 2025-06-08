@@ -70,7 +70,20 @@ function matchComparison(
   operator: FilterOperator,
   left: string | number,
   right: string | number,
+  // TODO: apply caseInsensitive based on schema "caseExact"
+  caseInsensitive = true,
 ): boolean {
+  if (
+    caseInsensitive &&
+    typeof left === "string" &&
+    typeof right === "string"
+  ) {
+    // biome-ignore lint/style/noParameterAssign: easier
+    left = left.toLowerCase()
+    // biome-ignore lint/style/noParameterAssign: easier
+    right = right.toLowerCase()
+  }
+
   switch (operator) {
     case "eq":
       return left === right
@@ -179,7 +192,7 @@ export function performPatchOperation(
 
   if (!lastPart && op === "remove") {
     throw new PatchError(
-      "must specify a path on 'remove' operatoins",
+      "must specify a path on 'remove' operations",
       "noTarget",
     )
   }
