@@ -1,6 +1,7 @@
 import {parse} from "../parser.js"
 import {PatchError} from "./errors"
 import type {t_PatchOperation} from "./generated/models"
+import {SchemaAttribute, ScimSchema} from "./scim-schemas"
 
 export type FilterOperator =
   | "eq"
@@ -66,6 +67,25 @@ function resolveAttrPath(obj: any, path: string): any {
   return path.split(".").reduce((acc, key) => acc?.[key], obj)
 }
 
+function isCaseExactForPath(
+  schema: ScimSchema,
+  attributePath: string,
+): boolean {
+  const [head, ...rest] = attributePath.split(".")
+
+  let current = schema.attributes.find((it) => it.name === head)
+
+  for (const part of rest) {
+    current = current?.subAttributes?.find((it) => it.name === part)
+
+    if (!current) {
+      break
+    }
+  }
+
+  return current?.caseExact ?? false
+}
+
 function matchComparison(
   operator: FilterOperator,
   left: string | number,
@@ -120,8 +140,12 @@ function matchComparison(
   }
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export function evaluateFilter(ast: FilterAST, obj: any): boolean {
+export function evaluateFilter(
+  ast: FilterAST,
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  obj: any,
+  schema: ScimSchema,
+): boolean {
   switch (ast.type) {
     case "present": {
       const val = resolveAttrPath(obj, ast.attribute.path)
@@ -129,15 +153,16 @@ export function evaluateFilter(ast: FilterAST, obj: any): boolean {
     }
     case "comparison": {
       const val = resolveAttrPath(obj, ast.attribute.path)
-      return matchComparison(ast.operator, val, ast.value)
+      const caseSensitive = !isCaseExactForPath(schema, ast.attribute.path)
+      return matchComparison(ast.operator, val, ast.value, caseSensitive)
     }
     case "logical": {
-      const left = evaluateFilter(ast.left, obj)
-      const right = evaluateFilter(ast.right, obj)
+      const left = evaluateFilter(ast.left, obj, schema)
+      const right = evaluateFilter(ast.right, obj, schema)
       return ast.operator === "and" ? left && right : left || right
     }
     case "not": {
-      return !evaluateFilter(ast.expression, obj)
+      return !evaluateFilter(ast.expression, obj, schema)
     }
     case "valuePath": {
       const collection = resolveAttrPath(obj, ast.attribute.path)
@@ -146,7 +171,7 @@ export function evaluateFilter(ast: FilterAST, obj: any): boolean {
         return false
       }
 
-      return collection.some((item) => evaluateFilter(ast.filter, item))
+      return collection.some((item) => evaluateFilter(ast.filter, item, schema))
     }
 
     default: {

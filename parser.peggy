@@ -70,21 +70,20 @@ CompareOp
   / "le"i { return "le"; }
 
 AttrPath
-  = uri:UriPrefix? name:ATTRNAME sub:SubAttr* {
+  = path:$((UriPrefix ATTRNAME) / ATTRNAME) sub:SubAttr* {
       return {
         type: "attrPath",
-        path: (uri || "") + name + sub.join("")
+        path: path + sub.join("")
       };
     }
 
 UriPrefix
-  = chars:(
-      [A-Za-z0-9+.\-:/]*
-    )
-    ":" &ATTRNAME {
-      return chars + ":";
+  = prefix:$(UriSegment ":")+ {
+      return prefix;
     }
 
+UriSegment
+  = [A-Za-z0-9+.\-]+
 
 SubAttr
   = "." name:ATTRNAME { return "." + name; }
@@ -109,8 +108,11 @@ String
 
 DoubleQuotedChar
   = "\\" esc:["\\/bfnrt"] { return JSON.parse('"\\' + esc + '"'); }
-// TODO: why doesn't this work
-//  / "\\u" hex:[0-9a-fA-F]{4}  { return String.fromCharCode(parseInt(hex.join(""), 16)); }
+  / "\\u" h1:[0-9a-fA-F] h2:[0-9a-fA-F] h3:[0-9a-fA-F] h4:[0-9a-fA-F]
+    {
+      const hex = h1 + h2 + h3 + h4;
+      return String.fromCharCode(parseInt(hex, 16));
+    }
   / !["\\"] char:. { return char; }
 
 _ = [ \t\r\n]*

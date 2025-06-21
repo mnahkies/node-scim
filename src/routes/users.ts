@@ -16,6 +16,7 @@ import type {
   PutScimV2UsersId,
 } from "../generated/routes/users"
 import {CreateUser, IdpAdapter} from "../idp-adapters/types"
+import {ScimSchemaCoreUser} from "../scim-schemas"
 import {evaluateFilter, parseFilter, performPatchOperation} from "../utils"
 
 const requestBodyToCreateUser = (
@@ -64,7 +65,9 @@ export class UsersHandlers implements Implementation {
 
     if (query.filter) {
       const filter = parseFilter(query.filter)
-      users = users.filter((it) => evaluateFilter(filter, it))
+      users = users.filter((it) =>
+        evaluateFilter(filter, it, ScimSchemaCoreUser),
+      )
     }
 
     return respond.with200().body({

@@ -9,6 +9,7 @@ import type {
   PutScimV2GroupsId,
 } from "../generated/routes/groups"
 import {IdpAdapter} from "../idp-adapters/types"
+import {ScimSchemaCoreGroup} from "../scim-schemas"
 import {evaluateFilter, parseFilter, performPatchOperation} from "../utils"
 
 @Service()
@@ -66,7 +67,9 @@ export class GroupsHandlers implements Implementation {
 
     if (query.filter) {
       const filter = parseFilter(query.filter)
-      groups = groups.filter((it) => evaluateFilter(filter, it))
+      groups = groups.filter((it) =>
+        evaluateFilter(filter, it, ScimSchemaCoreGroup),
+      )
     }
 
     if (query.excludedAttributes) {
