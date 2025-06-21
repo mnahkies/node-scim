@@ -3,7 +3,9 @@ import type {Context, Middleware, Next} from "koa"
 
 export function authenticationMiddleware({
   secretKey,
-}: {secretKey: Buffer}): Middleware {
+}: {
+  secretKey: Buffer
+}): Middleware {
   return async function authenticationMiddleware(ctx: Context, next: Next) {
     const authorization = ctx.headers.authorization
 

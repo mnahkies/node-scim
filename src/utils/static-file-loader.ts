@@ -31,7 +31,7 @@ export class StaticFileLoader {
       this.cache.set(absolutePath, content)
     }
 
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    // biome-ignore lint/style/noNonNullAssertion: we know its defined
     return this.cache.get(absolutePath)!
   }
 }
