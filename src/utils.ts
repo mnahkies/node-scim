@@ -1,7 +1,7 @@
 import {parse} from "../parser.js"
 import {PatchError} from "./errors"
 import type {t_PatchOperation} from "./generated/models"
-import {SchemaAttribute, ScimSchema} from "./scim-schemas"
+import {ScimSchema} from "./scim-schemas"
 
 export type FilterOperator =
   | "eq"
@@ -62,7 +62,7 @@ export function parseFilter(filter: string): FilterAST {
   return parse(filter, undefined)
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: its generic
 function resolveAttrPath(obj: any, path: string): any {
   return path.split(".").reduce((acc, key) => acc?.[key], obj)
 }
@@ -142,7 +142,7 @@ function matchComparison(
 
 export function evaluateFilter(
   ast: FilterAST,
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: its generic
   obj: any,
   schema: ScimSchema,
 ): boolean {
@@ -181,7 +181,7 @@ export function evaluateFilter(
   }
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: its generic
 export function getType(obj: any, value: any) {
   if (Array.isArray(obj) && Array.isArray(value)) {
     return "multi-value"
@@ -195,7 +195,7 @@ export function getType(obj: any, value: any) {
 }
 
 export function performPatchOperation(
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: its generic
   obj: any,
   operation: t_PatchOperation,
   schema: ScimSchema,
