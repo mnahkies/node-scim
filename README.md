@@ -19,12 +19,12 @@ Its definitely still inaccurate, and help solidifying it would be appreciated.
 
 ## What works
 
-Not much, but starting to improve. You can create / delete users E2E, and update them.
-
+Basic functionality should work. You can create / delete users E2E, and update them, filter, etc. 
 An in-memory groups implementation partially works.
 
+It currently passes all the tests at https://scimvalidator.microsoft.com/
+
 ![Passing Tests](./docs/scim-validator-passing.png)
-![Failing Tests](docs/scim-validator-failing.png)
 
 ## Running
 

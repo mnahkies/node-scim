@@ -198,22 +198,17 @@ export function performPatchOperation(
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   obj: any,
   operation: t_PatchOperation,
+  schema: ScimSchema,
 ) {
   const op = operation.op
   const path = operation.path ?? ""
   const value = operation.value
 
-  const filteredPath = /.+\[(.+)]/
+  const filteredPath = /^(\w+)\[(.+)\]$/
   const parts = path.split(".")
 
   const lastPart = parts.pop()
-
-  if (filteredPath.test(lastPart ?? "")) {
-    throw new PatchError(
-      `Complex paths like '${lastPart}' not yet supported`,
-      "invalidPath",
-    )
-  }
+  const match = lastPart ? lastPart.match(filteredPath) : null
 
   if (!lastPart && op === "remove") {
     throw new PatchError(
@@ -226,8 +221,23 @@ export function performPatchOperation(
     if (typeof value === "object" && !Array.isArray(value)) {
       switch (op) {
         case "add":
-        case "replace":
-          return {...obj, ...value}
+        case "replace": {
+          const result = {...obj, ...value}
+
+          // todo: hack: we store email and userName in the same field in the firebase adapter...
+          //             this should also be done in reverse, eg: updating email updates userName
+          if (value.userName) {
+            result.emails = result.emails ?? []
+
+            if (result.emails.length === 0) {
+              result.emails.push({value: value.userName})
+            } else {
+              result.emails[0].value = value.userName
+            }
+          }
+
+          return result
+        }
       }
     }
     if (Array.isArray(obj) && Array.isArray(value)) {
@@ -248,17 +258,22 @@ export function performPatchOperation(
 
   for (const part of parts) {
     if (filteredPath.test(part)) {
-      throw new PatchError(
-        `Complex paths like '${lastPart}' not yet supported`,
-        "invalidPath",
+      if (!Array.isArray(objToOperateOn)) {
+        throw new PatchError(
+          `Filters like ${part} must be applied to arrays`,
+          "invalidPath",
+        )
+      }
+      const filterAst = parseFilter(part)
+      objToOperateOn = objToOperateOn.filter((it) =>
+        evaluateFilter(filterAst, it, schema),
       )
+    } else {
+      if (Reflect.get(obj, part) === undefined) {
+        obj[part] = {}
+      }
+      objToOperateOn = Reflect.get(obj, part)
     }
-
-    if (Reflect.get(obj, part) === undefined) {
-      obj[part] = {}
-    }
-
-    objToOperateOn = Reflect.get(obj, part)
   }
 
   const type = getType(objToOperateOn[lastPart], value)
@@ -289,23 +304,38 @@ export function performPatchOperation(
         objToOperateOn[lastPart] = value
       }
       break
-    case "remove":
-      /*
-      TODO: support filtered remove...
-        If the target location is a multi-valued attribute and a complex
-        filter is specified comparing a "value", the values matched by the
-        filter are removed.  If no other values remain after removal of
-        the selected values, the multi-valued attribute SHALL be
-        considered unassigned.
-        If the target location is a complex multi-valued attribute and a
-        complex filter is specified based on the attribute's
-        sub-attributes, the matching records are removed.  Sub-attributes
-        whose values have been removed SHALL be considered unassigned.  If
-        the complex multi-valued attribute has no remaining records, the
-        attribute SHALL be considered unassigned.
-       */
-      objToOperateOn[lastPart] = undefined
+    case "remove": {
+      if (match) {
+        const [_, attrName, rawFilter] = match
+
+        if (!attrName || !rawFilter) {
+          throw new PatchError(
+            `invalid filter expression '${lastPart}'`,
+            "invalidSyntax",
+          )
+        }
+
+        const array = objToOperateOn[attrName]
+
+        if (!Array.isArray(array)) {
+          throw new PatchError(
+            `Target '${attrName}' is not a multi-valued attribute`,
+            "invalidPath",
+          )
+        }
+
+        const filterAst = parseFilter(rawFilter)
+        const filtered = array.filter(
+          (it) => !evaluateFilter(filterAst, it, schema),
+        )
+
+        objToOperateOn[attrName] = filtered.length === 0 ? undefined : filtered
+      } else {
+        objToOperateOn[lastPart] = undefined
+      }
+
       break
+    }
   }
 
   return obj
