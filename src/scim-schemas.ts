@@ -1,3 +1,14 @@
+export type SchemaAttribute = {
+  name: string
+  caseExact?: boolean
+  subAttributes?: SchemaAttribute[]
+}
+
+export type ScimSchema = {
+  id: string
+  attributes: SchemaAttribute[]
+}
+
 export const ScimSchemaCoreUser = {
   id: "urn:ietf:params:scim:schemas:core:2.0:User",
   name: "User",

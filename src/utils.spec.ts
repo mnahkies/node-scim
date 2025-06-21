@@ -1,4 +1,5 @@
 import {describe, expect, it} from "@jest/globals"
+import {ScimSchemaCoreUser} from "./scim-schemas"
 import {evaluateFilter, getType, parseFilter} from "./utils"
 
 describe("utils", () => {
@@ -56,12 +57,19 @@ describe("utils", () => {
       })
     })
 
-    // todo: support schema qualification correctly
-    it.skip("parses schema-qualified attrPath", () => {
+    it("parses schema-qualified attrPath", () => {
       const ast = parseFilter(
         'urn:ietf:params:scim:schemas:core:2.0:User:userName sw "J"',
       )
-      expect(ast).toMatchInlineSnapshot()
+      expect(ast).toStrictEqual({
+        attribute: {
+          path: "urn:ietf:params:scim:schemas:core:2.0:User:userName",
+          type: "attrPath",
+        },
+        operator: "sw",
+        type: "comparison",
+        value: "J",
+      })
     })
 
     it("parses presence", () => {
@@ -431,84 +439,111 @@ describe("utils", () => {
         {type: "work", value: "bjensen@example.com"},
         {type: "home", value: "bjensen@example.org"},
       ],
+      employeeId: "ABC123",
     }
 
     it("matches basic equality", () => {
       const ast = parseFilter('userName eq "bjensen"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
-    it.skip("fails case-sensitive equality", () => {
+    it("allows case insensitive equality, on attributes marked as caseExact false", () => {
       const ast = parseFilter('userName eq "BJENSEN"')
-      expect(evaluateFilter(ast, baseUser)).toBe(false)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches case-insensitive substring match", () => {
       const ast = parseFilter('name.familyName co "malley"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches mixed-case substring", () => {
       const ast = parseFilter('name.familyName co "Malley"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches upper-case substring due to caseExact: false", () => {
       const ast = parseFilter('name.familyName co "MALLEY"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches presence check", () => {
       const ast = parseFilter("title pr")
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches gt date", () => {
       const ast = parseFilter('meta.lastModified gt "2011-05-13T00:00:00Z"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches lt date", () => {
       const ast = parseFilter('meta.lastModified lt "2011-05-15T00:00:00Z"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches logical and", () => {
       const ast = parseFilter('title pr and userType eq "Employee"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches logical or", () => {
       const ast = parseFilter('title pr or userType eq "Intern"')
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches valuePath filter", () => {
       const ast = parseFilter(
         'emails[type eq "work" and value co "@example.com"]',
       )
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches valuePath with uppercase domain (case-insensitive)", () => {
       const ast = parseFilter(
         'emails[type eq "work" and value co "@EXAMPLE.COM"]',
       )
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
-    it.skip("fails if value is case-sensitive", () => {
+    it("matches complex subattribute expressions", () => {
       const ast = parseFilter(
         'emails[type eq "work" and value co "@EXAMPLE.COM"]',
       )
-      expect(evaluateFilter(ast, baseUser)).toBe(false)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
     })
 
     it("matches not with nested or", () => {
       const ast = parseFilter(
         'userType ne "Intern" and not (emails.value co "example.net")',
       )
-      expect(evaluateFilter(ast, baseUser)).toBe(true)
+      expect(evaluateFilter(ast, baseUser, ScimSchemaCoreUser)).toBe(true)
+    })
+
+    it("rejects case sensitive attributes when case doesn't match", () => {
+      const ast = parseFilter('employeeId eq "abc123"')
+      expect(
+        evaluateFilter(ast, baseUser, {
+          ...ScimSchemaCoreUser,
+          attributes: [
+            ...ScimSchemaCoreUser.attributes,
+            {name: "employeeId", caseExact: true},
+          ],
+        }),
+      ).toBe(false)
+    })
+
+    it("accepts case sensitive attributes when case does match", () => {
+      const ast = parseFilter('employeeId eq "ABC123"')
+      expect(
+        evaluateFilter(ast, baseUser, {
+          ...ScimSchemaCoreUser,
+          attributes: [
+            ...ScimSchemaCoreUser.attributes,
+            {name: "employeeId", caseExact: true},
+          ],
+        }),
+      ).toBe(true)
     })
   })
 })

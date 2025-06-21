@@ -2,4 +2,5 @@
 /.yarn/releases/*    binary
 /.yarn/plugins/**/*  binary
 /.pnp.*              binary linguist-generated
-./src/generated/** linguist-generated=true
+/src/generated/** linguist-generated=true
+/parser.js linguist-generated=true
