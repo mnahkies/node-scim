@@ -3,8 +3,8 @@ import {type App, initializeApp} from "firebase-admin/app"
 import {
   type Auth,
   FirebaseAuthError,
-  type UserRecord,
   getAuth,
+  type UserRecord,
 } from "firebase-admin/auth"
 import {Config} from "../config"
 import {GroupsRepository} from "../database/groups-repository"
@@ -32,7 +32,7 @@ export async function* listUsers(
     take = Number.POSITIVE_INFINITY,
   }: {skip?: number | undefined; take?: number | undefined},
 ): AsyncGenerator<UserRecord> {
-  let nextPageToken: string | undefined = undefined
+  let nextPageToken: string | undefined
   let i = 0
   do {
     const result = await auth.listUsers(1000, nextPageToken)

@@ -1,6 +1,5 @@
-import {z} from "zod"
-
 import {Service} from "diod"
+import {z} from "zod"
 import {ValidationError} from "../errors"
 import type {
   t_CreateUser,
@@ -79,7 +78,8 @@ export class UsersHandlers implements Implementation {
     })
   }
 
-  getScimV2UsersId: GetScimV2UsersId = async ({params, query}, respond) => {
+  getScimV2UsersId: GetScimV2UsersId = async ({params}, respond) => {
+    // todo: use query?
     const user = await this.idpAdapter.getUser(params.id)
 
     return respond.with200().body(user)

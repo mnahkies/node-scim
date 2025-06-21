@@ -2,14 +2,14 @@ import KoaRouter from "@koa/router"
 import {Service} from "diod"
 import {Config} from "../config"
 import {
-  GroupsImplementation,
   createGroupsRouter,
+  GroupsImplementation,
 } from "../generated/routes/groups"
 import {
-  IntrospectionImplementation,
   createIntrospectionRouter,
+  IntrospectionImplementation,
 } from "../generated/routes/introspection"
-import {UsersImplementation, createUsersRouter} from "../generated/routes/users"
+import {createUsersRouter, UsersImplementation} from "../generated/routes/users"
 import {authenticationMiddleware} from "../middleware/authentication.middleware"
 
 @Service()

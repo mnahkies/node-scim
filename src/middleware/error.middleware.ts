@@ -14,10 +14,15 @@ export function errorMiddleware(): Middleware {
       if (ctx.status === 404) {
         throw new NotFoundError(ctx.url)
       }
+    } catch (err: unknown) {
+      const cause = (err instanceof Error && err.cause) || err
 
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    } catch (err: any) {
-      const cause = err.cause || err
+      if (!(cause instanceof Error)) {
+        return doErrorResponse(
+          ctx,
+          new InternalServerError(new Error("an non-error was thrown")),
+        )
+      }
 
       if (
         KoaRuntimeError.isKoaError(err) &&
