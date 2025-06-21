@@ -49,7 +49,7 @@ const requestBodyToCreateUser = (
 
 @Service()
 export class UsersHandlers implements Implementation {
-  constructor(private readonly firebase: IdpAdapter) {}
+  constructor(private readonly idpAdapter: IdpAdapter) {}
 
   getScimV2Users: GetScimV2Users = async ({query}, respond) => {
     const take = query.count
@@ -58,7 +58,7 @@ export class UsersHandlers implements Implementation {
         ? (query.startIndex - 1) * query.count
         : 0
 
-    let users = await this.firebase.listUsers({
+    let users = await this.idpAdapter.listUsers({
       take,
       skip,
     })
@@ -80,18 +80,18 @@ export class UsersHandlers implements Implementation {
   }
 
   getScimV2UsersId: GetScimV2UsersId = async ({params, query}, respond) => {
-    const user = await this.firebase.getUser(params.id)
+    const user = await this.idpAdapter.getUser(params.id)
 
     return respond.with200().body(user)
   }
 
   postScimV2Users: PostScimV2Users = async ({body}, respond) => {
-    const user = await this.firebase.createUser(requestBodyToCreateUser(body))
+    const user = await this.idpAdapter.createUser(requestBodyToCreateUser(body))
     return respond.with201().body(user)
   }
 
   putScimV2UsersId: PutScimV2UsersId = async ({params, body}, respond) => {
-    const user = await this.firebase.updateUser(
+    const user = await this.idpAdapter.updateUser(
       params.id,
       requestBodyToCreateUser(body),
     )
@@ -99,21 +99,21 @@ export class UsersHandlers implements Implementation {
   }
 
   patchScimV2UsersId: PatchScimV2UsersId = async ({params, body}, respond) => {
-    const user = await this.firebase.getUser(params.id)
+    const user = await this.idpAdapter.getUser(params.id)
     const operations = body.Operations ?? []
 
     let updated = {...user}
     for (const operation of operations) {
-      updated = performPatchOperation(updated, operation)
+      updated = performPatchOperation(updated, operation, ScimSchemaCoreUser)
     }
 
-    await this.firebase.updateUser(user.id, requestBodyToCreateUser(updated))
+    await this.idpAdapter.updateUser(user.id, requestBodyToCreateUser(updated))
 
     return respond.with200().body(user)
   }
 
   deleteScimV2UsersId: DeleteScimV2UsersId = async ({params}, respond) => {
-    await this.firebase.deleteUser(params.id)
+    await this.idpAdapter.deleteUser(params.id)
 
     return respond.with204().body()
   }

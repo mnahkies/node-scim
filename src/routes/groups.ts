@@ -45,7 +45,7 @@ export class GroupsHandlers implements Implementation {
 
     let updated = {...group}
     for (const operation of operations) {
-      updated = performPatchOperation(updated, operation)
+      updated = performPatchOperation(updated, operation, ScimSchemaCoreGroup)
     }
 
     await this.idpAdapter.replaceGroup(group.id, updated)

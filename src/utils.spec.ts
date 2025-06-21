@@ -1,6 +1,11 @@
 import {describe, expect, it} from "@jest/globals"
-import {ScimSchemaCoreUser} from "./scim-schemas"
-import {evaluateFilter, getType, parseFilter} from "./utils"
+import {ScimSchemaCoreGroup, ScimSchemaCoreUser} from "./scim-schemas"
+import {
+  evaluateFilter,
+  getType,
+  parseFilter,
+  performPatchOperation,
+} from "./utils"
 
 describe("utils", () => {
   describe("#getType", () => {
@@ -544,6 +549,78 @@ describe("utils", () => {
           ],
         }),
       ).toBe(true)
+    })
+  })
+
+  describe("#performPatchOperation", () => {
+    it("can replace username", () => {
+      const user = {
+        userName: "stuart@vandervortstoltenberg.uk",
+      }
+
+      const updated = performPatchOperation(
+        user,
+        {
+          op: "replace",
+          value: {
+            userName: "macie@kautzerlarson.ca",
+          },
+        },
+        ScimSchemaCoreUser,
+      )
+
+      expect(updated).toStrictEqual({
+        userName: "macie@kautzerlarson.ca",
+        emails: [{value: "macie@kautzerlarson.ca"}],
+      })
+    })
+
+    it("can remove group member", () => {
+      const group = {
+        displayName: "YVNANSPSMIIG",
+        id: "90ee9f2e-96f2-4c3a-b19d-072f1c396a90",
+        members: [
+          {
+            value: "r8XPy2P6IfNlTVuydylxkjkKTHy1",
+            $ref: "https://panda:2000/scim/v2/Users/r8XPy2P6IfNlTVuydylxkjkKTHy1",
+            type: "User",
+          },
+          {
+            value: "UffgWICSUrWRIlQZDKtyV9T3vZC2",
+            $ref: "https://panda:2000/scim/v2/Users/UffgWICSUrWRIlQZDKtyV9T3vZC2",
+            type: "User",
+          },
+        ],
+        meta: {
+          resourceType: "ServiceProviderConfig",
+        },
+        schemas: ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+      }
+
+      const updated = performPatchOperation(
+        group,
+        {
+          op: "remove",
+          path: 'members[value eq "r8XPy2P6IfNlTVuydylxkjkKTHy1"]',
+        },
+        ScimSchemaCoreGroup,
+      )
+
+      expect(updated).toStrictEqual({
+        displayName: "YVNANSPSMIIG",
+        id: "90ee9f2e-96f2-4c3a-b19d-072f1c396a90",
+        members: [
+          {
+            value: "UffgWICSUrWRIlQZDKtyV9T3vZC2",
+            $ref: "https://panda:2000/scim/v2/Users/UffgWICSUrWRIlQZDKtyV9T3vZC2",
+            type: "User",
+          },
+        ],
+        meta: {
+          resourceType: "ServiceProviderConfig",
+        },
+        schemas: ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+      })
     })
   })
 })
