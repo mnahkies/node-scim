@@ -7,8 +7,7 @@ import {z} from "zod"
 export const PermissiveBoolean = z.preprocess((value) => {
   if (typeof value === "string" && (value === "true" || value === "false")) {
     return value === "true"
-  }
-  if (typeof value === "number" && (value === 1 || value === 0)) {
+  } else if (typeof value === "number" && (value === 1 || value === 0)) {
     return value === 1
   }
   return value
