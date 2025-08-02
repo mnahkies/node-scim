@@ -9,6 +9,7 @@ import type {
 
 export type CreateUser = {
   externalId: string | undefined
+  userName: string
   email: string
   displayName: string
   disabled: boolean

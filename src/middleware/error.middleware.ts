@@ -3,9 +3,10 @@ import type {Context, Middleware, Next} from "koa"
 import {
   DomainError,
   InternalServerError,
+  InvalidSyntaxError,
   NotFoundError,
-  ValidationError,
 } from "../errors"
+
 export function errorMiddleware(): Middleware {
   return async function errorMiddleware(ctx: Context, next: Next) {
     try {
@@ -28,7 +29,7 @@ export function errorMiddleware(): Middleware {
         KoaRuntimeError.isKoaError(err) &&
         err.phase === "request_validation"
       ) {
-        return doErrorResponse(ctx, new ValidationError(cause))
+        return doErrorResponse(ctx, new InvalidSyntaxError(cause))
       }
 
       if (cause instanceof DomainError) {

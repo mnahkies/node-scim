@@ -86,7 +86,7 @@ export class GroupsHandlers implements Implementation {
       itemsPerPage: groups.length,
       schemas: ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
       Resources: groups,
-      startIndex: 0,
+      startIndex: query.startIndex,
       totalResults: groups.length,
     })
   }
