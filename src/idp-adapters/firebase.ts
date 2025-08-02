@@ -1,3 +1,4 @@
+import baseX from "base-x"
 import {Service} from "diod"
 import {type App, initializeApp} from "firebase-admin/app"
 import {
@@ -24,6 +25,19 @@ import type {
   PaginationParams,
   ServiceProviderConfigCapabilities,
 } from "./types"
+
+const BASE36 = "0123456789abcdefghijklmnopqrstuvwxyz"
+const base36 = baseX(BASE36)
+
+function encodeUsername(input: string) {
+  const buffer = Buffer.from(input, "utf-8")
+  return base36.encode(buffer)
+}
+
+function decodeUsername(encoded: string) {
+  const buffer = Buffer.from(base36.decode(encoded))
+  return buffer.toString("utf-8")
+}
 
 export async function* listUsers(
   auth: Auth,
@@ -108,7 +122,7 @@ export class FirebaseAuthIdpAdapter implements IdpAdapter {
     return [
       {
         id: "User",
-        name: "Users",
+        name: "User",
         description: "User Account",
         schema: "urn:ietf:params:scim:schemas:core:2.0:User",
         schemaExtensions: [
@@ -117,7 +131,7 @@ export class FirebaseAuthIdpAdapter implements IdpAdapter {
       },
       {
         id: "Group",
-        name: "Groups",
+        name: "Group",
         description: "Group",
         schema: "urn:ietf:params:scim:schemas:core:2.0:Group",
         schemaExtensions: [],
@@ -172,12 +186,14 @@ export class FirebaseAuthIdpAdapter implements IdpAdapter {
   }
 
   async createUser(user: CreateUser): Promise<t_User> {
-    if (!user.externalId) {
+    const userName = `${encodeUsername(user.userName)}@${this.config.usernameEmailDomain}`
+
+    if (!userName) {
       console.error(JSON.stringify(user))
-      throw new Error("no externalId")
+      throw new Error("no userName")
     }
 
-    const existing = await this.auth.getUserByEmail(user.email).catch((err) => {
+    const existing = await this.auth.getUserByEmail(userName).catch((err) => {
       // todo; handle other error codes
       if (
         err instanceof FirebaseAuthError &&
@@ -189,28 +205,35 @@ export class FirebaseAuthIdpAdapter implements IdpAdapter {
     })
 
     if (existing) {
-      throw new ConflictError(user.email)
+      throw new ConflictError(userName)
     }
 
     const firebaseUser = await this.auth.createUser({
-      email: user.email,
+      email: userName,
       disabled: user.disabled,
       displayName: user.displayName,
     })
 
-    const updatedFirebaseUser = await this.auth.updateUser(firebaseUser.uid, {
-      email: user.email,
-      disabled: user.disabled,
-      displayName: user.displayName,
-      providerToLink: {
-        providerId: this.config.providerId,
-        displayName: user.displayName,
+    await this.auth.setCustomUserClaims(firebaseUser.uid, {
+      actual_email: user.email,
+    })
+
+    if (user.externalId) {
+      const updatedFirebaseUser = await this.auth.updateUser(firebaseUser.uid, {
         email: user.email,
-        uid: user.externalId,
-      },
-    })
+        disabled: user.disabled,
+        displayName: user.displayName,
+        providerToLink: {
+          providerId: this.config.providerId,
+          displayName: user.displayName,
+          email: user.email,
+          uid: user.externalId,
+        },
+      })
+      return this.mapFirebaseUserToScimUserResource(updatedFirebaseUser)
+    }
 
-    return this.mapFirebaseUserToScimUserResource(updatedFirebaseUser)
+    return this.mapFirebaseUserToScimUserResource(firebaseUser)
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -224,25 +247,34 @@ export class FirebaseAuthIdpAdapter implements IdpAdapter {
 
   async updateUser(id: string, user: CreateUser): Promise<t_User> {
     try {
-      if (!user.externalId) {
-        console.error(JSON.stringify(user))
-        throw new Error("no externalId")
+      const userName = `${encodeUsername(user.userName)}@${this.config.usernameEmailDomain}`
+
+      await this.auth.setCustomUserClaims(id, {actual_email: user.email})
+
+      if (user.externalId) {
+        await this.auth.updateUser(id, {
+          providersToUnlink: [this.config.providerId],
+        })
+
+        const updatedFirebaseUser = await this.auth.updateUser(id, {
+          email: user.email,
+          disabled: user.disabled,
+          displayName: user.displayName,
+          providerToLink: {
+            providerId: this.config.providerId,
+            displayName: user.displayName,
+            email: user.email,
+            uid: user.externalId,
+          },
+        })
+
+        return this.mapFirebaseUserToScimUserResource(updatedFirebaseUser)
       }
 
-      await this.auth.updateUser(id, {
-        providersToUnlink: [this.config.providerId],
-      })
-
       const updatedFirebaseUser = await this.auth.updateUser(id, {
-        email: user.email,
+        email: userName,
         disabled: user.disabled,
         displayName: user.displayName,
-        providerToLink: {
-          providerId: this.config.providerId,
-          displayName: user.displayName,
-          email: user.email,
-          uid: user.externalId,
-        },
       })
 
       return this.mapFirebaseUserToScimUserResource(updatedFirebaseUser)
@@ -309,15 +341,23 @@ export class FirebaseAuthIdpAdapter implements IdpAdapter {
   ): Promise<t_User> {
     console.info(JSON.stringify(user, undefined, 2))
 
+    const userName = decodeUsername(user.email?.split("@")[0] ?? "")
+    const email =
+      user.customClaims && Reflect.get(user.customClaims, "actual_email")
+
+    if (!userName) {
+      throw new Error("missing username")
+    }
+
     return {
       id: user.uid,
       displayName: user.displayName,
       active: !user.disabled,
-      emails: user.email
+      emails: email
         ? [
             {
               primary: true,
-              value: user.email,
+              value: email,
             },
           ]
         : [],
@@ -334,7 +374,7 @@ export class FirebaseAuthIdpAdapter implements IdpAdapter {
         middleName: undefined,
       },
       schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
-      userName: user.email ?? "",
+      userName,
     }
   }
 }

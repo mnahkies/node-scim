@@ -8,4 +8,5 @@ export class Config {
   readonly secretKey = Buffer.from(getenv("SECRET_KEY"), "utf-8")
   readonly projectId = getenv("PROJECT_ID")
   readonly providerId = getenv("PROVIDER_ID")
+  readonly usernameEmailDomain = getenv("USERNAME_EMAIL_DOMAIN")
 }

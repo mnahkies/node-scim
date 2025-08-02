@@ -34,11 +34,12 @@ const requestBodyToCreateUser = (
     )
   }
 
-  const externalId = body.externalId || body.userName
+  const externalId = body.externalId
 
   const displayName = body.displayName || body.name?.formatted || "Unknown"
 
   return {
+    userName: body.userName,
     email: primaryEmail.value,
     externalId,
     displayName,
@@ -73,7 +74,7 @@ export class UsersHandlers implements Implementation {
       itemsPerPage: users.length,
       schemas: ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
       Resources: users,
-      startIndex: 0,
+      startIndex: query.startIndex,
       totalResults: users.length,
     })
   }
@@ -109,7 +110,7 @@ export class UsersHandlers implements Implementation {
 
     await this.idpAdapter.updateUser(user.id, requestBodyToCreateUser(updated))
 
-    return respond.with200().body(user)
+    return respond.with200().body(updated)
   }
 
   deleteScimV2UsersId: DeleteScimV2UsersId = async ({params}, respond) => {

@@ -69,6 +69,32 @@ export class PatchError extends DomainError<"patch", unknown> {
   }
 }
 
+export class InvalidSyntaxError extends DomainError<"invalidSyntax", unknown> {
+  type = "invalidSyntax" as const
+  statusCode = 400
+
+  constructor(err: Error) {
+    super({
+      message: "Validation failed",
+      scimType: "invalidSyntax",
+      metadata:
+        err instanceof ZodError
+          ? err.errors
+          : // TODO: don't return internal error details to clients
+            {
+              message: err.message,
+              stack: err.stack,
+              cause: err.cause &&
+                err.cause instanceof Error && {
+                  message: err.cause.message,
+                  stack: err.cause.stack,
+                },
+            },
+      cause: err,
+    })
+  }
+}
+
 export class ValidationError extends DomainError<"validation", unknown> {
   type = "validation" as const
   statusCode = 400

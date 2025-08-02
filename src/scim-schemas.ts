@@ -815,7 +815,7 @@ export const ScimSchemaCoreGroup = {
       type: "string",
       multiValued: false,
       description: "A human-readable name for the Group. REQUIRED.",
-      required: false,
+      required: true,
       caseExact: false,
       mutability: "readWrite",
       returned: "default",
