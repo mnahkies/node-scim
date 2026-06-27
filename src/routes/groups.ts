@@ -76,7 +76,7 @@ export class GroupsHandlers implements Implementation {
       const excludedAttributes = query.excludedAttributes.split(",")
       for (const excludedAttribute of excludedAttributes) {
         for (const group of groups) {
-          // @ts-ignore
+          // @ts-expect-error
           group[excludedAttribute] = undefined
         }
       }
@@ -97,7 +97,7 @@ export class GroupsHandlers implements Implementation {
     if (query.excludedAttributes) {
       const excludedAttributes = query.excludedAttributes.split(",")
       for (const excludedAttribute of excludedAttributes) {
-        // @ts-ignore
+        // @ts-expect-error
         group[excludedAttribute] = undefined
       }
     }

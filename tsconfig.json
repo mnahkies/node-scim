@@ -13,7 +13,8 @@
     "rootDir": "./src",
     "allowJs": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "types": ["node"]
   },
   "include": ["src/**/*"]
 }

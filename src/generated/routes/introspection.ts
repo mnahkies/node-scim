@@ -2,19 +2,23 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import KoaRouter, {RouterContext} from "@koa/router"
-import {KoaRuntimeError} from "@nahkies/typescript-koa-runtime/errors"
+import KoaRouter, {type RouterContext, type RouterMiddleware} from "@koa/router"
 import {
-  KoaRuntimeResponder,
+  handleImplementationError,
+  handleResponse,
+  type KoaRuntimeResponder,
   KoaRuntimeResponse,
-  Params,
-  Response,
-  SkipResponse,
-  StatusCode,
+  type Params,
+  type Res,
+  type SkipResponse,
+  type StatusCode,
 } from "@nahkies/typescript-koa-runtime/server"
-import {responseValidationFactory} from "@nahkies/typescript-koa-runtime/zod"
-import {Next} from "koa"
-import {t_ResourceTypes, t_Schemas, t_ServiceProviderConfig} from "../models"
+import {responseValidationFactory} from "@nahkies/typescript-koa-runtime/zod-v4"
+import type {
+  t_ResourceTypes,
+  t_Schemas,
+  t_ServiceProviderConfig,
+} from "../models"
 import {s_ResourceTypes, s_Schemas, s_ServiceProviderConfig} from "../schemas"
 
 export type GetScimV2ServiceProviderConfigResponder = {
@@ -25,10 +29,9 @@ export type GetScimV2ServiceProviderConfig = (
   params: Params<void, void, void, void>,
   respond: GetScimV2ServiceProviderConfigResponder,
   ctx: RouterContext,
-  next: Next,
 ) => Promise<
   | KoaRuntimeResponse<unknown>
-  | Response<200, t_ServiceProviderConfig>
+  | Res<200, t_ServiceProviderConfig>
   | typeof SkipResponse
 >
 
@@ -40,11 +43,8 @@ export type GetScimV2ResourceTypes = (
   params: Params<void, void, void, void>,
   respond: GetScimV2ResourceTypesResponder,
   ctx: RouterContext,
-  next: Next,
 ) => Promise<
-  | KoaRuntimeResponse<unknown>
-  | Response<200, t_ResourceTypes>
-  | typeof SkipResponse
+  KoaRuntimeResponse<unknown> | Res<200, t_ResourceTypes> | typeof SkipResponse
 >
 
 export type GetScimV2SchemasResponder = {
@@ -55,9 +55,8 @@ export type GetScimV2Schemas = (
   params: Params<void, void, void, void>,
   respond: GetScimV2SchemasResponder,
   ctx: RouterContext,
-  next: Next,
 ) => Promise<
-  KoaRuntimeResponse<unknown> | Response<200, t_Schemas> | typeof SkipResponse
+  KoaRuntimeResponse<unknown> | Res<200, t_Schemas> | typeof SkipResponse
 >
 
 export abstract class IntrospectionImplementation {
@@ -68,8 +67,13 @@ export abstract class IntrospectionImplementation {
 
 export function createIntrospectionRouter(
   implementation: IntrospectionImplementation,
+  options: {middleware?: RouterMiddleware[]} = {},
 ): KoaRouter {
   const router = new KoaRouter()
+
+  if (options.middleware?.length) {
+    router.use(...options.middleware)
+  }
 
   const getScimV2ServiceProviderConfigResponseValidator =
     responseValidationFactory([["200", s_ServiceProviderConfig]], undefined)
@@ -77,7 +81,7 @@ export function createIntrospectionRouter(
   router.get(
     "getScimV2ServiceProviderConfig",
     "/scim/v2/ServiceProviderConfig",
-    async (ctx, next) => {
+    async (ctx) => {
       const input = {
         params: undefined,
         query: undefined,
@@ -94,23 +98,12 @@ export function createIntrospectionRouter(
         },
       }
 
-      const response = await implementation
-        .getScimV2ServiceProviderConfig(input, responder, ctx, next)
-        .catch((err) => {
-          throw KoaRuntimeError.HandlerError(err)
-        })
-
-      // escape hatch to allow responses to be sent by the implementation handler
-      if (response === SkipResponse) {
-        return
-      }
-
-      const {status, body} =
-        response instanceof KoaRuntimeResponse ? response.unpack() : response
-
-      ctx.body = getScimV2ServiceProviderConfigResponseValidator(status, body)
-      ctx.status = status
-      return next()
+      await implementation
+        .getScimV2ServiceProviderConfig(input, responder, ctx)
+        .catch(handleImplementationError)
+        .then(
+          handleResponse(ctx, getScimV2ServiceProviderConfigResponseValidator),
+        )
     },
   )
 
@@ -122,7 +115,7 @@ export function createIntrospectionRouter(
   router.get(
     "getScimV2ResourceTypes",
     "/scim/v2/ResourceTypes",
-    async (ctx, next) => {
+    async (ctx) => {
       const input = {
         params: undefined,
         query: undefined,
@@ -139,23 +132,10 @@ export function createIntrospectionRouter(
         },
       }
 
-      const response = await implementation
-        .getScimV2ResourceTypes(input, responder, ctx, next)
-        .catch((err) => {
-          throw KoaRuntimeError.HandlerError(err)
-        })
-
-      // escape hatch to allow responses to be sent by the implementation handler
-      if (response === SkipResponse) {
-        return
-      }
-
-      const {status, body} =
-        response instanceof KoaRuntimeResponse ? response.unpack() : response
-
-      ctx.body = getScimV2ResourceTypesResponseValidator(status, body)
-      ctx.status = status
-      return next()
+      await implementation
+        .getScimV2ResourceTypes(input, responder, ctx)
+        .catch(handleImplementationError)
+        .then(handleResponse(ctx, getScimV2ResourceTypesResponseValidator))
     },
   )
 
@@ -164,7 +144,7 @@ export function createIntrospectionRouter(
     undefined,
   )
 
-  router.get("getScimV2Schemas", "/scim/v2/Schemas", async (ctx, next) => {
+  router.get("getScimV2Schemas", "/scim/v2/Schemas", async (ctx) => {
     const input = {
       params: undefined,
       query: undefined,
@@ -181,27 +161,16 @@ export function createIntrospectionRouter(
       },
     }
 
-    const response = await implementation
-      .getScimV2Schemas(input, responder, ctx, next)
-      .catch((err) => {
-        throw KoaRuntimeError.HandlerError(err)
-      })
-
-    // escape hatch to allow responses to be sent by the implementation handler
-    if (response === SkipResponse) {
-      return
-    }
-
-    const {status, body} =
-      response instanceof KoaRuntimeResponse ? response.unpack() : response
-
-    ctx.body = getScimV2SchemasResponseValidator(status, body)
-    ctx.status = status
-    return next()
+    await implementation
+      .getScimV2Schemas(input, responder, ctx)
+      .catch(handleImplementationError)
+      .then(handleResponse(ctx, getScimV2SchemasResponseValidator))
   })
 
   return router
 }
 
-export {createIntrospectionRouter as createRouter}
-export {IntrospectionImplementation as Implementation}
+export {
+  createIntrospectionRouter as createRouter,
+  IntrospectionImplementation as Implementation,
+}

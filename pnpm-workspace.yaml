@@ -1,0 +1,17 @@
+allowBuilds:
+  '@firebase/util': false
+  '@swc/core': false
+  esbuild: false
+  protobufjs: false
+  unrs-resolver: false
+
+blockExoticSubdeps: true
+trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 10080
+
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude: []
+
+nodeOptions: ${NODE_OPTIONS:- } --experimental-vm-modules
+
+strictPeerDependencies: true

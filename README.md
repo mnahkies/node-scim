@@ -8,7 +8,7 @@ This aims to be a SCIM (v2) client, currently targeting Firebase Authentication 
 (intention to eventually support multiple targets via an adapter pattern).
 
 It makes use of code generation using https://openapi-code-generator.nahkies.co.nz to generate the server routing and
-validation glue from the [./openapi.yaml](./openapi.yaml). (`yarn generate` will regenerate after changes to the openapi spec)
+validation glue from the [./openapi.yaml](./openapi.yaml). (`pnpm run generate` will regenerate after changes to the openapi spec)
 
 I couldn't find a complete openapi specification for SCIM v2, so it's cobbled together from a combination of translating
 the RAML definition found at https://github.com/sudobinbash/okta-scim-mulesoft and adjusting by hand
@@ -36,9 +36,9 @@ You'll need:
 - Run in a context that is authenticated with GCP using [application default credentials](https://cloud.google.com/docs/authentication/application-default-credentials)
 
 1. Clone
-2. Install dependencies `yarn`
+2. Install dependencies `pnpm i`
 3. Configure (`cp .env.example .env` and edit, see below)
-4. Run `yarn dev`
+4. Run `pnpm run dev`
 
 Configuration reference:
 
