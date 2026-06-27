@@ -95,8 +95,7 @@ components:
             - replace
         path:
           type: string
-        value:
-          additionalProperties: true
+        value: {}
 
     ScimException:
       description: SCIM Exception

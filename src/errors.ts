@@ -79,7 +79,7 @@ export class InvalidSyntaxError extends DomainError<"invalidSyntax", unknown> {
       scimType: "invalidSyntax",
       metadata:
         err instanceof ZodError
-          ? err.errors
+          ? err.issues
           : // TODO: don't return internal error details to clients
             {
               message: err.message,
@@ -105,7 +105,7 @@ export class ValidationError extends DomainError<"validation", unknown> {
       scimType: "invalidValue",
       metadata:
         err instanceof ZodError
-          ? err.errors
+          ? err.issues
           : // TODO: don't return internal error details to clients
             {
               message: err.message,

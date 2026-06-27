@@ -1,10 +1,7 @@
 import {Service} from "diod"
 import {z} from "zod"
 import {ValidationError} from "../errors"
-import type {
-  t_CreateUser,
-  t_PutScimV2UsersIdBodySchema,
-} from "../generated/models"
+import type {t_CreateUser} from "../generated/models"
 import type {
   DeleteScimV2UsersId,
   GetScimV2Users,
@@ -18,9 +15,7 @@ import {CreateUser, IdpAdapter} from "../idp-adapters/types"
 import {ScimSchemaCoreUser} from "../scim-schemas"
 import {evaluateFilter, parseFilter, performPatchOperation} from "../utils"
 
-const requestBodyToCreateUser = (
-  body: t_CreateUser | t_PutScimV2UsersIdBodySchema,
-): CreateUser => {
+const requestBodyToCreateUser = (body: t_CreateUser): CreateUser => {
   const primaryEmail = body.emails.find((it) => it.primary) ||
     body.emails[0] || {value: body.userName}
 

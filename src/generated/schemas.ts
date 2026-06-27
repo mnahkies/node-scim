@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {z} from "zod"
+import {z} from "zod/v4"
 
 export const PermissiveBoolean = z.preprocess((value) => {
   if (typeof value === "string" && (value === "true" || value === "false")) {
@@ -15,8 +15,8 @@ export const PermissiveBoolean = z.preprocess((value) => {
 
 export const s_BaseMeta = z.object({
   location: z.string().optional(),
-  created: z.string().datetime({offset: true}).optional(),
-  lastModified: z.string().datetime({offset: true}).optional(),
+  created: z.iso.datetime({offset: true}).optional(),
+  lastModified: z.iso.datetime({offset: true}).optional(),
   version: z.string().optional(),
 })
 
@@ -27,12 +27,12 @@ export const s_GroupMember = z.object({
 })
 
 export const s_GroupResourceSchemas = z
-  .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:Group"]))
+  .array(z.literal("urn:ietf:params:scim:schemas:core:2.0:Group"))
   .default(["urn:ietf:params:scim:schemas:core:2.0:Group"])
 
 export const s_ListResponse = z.object({
   schemas: z
-    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:ListResponse"]))
+    .array(z.literal("urn:ietf:params:scim:api:messages:2.0:ListResponse"))
     .optional()
     .default(["urn:ietf:params:scim:api:messages:2.0:ListResponse"]),
   totalResults: z.coerce.number(),
@@ -139,7 +139,7 @@ export const s_ServiceProviderSortConfig = z.object({
 export const s_UserEmail = z.object({
   primary: PermissiveBoolean.optional().default(false),
   type: z.string().optional(),
-  value: z.string().email(),
+  value: z.email(),
   display: z.string().optional(),
 })
 
@@ -160,7 +160,7 @@ export const s_UserGroup = z.object({
 })
 
 export const s_UserResourceMeta = z
-  .object({resourceType: z.enum(["User"]).optional()})
+  .object({resourceType: z.literal("User").optional()})
   .default({resourceType: "User"})
 
 export const s_UserResourceSchemas = z
@@ -191,18 +191,18 @@ export const s_CreateUser = z.object({
 
 export const s_Patch = z.object({
   schemas: z
-    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]))
+    .array(z.literal("urn:ietf:params:scim:api:messages:2.0:PatchOp"))
     .default(["urn:ietf:params:scim:api:messages:2.0:PatchOp"]),
   Operations: z.array(s_PatchOperation).optional(),
 })
 
-export const s_ResourceTypes = s_ListResponse.merge(
-  z.object({Resources: z.array(s_ResourceType)}),
-)
+export const s_ResourceTypes = s_ListResponse.extend({
+  Resources: z.array(s_ResourceType),
+})
 
 export const s_Schema = z.object({
   schemas: z
-    .array(z.enum(["urn:ietf:params:scim:schemas:core:2.0:Schema"]))
+    .array(z.literal("urn:ietf:params:scim:schemas:core:2.0:Schema"))
     .optional()
     .default(["urn:ietf:params:scim:schemas:core:2.0:Schema"]),
   id: z.string().optional(),
@@ -219,18 +219,18 @@ export const s_Schema = z.object({
 
 export const s_ScimException = z.object({
   schemas: z
-    .array(z.enum(["urn:ietf:params:scim:api:messages:2.0:Error"]))
+    .array(z.literal("urn:ietf:params:scim:api:messages:2.0:Error"))
     .default(["urn:ietf:params:scim:api:messages:2.0:Error"]),
   detail: z.string(),
   status: z.coerce.number(),
   scimType: s_ScimExceptionType.optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const s_ServiceProviderConfig = z.object({
   schemas: z
     .array(
-      z.enum(["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"]),
+      z.literal("urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"),
     )
     .optional()
     .default(["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"]),
@@ -244,46 +244,39 @@ export const s_ServiceProviderConfig = z.object({
   pagination: s_ServiceProviderPaginationConfig.optional(),
   authenticationSchemes: z.array(s_ServiceProviderConfigAuthenticationScheme),
   meta: s_BaseMeta
-    .merge(
-      z.object({
-        resourceType: z
-          .enum(["ServiceProviderConfig"])
-          .optional()
-          .default("ServiceProviderConfig"),
-      }),
-    )
+    .extend({
+      resourceType: z
+        .literal("ServiceProviderConfig")
+        .optional()
+        .default("ServiceProviderConfig"),
+    })
     .optional(),
 })
 
-export const s_Group = s_CreateGroup.merge(
-  z.object({
-    id: z.string(),
-    members: z.array(s_GroupMember).optional(),
-    meta: s_BaseMeta
-      .merge(
-        z.object({
-          resourceType: z
-            .enum(["ServiceProviderConfig"])
-            .optional()
-            .default("ServiceProviderConfig"),
-        }),
-      )
-      .optional(),
-  }),
-)
+export const s_Group = s_CreateGroup.extend({
+  id: z.string(),
+  members: z.array(s_GroupMember).optional(),
+  meta: s_BaseMeta
+    .extend({
+      resourceType: z
+        .literal("ServiceProviderConfig")
+        .optional()
+        .default("ServiceProviderConfig"),
+    })
+    .optional(),
+})
 
-export const s_Schemas = s_ListResponse.merge(
-  z.object({Resources: z.array(s_Schema)}),
-)
+export const s_Schemas = s_ListResponse.extend({Resources: z.array(s_Schema)})
 
-export const s_User = s_CreateUser.merge(
-  z.object({id: z.string(), meta: s_UserResourceMeta}),
-)
+export const s_User = s_CreateUser.extend({
+  id: z.string(),
+  meta: s_UserResourceMeta,
+})
 
-export const s_GroupsListing = s_ListResponse.merge(
-  z.object({Resources: z.array(s_Group)}),
-)
+export const s_GroupsListing = s_ListResponse.extend({
+  Resources: z.array(s_Group),
+})
 
-export const s_UsersListing = s_ListResponse.merge(
-  z.object({Resources: z.array(s_User)}),
-)
+export const s_UsersListing = s_ListResponse.extend({
+  Resources: z.array(s_User),
+})

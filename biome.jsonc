@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -30,8 +30,11 @@
   },
   "linter": {
     "enabled": true,
+    "domains": {
+      "project": "recommended",
+      "test": "recommended"
+    },
     "rules": {
-      "recommended": true,
       "style": {
         "useImportType": "off",
         "noParameterAssign": "error",

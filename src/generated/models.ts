@@ -16,6 +16,11 @@ export type t_ListResponse = {
   totalResults: number
 }
 
+export type t_Patch = {
+  Operations?: t_PatchOperation[] | undefined
+  schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
+}
+
 export type t_PatchOperation = {
   op: "add" | "remove" | "replace"
   path?: string | undefined
@@ -24,11 +29,7 @@ export type t_PatchOperation = {
 
 export type t_ScimException = {
   detail: string
-  metadata?:
-    | {
-        [key: string]: any | undefined
-      }
-    | undefined
+  metadata?: Record<string, any> | undefined
   schemas: "urn:ietf:params:scim:api:messages:2.0:Error"[]
   scimType?: t_ScimExceptionType | undefined
   status: number
@@ -275,11 +276,6 @@ export type t_GetScimV2UsersIdParamSchema = {
   id: string
 }
 
-export type t_PatchScimV2GroupsIdBodySchema = {
-  Operations?: t_PatchOperation[] | undefined
-  schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
-}
-
 export type t_PatchScimV2GroupsIdParamSchema = {
   id: string
 }
@@ -288,36 +284,8 @@ export type t_PatchScimV2GroupsIdQuerySchema = {
   excludedAttributes?: string | undefined
 }
 
-export type t_PatchScimV2UsersIdBodySchema = {
-  Operations?: t_PatchOperation[] | undefined
-  schemas: "urn:ietf:params:scim:api:messages:2.0:PatchOp"[]
-}
-
 export type t_PatchScimV2UsersIdParamSchema = {
   id: string
-}
-
-export type t_PostScimV2GroupsBodySchema = {
-  displayName: string
-  externalId?: string | undefined
-  schemas: t_GroupResourceSchemas
-}
-
-export type t_PostScimV2UsersBodySchema = {
-  active: boolean
-  displayName?: string | undefined
-  emails: t_UserEmail[]
-  externalId?: string | undefined
-  groups: t_UserGroup[]
-  name?: t_UserFullName | undefined
-  schemas: t_UserResourceSchemas
-  userName: string
-}
-
-export type t_PutScimV2GroupsIdBodySchema = {
-  displayName: string
-  externalId?: string | undefined
-  schemas: t_GroupResourceSchemas
 }
 
 export type t_PutScimV2GroupsIdParamSchema = {
@@ -326,17 +294,6 @@ export type t_PutScimV2GroupsIdParamSchema = {
 
 export type t_PutScimV2GroupsIdQuerySchema = {
   excludedAttributes?: string | undefined
-}
-
-export type t_PutScimV2UsersIdBodySchema = {
-  active: boolean
-  displayName?: string | undefined
-  emails: t_UserEmail[]
-  externalId?: string | undefined
-  groups: t_UserGroup[]
-  name?: t_UserFullName | undefined
-  schemas: t_UserResourceSchemas
-  userName: string
 }
 
 export type t_PutScimV2UsersIdParamSchema = {
