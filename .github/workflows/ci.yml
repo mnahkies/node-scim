@@ -29,9 +29,6 @@ jobs:
         with:
           cache: true
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - run: pnpm ci
 
       - run: pnpm run ci-build
