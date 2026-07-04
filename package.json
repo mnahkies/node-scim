@@ -29,7 +29,7 @@
     "base-x": "^5.0.1",
     "co-body": "^6.2.0",
     "diod": "^3.0.0",
-    "firebase-admin": "^14.0.0",
+    "firebase-admin": "^14.1.0",
     "getenv": "^2.0.0",
     "koa": "^3.0.0",
     "koa-body": "^7.0.1",
