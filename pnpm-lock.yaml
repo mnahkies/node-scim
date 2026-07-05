@@ -56,7 +56,7 @@ importers:
         version: 1.75.1
       '@nahkies/openapi-code-generator':
         specifier: ^0.26.0
-        version: 0.26.0(prettier@3.8.4)
+        version: 0.26.0(prettier@3.9.1)
       '@tsconfig/node24':
         specifier: ^24.0.1
         version: 24.0.4
@@ -94,8 +94,8 @@ importers:
         specifier: ^5.0.5
         version: 5.1.0
       prettier:
-        specifier: ^3.6.2
-        version: 3.8.4
+        specifier: ^3.9.1
+        version: 3.9.1
       tsx:
         specifier: ^4.20.3
         version: 4.22.4
@@ -1941,8 +1941,8 @@ packages:
     resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
     engines: {node: ^10 || ^12 || >=14}
 
-  prettier@3.8.4:
-    resolution: {integrity: sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==}
+  prettier@3.9.1:
+    resolution: {integrity: sha512-ppiDo2CSwexck1eyZUwJHg/N3nf1+6IRCv7W/VJ5vaLnVCmB7+3CdRfMwoCHBBX6xTrREDTksZ4OZl5SSf4zXA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -2753,7 +2753,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nahkies/openapi-code-generator@0.26.0(prettier@3.8.4)':
+  '@nahkies/openapi-code-generator@0.26.0(prettier@3.9.1)':
     dependencies:
       '@biomejs/biome': 2.4.15
       '@biomejs/js-api': 4.0.0(@biomejs/wasm-nodejs@2.4.15)
@@ -2770,7 +2770,7 @@ snapshots:
       typescript: 6.0.3
       zod: 4.4.3
     optionalDependencies:
-      prettier: 3.8.4
+      prettier: 3.9.1
     transitivePeerDependencies:
       - '@biomejs/wasm-bundler'
       - '@biomejs/wasm-web'
@@ -4225,7 +4225,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  prettier@3.8.4: {}
+  prettier@3.9.1: {}
 
   proto3-json-serializer@3.0.4:
     dependencies:
