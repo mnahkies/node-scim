@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
       exclude: ["dist/**", "examples/**", "**/node_modules/**"],
     },
     exclude: ["dist/**", "node_modules/**"],
