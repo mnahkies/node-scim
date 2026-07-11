@@ -44,7 +44,13 @@ describe("loggerMiddleware", () => {
     await fetch(baseUrl)
 
     expect(consoleInfoSpy).toHaveBeenCalledTimes(2)
-    expect(consoleInfoSpy.mock.calls[0][0]).toContain("request started")
-    expect(consoleInfoSpy.mock.calls[1][0]).toContain("request complete")
+    expect(consoleInfoSpy).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("request started"),
+    )
+    expect(consoleInfoSpy).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("request complete"),
+    )
   })
 })
