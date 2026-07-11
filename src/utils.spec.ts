@@ -1,4 +1,5 @@
 import {describe, expect, it} from "vitest"
+import {PatchError} from "./errors"
 import {ScimSchemaCoreGroup, ScimSchemaCoreUser} from "./scim-schemas"
 import {
   evaluateFilter,
@@ -621,6 +622,81 @@ describe("utils", () => {
         },
         schemas: ["urn:ietf:params:scim:schemas:core:2.0:Group"],
       })
+    })
+
+    it("can replace complex attribute", () => {
+      const user = {
+        name: {familyName: "Doe", givenName: "John"},
+      }
+      const updated = performPatchOperation(
+        user,
+        {
+          op: "replace",
+          path: "name",
+          value: {givenName: "Jane"},
+        },
+        ScimSchemaCoreUser,
+      )
+      expect(updated.name).toEqual({familyName: "Doe", givenName: "Jane"})
+    })
+
+    it("can remove simple attribute", () => {
+      const user = {userName: "bjensen", title: "Manager"}
+      const updated = performPatchOperation(
+        user,
+        {op: "remove", path: "title"},
+        ScimSchemaCoreUser,
+      )
+      expect(updated.title).toBeUndefined()
+    })
+
+    it("throws PatchError for remove without path", () => {
+      expect(() =>
+        performPatchOperation({}, {op: "remove"}, ScimSchemaCoreUser),
+      ).toThrow(PatchError)
+    })
+
+    it("throws PatchError for invalid filter in path", () => {
+      const user = {emails: [{value: "foo@bar.com"}]}
+      // The filter regex in utils.ts is /^(\w+)\[(.+)\]$/ so emails[invalid] matches, but parseFilter will fail if invalid is not a valid filter
+      expect(() =>
+        performPatchOperation(
+          user,
+          {op: "remove", path: "emails[invalid filter]"},
+          ScimSchemaCoreUser,
+        ),
+      ).toThrow()
+    })
+
+    it("throws PatchError when remove target is not an array", () => {
+      const user = {title: "Manager"}
+      expect(() =>
+        performPatchOperation(
+          user,
+          {op: "remove", path: 'title[value eq "foo"]'},
+          ScimSchemaCoreUser,
+        ),
+      ).toThrow(PatchError)
+    })
+
+    it("handles add to array without path", () => {
+      const arr = ["a"]
+      const updated = performPatchOperation(
+        arr,
+        {op: "add", value: ["b"]},
+        ScimSchemaCoreUser,
+      )
+      expect(updated).toEqual(["a", "b"])
+    })
+
+    it("throws PatchError when no path provided and value is not supported", () => {
+      expect(() =>
+        performPatchOperation(
+          {},
+          {op: "add", value: "simple string"},
+          ScimSchemaCoreUser,
+        ),
+      ).toThrow(PatchError)
     })
   })
 })
